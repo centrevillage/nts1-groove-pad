@@ -1,0 +1,9 @@
+(module PAD_CENTER placed (layer F.Cu) (tedit 5E4D4BD1)
+  (fp_text reference J6 (at 0 2.54) (layer F.SilkS) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value TOUCH_L_C (at 0 -2.54) (layer F.Fab) hide
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad 1 smd circle (at 0 0) (size 9 9) (layers F.Cu F.Mask))
+)
