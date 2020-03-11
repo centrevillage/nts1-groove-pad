@@ -1,0 +1,42 @@
+{
+  "build": {
+    "cpu": "cortex-m0",
+    "extra_flags": "-DSTM32F072xB",
+    "f_cpu": "48000000L",
+    "mcu": "stm32f072r8t6",
+    "variant": "DISCO_F072RB"
+  },
+  "connectivity": [
+    "can"
+  ],
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32F072R8",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_board": "st_nucleo_f0",
+    "svd_path": "STM32F072x.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "mbed",
+    "stm32cube"
+  ],
+  "name": "STM32F072R8",
+  "upload": {
+    "maximum_ram_size": 16384,
+    "maximum_size": 65536,
+    "protocol": "stlink",
+    "protocols": [
+      "jlink",
+      "stlink",
+      "blackmagic",
+      "mbed"
+    ]
+  },
+  "url": "https://developer.mbed.org/platforms/ST-Nucleo-F072RB/",
+  "vendor": "ST"
+}
