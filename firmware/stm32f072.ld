@@ -4,8 +4,8 @@
  */
 ENTRY(Reset_Handler)
 
-/* minimum heap size */
-_Min_Heap_Size = 0;
+/* minimum heap size = 2k byte */
+_Min_Heap_Size = 0x800;
 /* minimum stack = 1K byte */
 _Min_Stack_Size = 0x400;
 /* estack address = end of ram address */

@@ -10,6 +10,7 @@ void nts1_handle_note_on_event(const nts1_rx_note_on_t *note_on) {
 
 void nts1_handle_step_tick_event(void) { 
   // TODO:
+  //led_process();
 }
 
 void nts1_handle_unit_desc_event(const nts1_rx_unit_desc_t *unit_desc) {
