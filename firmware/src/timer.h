@@ -22,7 +22,7 @@ inline uint32_t current_msec() {
 }
 
 inline void delay_msec(uint32_t msec) {
-  uint32_t base = current_msec();
+  __IO uint32_t base = current_msec();
   while((current_msec() - base) < msec) {
   }
 }

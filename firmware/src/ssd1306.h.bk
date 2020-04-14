@@ -14,7 +14,7 @@
 
 _BEGIN_STD_C
 
-#include "ssd1306_pinconfig.h"
+//#include "ssd1306_pinconfig.h"
 
 #if defined(STM32F0)
 #include "stm32f0xx_hal.h"

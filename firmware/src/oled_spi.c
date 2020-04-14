@@ -53,16 +53,19 @@ void oled_spi_setup() {
 
   LL_SPI_InitTypeDef spi;
 
-  spi.TransferDirection = LL_SPI_FULL_DUPLEX;
+  //spi.TransferDirection = LL_SPI_FULL_DUPLEX;
+  spi.TransferDirection = LL_SPI_HALF_DUPLEX_TX;
   spi.Mode = LL_SPI_MODE_MASTER;
   spi.DataWidth = LL_SPI_DATAWIDTH_8BIT;
   spi.ClockPolarity = LL_SPI_POLARITY_LOW;
   spi.ClockPhase = LL_SPI_PHASE_1EDGE;
   spi.NSS = LL_SPI_NSS_SOFT;
   spi.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV16;
+  //spi.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV2;
   spi.BitOrder = LL_SPI_MSB_FIRST;
   spi.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
-  spi.CRCPoly = 7;
+  //spi.CRCPoly = 7;
+  spi.CRCPoly = 10;
 
   LL_SPI_Init(SPI1, &spi);
   LL_SPI_SetStandard(SPI1, LL_SPI_PROTOCOL_MOTOROLA);

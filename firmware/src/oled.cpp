@@ -4,6 +4,7 @@
 #include "ssd1306_pinconfig.h"
 #include "stm32f0xx_ll_gpio.h"
 #include "stm32f0xx_ll_spi.h"
+#include "stm32f0xx_hal_rcc.h"
 
 //#define SCLK_PIN PA5 // PA5
 //#define MISO_PIN PA6 // PA6
@@ -32,6 +33,21 @@ void oled_set_cursor(uint8_t x, uint8_t y);
 void oled_draw_pixel(uint8_t x, uint8_t y, uint8_t fg);
 void oled_update_screen();
 
+void oled_gpio_setup() {
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  LL_GPIO_InitTypeDef gpio;
+  gpio.Mode = LL_GPIO_MODE_OUTPUT;
+  gpio.Pull = LL_GPIO_PULL_NO;
+  gpio.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpio.Pin = LL_GPIO_PIN_5;
+  LL_GPIO_Init(GPIOB, &gpio);
+  gpio.Pin = LL_GPIO_PIN_8;
+  LL_GPIO_Init(GPIOB, &gpio);
+  gpio.Pin = LL_GPIO_PIN_9;
+  LL_GPIO_Init(GPIOB, &gpio);
+}
+
 void oled_init() {
   oled_reset();
   delay_msec(100);
@@ -49,6 +65,7 @@ void oled_init() {
   oled_send_command(0xFF);
   oled_send_command(0xA1); // Set segment re-map 0 to 127 - CHECK
   oled_send_command(0xA6); // Set normal color
+  //oled_send_command(0xA7); // Set invert color
   oled_send_command(0xA8); // Set multiplex ratio(1 to 64) - CHECK
   oled_send_command(0x3F); //
   oled_send_command(0xA4); // 0xa4,Output follows RAM content;0xa5,Output ignores RAM content
@@ -123,6 +140,7 @@ void oled_send_data(uint8_t* buffer, size_t buff_size) {
 
 void oled_setup() {
   oled_spi_setup();
+  oled_gpio_setup();
   oled_init();
 }
 
