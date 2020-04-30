@@ -72,20 +72,25 @@ void oled_init() {
   oled_send_command(0xD3); // Set display offset - CHECK
   oled_send_command(0x00); // Not offset
   oled_send_command(0xD5); // Set display clock divide ratio/oscillator frequency
-  oled_send_command(0xF0); // Set divide ratio
+  //oled_send_command(0xF0); // Set divide ratio
+  oled_send_command(0x80); // Set divide ratio
   oled_send_command(0xD9); // Set pre-charge period
-  oled_send_command(0x22); //
+  //oled_send_command(0x22); //
+  oled_send_command(0xF1); //
   oled_send_command(0xDA); // Set com pins hardware configuration - CHECK
   oled_send_command(0x12);
   oled_send_command(0xDB); // Set vcomh
   oled_send_command(0x20); // 0x20,0.77xVcc
   oled_send_command(0x8D); // Set DC-DC enable
   oled_send_command(0x14); //
+  oled_send_command(0x2E); // stop scroll
   oled_send_command(0xAF); // turn on SSD1306 panel
 }
 
 void oled_reset() {
   LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin);
+  LL_GPIO_SetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
+  delay_msec(1);
   LL_GPIO_ResetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
   delay_msec(10);
   LL_GPIO_SetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
