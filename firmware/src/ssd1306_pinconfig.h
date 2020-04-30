@@ -1,7 +1,8 @@
 #ifndef __SSD1306_PINCONFIG_H__
 #define __SSD1306_PINCONFIG_H__
 
-#define SCREEN_WIDTH  128
+//#define SCREEN_WIDTH  128
+#define SCREEN_WIDTH  130
 #define SCREEN_HEIGHT 64
 
 #define SSD1306_CS_Port         GPIOB
