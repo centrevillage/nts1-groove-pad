@@ -13,7 +13,7 @@ extern "C" {
 void setup() {
   nts1_init();
   //button_setup();
-  //touch_setup();
+  touch_setup();
   led_setup();
   oled_setup();
   //seq_setup();
@@ -25,4 +25,5 @@ void loop() {
   nts1_idle();
   led_process();
   oled_process();
+  touch_process();
 }
