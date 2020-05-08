@@ -1,5 +1,6 @@
 #include "touch.h"
 #include "timer.h"
+#include "input.h"
 #include <stdlib.h>
 
 #include "stm32f0xx.h"
@@ -20,16 +21,21 @@ typedef struct {
   uint32_t enable_mask;  
 } ChannelStatus;  
 
-ChannelStatus touch_channels[2][3] = {
+ChannelStatus touch_channels[3][3] = {
   { // L
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<17},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<18},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<19}
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<17},
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<18},
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<19}
   },
   { // R
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<1},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<2},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<3}
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<1},
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<2},
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<3}
+  },
+  { // center L / R
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<9},
+    {500, 0, TSC_RELEASE, ((uint32_t)1)<<10},
+    {0xFFFFFFFF, 0, TSC_RELEASE, ((uint32_t)1)<<11}
   }
 };
 
@@ -43,8 +49,16 @@ static TouchProcessState touch_process_index = 0;
 
 static uint32_t touch_request_msec = 0;
 
+void touch_event_callback_null(uint8_t touch_idx, uint8_t on) {}
+
+static TouchEventCallback touch_event_callback = touch_event_callback_null;
+
+void touch_event_listen(TouchEventCallback cb) {
+  touch_event_callback = cb;
+}
+
 void touch_scan_request(int index) {  
-  TSC->IOCCR = touch_channels[0][index].enable_mask | touch_channels[1][index].enable_mask;
+  TSC->IOCCR = touch_channels[0][index].enable_mask | touch_channels[1][index].enable_mask | touch_channels[2][index].enable_mask;
   TSC->ICR |= 0x03; // request clearing MCEF and EOAF flags
   TSC->CR |= 0x02; // start acquisition
   touch_request_msec = current_msec();
@@ -54,7 +68,7 @@ uint8_t touch_scan_check_eoc() {
   return (TSC->ISR & 0x01) && !(TSC->ISR & 0x02);
 }
 
-static const uint8_t touch_index_to_hard_index[2][3] = {
+static const uint8_t hard_index_to_touch_idx[3][3] = {
   // L
   {
     2,
@@ -63,8 +77,14 @@ static const uint8_t touch_index_to_hard_index[2][3] = {
   },
   // R
   {
-    2,
-    1,
+    5,
+    4,
+    3
+  },
+  // center L / R
+  {
+    6,
+    7,
     0
   },
 };
@@ -72,20 +92,19 @@ static const uint8_t touch_index_to_hard_index[2][3] = {
 void touch_scan_execute() {  
   touch_channels[0][touch_process_index].current_value = TSC->IOGXCR[4];  
   touch_channels[1][touch_process_index].current_value = TSC->IOGXCR[0];  
+  touch_channels[2][touch_process_index].current_value = TSC->IOGXCR[2];  
 
-  for (uint8_t i=0; i<2; ++i) {
+  for (uint8_t i=0; i<3; ++i) {
     int32_t diff = abs(touch_channels[i][touch_process_index].current_value - touch_channels[i][touch_process_index].fixed_value);
     if(diff > THRESHOLD)  {  
       if (touch_channels[i][touch_process_index].status != TSC_PRESSED) {
         touch_channels[i][touch_process_index].status = TSC_PRESSED;  
-        //TODO:
-        //input_touch_key_press(i, touch_index_to_hard_index[i][touch_process_index]);
+        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 1);
       }
     }  else  {  
       if (touch_channels[i][touch_process_index].status != TSC_RELEASE) {
         touch_channels[i][touch_process_index].status = TSC_RELEASE;  
-        //TODO:
-        //input_touch_key_leave(i, touch_index_to_hard_index[i][touch_process_index]);
+        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 0);
       }
     }  
   }

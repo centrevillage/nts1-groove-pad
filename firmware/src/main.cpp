@@ -4,6 +4,7 @@
 #include "led.h"
 #include "oled.h"
 #include "seq.h"
+#include "input.h"
 
 extern "C" {
   void setup();
@@ -13,6 +14,7 @@ extern "C" {
 void setup() {
   nts1_init();
   //button_setup();
+  input_setup();
   touch_setup();
   led_setup();
   oled_setup();

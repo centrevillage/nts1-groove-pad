@@ -1,10 +1,13 @@
 #include "timer.h"
 #include "oled.h"
 #include "oled_spi.h"
+#include "input.h"
+#include "screen_conf.h"
 #include "ssd1306_pinconfig.h"
 #include "stm32f0xx_ll_gpio.h"
 #include "stm32f0xx_ll_spi.h"
 #include "stm32f0xx_hal_rcc.h"
+#include "draw.h"
 
 //#define SCLK_PIN PA5 // PA5
 //#define MISO_PIN PA6 // PA6
@@ -137,6 +140,9 @@ void oled_send_command(uint8_t byte) {
 void oled_send_data(uint8_t* buffer, size_t buff_size) {
   LL_GPIO_ResetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // select OLED
   LL_GPIO_SetOutputPin(SSD1306_DC_Port, SSD1306_DC_Pin); // data
+  // NOTE: なぜか先頭2byte分が常に欠けてしまうのでダミーで0を送信
+  oled_spi_transfer(0);
+  oled_spi_transfer(0);
   for (size_t i = 0; i < buff_size; ++i) {
     oled_spi_transfer(buffer[i]);
   }
@@ -155,9 +161,17 @@ void oled_process() {
   //ssd1306_SetCursor(SCREEN_WIDTH / 2 - 6, SCREEN_HEIGHT / 2 - 6);
   //ssd1306_WriteChar('C', Font_16x26, White);
 
-  for (uint8_t i=0;i<64;++i) {
-    oled_draw_pixel(i, i, 1);
-  }
+  //for (uint8_t i=0;i<64;++i) {
+  //  oled_draw_pixel(i, i, 1);
+  //}
+
+  //if (input_state.touch_bits) {
+    for (uint8_t i=0;i<8;++i) {
+      //if (input_state.touch_bits & (1<<i)) {
+        draw_touch_pad(oled_buffer, (DrawPadType)i);
+      //}
+    }
+  //}
 
   //ssd1306_UpdateScreen();
   oled_update_screen();
