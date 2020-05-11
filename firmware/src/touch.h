@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-typedef void (*TouchEventCallback)(uint8_t touch_idx, uint8_t on);
+typedef void (*TouchEventCallback)(uint8_t touch_idx, uint8_t on, uint32_t value);
 
 void touch_setup();
 void touch_process();

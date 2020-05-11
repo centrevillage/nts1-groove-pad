@@ -7,7 +7,9 @@
 #include "stm32f0xx_ll_gpio.h"
 #include "stm32f0xx_ll_bus.h"
 
-#define THRESHOLD 1000
+#include "debug.h"
+
+#define THRESHOLD 1500
 
 typedef enum {  
   TSC_RELEASE,  
@@ -23,33 +25,36 @@ typedef struct {
 
 ChannelStatus touch_channels[3][3] = {
   { // L
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<17},
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<18},
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<19}
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<17},
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<18},
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<19}
   },
   { // R
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<1},
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<2},
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<3}
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<1},
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<2},
+    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<3}
   },
   { // center L / R
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<9},
-    {500, 0, TSC_RELEASE, ((uint32_t)1)<<10},
-    {0xFFFFFFFF, 0, TSC_RELEASE, ((uint32_t)1)<<11}
+    {2000, 0, TSC_RELEASE, ((uint32_t)1)<<9},
+    {2000, 0, TSC_RELEASE, ((uint32_t)1)<<10},
+    {2000, 0, TSC_RELEASE, ((uint32_t)0)<<11}
   }
 };
 
-typedef enum {
-  TPS_READY,
-  TPS_START
-} TouchProcessState;
+//typedef enum {
+//  TPS_READY = 0,
+//  TPS_START
+//} TouchProcessState;
 
-static TouchProcessState touch_process_state = TPS_READY;
-static TouchProcessState touch_process_index = 0;
+#define TPS_READY 1
+#define TPS_START 0
 
-static uint32_t touch_request_msec = 0;
+__IO uint8_t touch_process_state = TPS_READY;
+static uint8_t touch_process_index = 0;
 
-void touch_event_callback_null(uint8_t touch_idx, uint8_t on) {}
+//static uint32_t touch_request_msec = 0;
+
+void touch_event_callback_null(uint8_t touch_idx, uint8_t on, uint32_t value) {}
 
 static TouchEventCallback touch_event_callback = touch_event_callback_null;
 
@@ -61,11 +66,12 @@ void touch_scan_request(int index) {
   TSC->IOCCR = touch_channels[0][index].enable_mask | touch_channels[1][index].enable_mask | touch_channels[2][index].enable_mask;
   TSC->ICR |= 0x03; // request clearing MCEF and EOAF flags
   TSC->CR |= 0x02; // start acquisition
-  touch_request_msec = current_msec();
+  //touch_request_msec = current_msec();
 }
 
 uint8_t touch_scan_check_eoc() {  
-  return (TSC->ISR & 0x01) && !(TSC->ISR & 0x02);
+  //return (TSC->ISR & 0x01) && !(TSC->ISR & 0x02);
+  return (TSC->ISR & 0x01);
 }
 
 static const uint8_t hard_index_to_touch_idx[3][3] = {
@@ -90,39 +96,46 @@ static const uint8_t hard_index_to_touch_idx[3][3] = {
 };
 
 void touch_scan_execute() {  
-  touch_channels[0][touch_process_index].current_value = TSC->IOGXCR[4];  
-  touch_channels[1][touch_process_index].current_value = TSC->IOGXCR[0];  
-  touch_channels[2][touch_process_index].current_value = TSC->IOGXCR[2];  
+  touch_channels[0][touch_process_index].current_value = TSC->IOGXCR[4];
+  touch_channels[1][touch_process_index].current_value = TSC->IOGXCR[0];
+  touch_channels[2][touch_process_index].current_value = TSC->IOGXCR[2];
 
+  //if (touch_process_index == 1) {
+  //  debug_uint32(touch_channels[1][touch_process_index].current_value);
+  //}
+ 
   for (uint8_t i=0; i<3; ++i) {
     int32_t diff = abs(touch_channels[i][touch_process_index].current_value - touch_channels[i][touch_process_index].fixed_value);
     if(diff > THRESHOLD)  {  
       if (touch_channels[i][touch_process_index].status != TSC_PRESSED) {
         touch_channels[i][touch_process_index].status = TSC_PRESSED;  
-        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 1);
+        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 1, touch_channels[i][touch_process_index].current_value);
       }
     }  else  {  
       if (touch_channels[i][touch_process_index].status != TSC_RELEASE) {
         touch_channels[i][touch_process_index].status = TSC_RELEASE;  
-        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 0);
+        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 0, touch_channels[i][touch_process_index].current_value);
       }
     }  
   }
 }
 
 void touch_process() {
-  switch (touch_process_state) {
-    case TPS_READY:
-      touch_scan_request(touch_process_index);
-      touch_process_state = TPS_START;
-      break;
-    case TPS_START:
-      if (touch_scan_check_eoc()) {
-        touch_scan_execute();
-        touch_process_index = (touch_process_index+1) % 3;
-        touch_process_state = TPS_READY;
-      }
-      break;
+  //debug_text("T_PROC", 6);
+  //debug_uint32((uint32_t)touch_process_state);
+ // debug_uint32((uint32_t)TSC->ISR);
+  if (touch_process_state == TPS_READY) {
+    //debug_text("READY", 5);
+    touch_scan_request(touch_process_index);
+    touch_process_state = TPS_START;
+  } else {
+    //debug_text("START", 5);
+    if (touch_scan_check_eoc()) {
+      touch_scan_execute();
+      touch_process_index = (touch_process_index+1) % 3;
+      touch_process_state = TPS_READY;
+      //debug_text("*READY", 6);
+    }
   }
 }
 
@@ -147,8 +160,10 @@ void touch_gpio_setup() {
   GPIO_InitStructure.Pin = LL_GPIO_PIN_0;
   LL_GPIO_Init(GPIOA, &GPIO_InitStructure);
   // Touch L&R center Cap
+  GPIO_InitStructure.Alternate = LL_GPIO_AF_0;
   GPIO_InitStructure.Pin = LL_GPIO_PIN_5;
   LL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.Alternate = LL_GPIO_AF_3;
 
   // Alternate function Output Push-Pull for Channel and Shield IOs
   //---------------------------------------------------------------
@@ -162,6 +177,20 @@ void touch_gpio_setup() {
   // Touch L&R center
   GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1;
   LL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_3, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_4, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_6, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_7, LL_GPIO_AF_3);
+
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_0, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_1, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_2, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_3, LL_GPIO_AF_3);
+
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_0, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_1, LL_GPIO_AF_3);
+  LL_GPIO_SetAFPin_0_7(GPIOC, LL_GPIO_PIN_5, LL_GPIO_AF_0);
 
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_TSC);
 }
@@ -181,7 +210,7 @@ void touch_tsc_init() {
   //   2   :AM(Acquisition mode)
   //   1   :START(Start a new acquisition)
   //   0   :TSCE(Touch sensing controller enable)
-  TSC->CR = (0 << 28) | (0 << 24) | (2 << 12) | (6 << 5) | (1 << 0);
+  TSC->CR = (1 << 28) | (1 << 24) | (2 << 12) | (6 << 5) | (0 << 2) | (1 << 0);
 
   //TSC::IOSCR
   // Sampling caps
@@ -195,7 +224,10 @@ void touch_tsc_init() {
   //   0- 3:G1_IO1-IO4
   //----
   // G5_IO1 | G3_IO1 | G1_IO1
-  TSC->IOSCR  |= (1<<16) | (1<<8) | (1<<0); 
+  TSC->IOSCR |= (1<<16) | (1<<8) | (1<<0); 
+
+  // disable histeresis control
+  TSC->IOHCR = 0;
 
   //TSC::IOGCSR
   //  15-23:Analog I/O group x status
@@ -208,4 +240,6 @@ void touch_tsc_init() {
 void touch_setup() {
   touch_gpio_setup();
   touch_tsc_init();
+  touch_process_state = TPS_READY;
+  touch_process_index = 0;
 }

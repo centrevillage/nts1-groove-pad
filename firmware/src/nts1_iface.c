@@ -40,7 +40,8 @@
 #include "stm32f0xx_hal_def.h"
 #include "stm32f0xx_hal_spi.h"
 
-#include "stm32_def.h"
+//#include "stm32_def.h"
+#include "stm32f0xx.h"
 #include "PeripheralPins.h"
 #include "PinAF_STM32F1.h"
 #include "pinconfig.h"

@@ -8,8 +8,13 @@
 extern "C" {
 #endif
 
+typedef void (*TimerEventCallback)(void);
+
 // functions
 void timer_setup();
+
+// TODO: multi-channel timer
+void timer_event_listen(TimerEventCallback cb);
 
 // event handlears
 //void SysTick_Handler();
@@ -26,6 +31,10 @@ inline void delay_msec(uint32_t msec) {
   while((current_msec() - base) < msec) {
   }
 }
+
+void TIM2_IRQHandler();
+void TIM3_IRQHandler();
+void TIM14_IRQHandler();
 
 #ifdef __cplusplus
 }

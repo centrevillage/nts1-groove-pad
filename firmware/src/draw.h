@@ -20,6 +20,7 @@ typedef enum {
 } DrawPadType;
 
 void draw_touch_pad(uint8_t *buffer, DrawPadType type);
+void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_t page, uint16_t offset);
 
 #ifdef __cplusplus
 }

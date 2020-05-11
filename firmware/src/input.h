@@ -9,6 +9,7 @@ extern "C" {
 
 typedef struct {
   uint8_t touch_bits;
+  uint32_t touch_values[9];
 } InputState;
 
 extern __IO InputState input_state;

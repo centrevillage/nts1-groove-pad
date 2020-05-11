@@ -8,6 +8,8 @@
 #include "stm32f0xx_ll_spi.h"
 #include "stm32f0xx_hal_rcc.h"
 #include "draw.h"
+#include "text.h"
+#include "debug.h"
 
 //#define SCLK_PIN PA5 // PA5
 //#define MISO_PIN PA6 // PA6
@@ -155,6 +157,9 @@ void oled_setup() {
   oled_init();
 }
 
+static char oled_text_buffer[32] = {0};
+static uint8_t oled_text_buffer_len = 0;
+
 void oled_process() {
   oled_draw_fill_bg();
 
@@ -165,13 +170,17 @@ void oled_process() {
   //  oled_draw_pixel(i, i, 1);
   //}
 
-  //if (input_state.touch_bits) {
+  if (input_state.touch_bits) {
     for (uint8_t i=0;i<8;++i) {
-      //if (input_state.touch_bits & (1<<i)) {
+      if (input_state.touch_bits & (1<<i)) {
         draw_touch_pad(oled_buffer, (DrawPadType)i);
-      //}
+      }
     }
-  //}
+  }
+
+  //text_0x_from_uint32(oled_text_buffer, input_state.touch_values[0]);
+  //text_0x_from_uint32(oled_text_buffer, TSC->IOGXCR[0]);
+  draw_text_medium(oled_buffer, debug_text_get(), 8, 1, 32);
 
   //ssd1306_UpdateScreen();
   oled_update_screen();
