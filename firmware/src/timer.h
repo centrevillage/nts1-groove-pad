@@ -3,6 +3,7 @@
 
 #include "stm32_def.h"
 #include "clock.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,12 +22,12 @@ void timer_event_listen(TimerEventCallback cb);
 
 // variables
 //extern volatile uint32_t _current_msec;
-inline uint32_t current_msec() {
+FORCE_INLINE uint32_t current_msec() {
   //return _current_msec;
   return getCurrentMillis();
 }
 
-inline void delay_msec(uint32_t msec) {
+FORCE_INLINE void delay_msec(uint32_t msec) {
   __IO uint32_t base = current_msec();
   while((current_msec() - base) < msec) {
   }

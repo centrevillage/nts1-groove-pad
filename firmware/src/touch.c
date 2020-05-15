@@ -25,19 +25,19 @@ typedef struct {
 
 ChannelStatus touch_channels[3][3] = {
   { // L
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<17},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<18},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<19}
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<17},
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<18},
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<19}
   },
   { // R
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<1},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<2},
-    {2500, 0, TSC_RELEASE, ((uint32_t)1)<<3}
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<1},
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<2},
+    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<3}
   },
   { // center L / R
-    {2000, 0, TSC_RELEASE, ((uint32_t)1)<<9},
-    {2000, 0, TSC_RELEASE, ((uint32_t)1)<<10},
-    {2000, 0, TSC_RELEASE, ((uint32_t)0)<<11}
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<9},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<10},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)0)<<11}
   }
 };
 
@@ -140,9 +140,9 @@ void touch_process() {
 }
 
 void touch_gpio_setup() {
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+/*  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);*/
+/*  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);*/
+/*  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);*/
 
   LL_GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -178,19 +178,19 @@ void touch_gpio_setup() {
   GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1;
   LL_GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_3, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_4, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_6, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_7, LL_GPIO_AF_3);
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_3, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_4, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_6, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_7, LL_GPIO_AF_3);*/
 
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_0, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_1, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_2, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_3, LL_GPIO_AF_3);
+/*  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_0, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_1, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_2, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_3, LL_GPIO_AF_3);*/
 
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_0, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_1, LL_GPIO_AF_3);
-  LL_GPIO_SetAFPin_0_7(GPIOC, LL_GPIO_PIN_5, LL_GPIO_AF_0);
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_0, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOB, LL_GPIO_PIN_1, LL_GPIO_AF_3);*/
+/*  LL_GPIO_SetAFPin_0_7(GPIOC, LL_GPIO_PIN_5, LL_GPIO_AF_0);*/
 
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_TSC);
 }

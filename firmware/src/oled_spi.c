@@ -33,7 +33,7 @@
 void oled_spi_setup() {
   //SPI_GPIO_CLK_ENA();
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SPI1);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+/*  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);*/
 
   LL_GPIO_InitTypeDef gpio = {0};
 

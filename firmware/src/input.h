@@ -14,8 +14,6 @@ typedef struct {
 
 extern __IO InputState input_state;
 
-void input_touch_key_press(uint8_t type_idx, uint8_t key_idx);
-void input_touch_key_leave(uint8_t type_idx, uint8_t key_idx);
 void input_setup();
 
 #ifdef __cplusplus
