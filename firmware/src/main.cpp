@@ -13,11 +13,16 @@
 extern "C" {
   void setup();
   void loop();
+  void timer_2_event_handler();
 }
 
-void timer_event_handler() {
-  touch_process();
-  button_process();
+void timer_2_event_handler() {
+  if (timer_is_update(2)) {
+    touch_process();
+    button_process();
+
+    timer_clear_update_flag(2);
+  }
 }
 
 #include "stm32f0xx_ll_gpio.h"
@@ -42,13 +47,8 @@ void setup() {
   //debug_text("SETUP", 5); 
 
   touch_setup();
-  timer_event_listen(timer_event_handler);
-  timer_setup();
-
-  //gpio_write(PIN_B11, 1);
-  //gpio_write(PIN_B10, 1);
-  //gpio_write(PIN_C2, 1);
-  //gpio_write(PIN_C3, 1);
+  timer_simple_setup(2, 255, 100);
+  timer_start(2);
 }
 
 void loop() {

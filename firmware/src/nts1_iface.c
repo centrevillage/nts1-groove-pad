@@ -394,8 +394,13 @@ static uint8_t s_dummy_buffer[64];
 #define RX_EVENT_MAX_DECODE_SIZE 64
 static uint8_t s_rx_event_decode_buf[RX_EVENT_MAX_DECODE_SIZE] = {0};
 
+#include "text.h"
+#include "debug.h"
 static void s_rx_msg_handler(uint8_t data)
 {
+  //char debug_buf[3];
+  //text_0x_from_uint8(debug_buf, data);
+  //debug_text(debug_buf, 2);
   if (data >= 0x80) {
     // Status byte
     s_panel_rx_data_cnt = 0;
@@ -689,6 +694,8 @@ nts1_status_t nts1_teardown()
 
 nts1_status_t nts1_idle()
 {
+  debug_text("I1", 2);
+
   // HOST通信の復帰Check
   if (s_started) {
     if (s_spi_chk_rx_buf_space(32)) {
@@ -696,14 +703,18 @@ nts1_status_t nts1_idle()
     }
   }
   
+  debug_text("I2", 2);
+
   // HOST I/F受信データのIdle処理を優先する
   /* for (uint8_t cnt = 0; cnt < 32; cnt++) { */
   /*   if (SPI_RX_BUF_EMPTY()) */
   /*     break; */
   while (!SPI_RX_BUF_EMPTY()) {
+    debug_text("I3", 2);
     // 受信Bufferにデータあり
     s_rx_msg_handler(s_spi_rx_buf_read());
   }
+  debug_text("I4", 2);
 }
 
 // ----------------------------------------------------

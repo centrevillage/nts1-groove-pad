@@ -4,21 +4,15 @@
 #include "stm32_def.h"
 #include "clock.h"
 #include "common.h"
+#include "timer_def.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef void (*TimerEventCallback)(void);
-
 // functions
-void timer_setup();
-
-// TODO: multi-channel timer
-void timer_event_listen(TimerEventCallback cb);
-
-// event handlears
-//void SysTick_Handler();
+void timer_simple_setup(uint8_t timer_idx, uint16_t prescale, uint32_t period);
+void timer_start(uint8_t timer_idx);
 
 // variables
 //extern volatile uint32_t _current_msec;
@@ -32,10 +26,6 @@ FORCE_INLINE void delay_msec(uint32_t msec) {
   while((current_msec() - base) < msec) {
   }
 }
-
-void TIM2_IRQHandler();
-void TIM3_IRQHandler();
-void TIM14_IRQHandler();
 
 #ifdef __cplusplus
 }

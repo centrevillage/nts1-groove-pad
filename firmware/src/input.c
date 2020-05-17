@@ -3,6 +3,7 @@
 #include "oled.h"
 #include "button.h"
 #include "led.h"
+#include "nts1_iface.h"
 
 #define BTN_MODE_IDX 16
 #define BTN_RUN_IDX  17
@@ -25,12 +26,66 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   if (button_idx < 18) {
     led_set(button_idx, on);
   }
-  static char buf[16] = "BTN:";
+  //static char buf[16] = "BTN:";
+  //if (on) {
+  //  text_0x_from_uint8(&(buf[4]), button_idx);
+  //  debug_text(buf, 6); 
+  //} else {
+  //  debug_text("", 0); 
+  //}
+
   if (on) {
-    text_0x_from_uint8(&(buf[4]), button_idx);
-    debug_text(buf, 6); 
-  } else {
-    debug_text("", 0); 
+    switch(button_idx) {
+      case 0:
+        nts1_req_sys_version();
+        break;
+      case 1:
+        nts1_req_param_value(0, 0);
+        break;
+      case 2:
+        nts1_req_osc_count();
+        break;
+      case 3:
+        nts1_req_osc_desc(0);
+        break;
+      case 4:
+        nts1_req_osc_edit_param_desc(0);
+        break;
+      case 5:
+        nts1_req_filt_count();
+        break;
+      case 6:
+        nts1_req_filt_desc(0);
+        break;
+      case 7:
+        nts1_req_ampeg_count();
+        break;
+      case 8:
+        nts1_req_ampeg_desc(0);
+        break;
+      case 9:
+        nts1_req_mod_count();
+        break;
+      case 10:
+        nts1_req_mod_desc(0);
+        break;
+      case 11:
+        nts1_req_del_count();
+        break;
+      case 12:
+        nts1_req_del_desc(0);
+        break;
+      case 13:
+        nts1_req_rev_count();
+        break;
+      case 14:
+        nts1_req_rev_desc(0);
+        break;
+      case 15:
+        break;
+      default:
+        break;
+    }
   }
 }
 
