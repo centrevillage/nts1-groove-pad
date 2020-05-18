@@ -39,4 +39,7 @@
 *.swp
 *.swo
 
+build/*
+!build/.keep
+
 .pio
