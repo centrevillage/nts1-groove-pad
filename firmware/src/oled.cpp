@@ -163,13 +163,6 @@ static uint8_t oled_text_buffer_len = 0;
 void oled_process() {
   oled_draw_fill_bg();
 
-  //ssd1306_SetCursor(SCREEN_WIDTH / 2 - 6, SCREEN_HEIGHT / 2 - 6);
-  //ssd1306_WriteChar('C', Font_16x26, White);
-
-  //for (uint8_t i=0;i<64;++i) {
-  //  oled_draw_pixel(i, i, 1);
-  //}
-
   if (input_state.touch_bits) {
     for (uint8_t i=0;i<8;++i) {
       if (input_state.touch_bits & (1<<i)) {

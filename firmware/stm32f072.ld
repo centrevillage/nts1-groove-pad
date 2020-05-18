@@ -2,79 +2,141 @@
  * SRAM=16kb
  * FLASH=64kb
  */
+/* Entry Point */
 ENTRY(Reset_Handler)
 
-/* minimum heap size = 2k byte */
-_Min_Heap_Size = 0x800;
-/* minimum stack = 1K byte */
-_Min_Stack_Size = 0x400;
-/* estack address = end of ram address */
-_estack = 0x20000000+16K;
+/* Highest address of the user mode stack */
+_estack = 0x20004000;    /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x200;      /* required amount of heap  */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
+/* Specify the memory areas */
 MEMORY
 {
-  RAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 16K
-  FLASH (rx)       : ORIGIN = 0x08000000, LENGTH = 64K
+RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 16K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 64K
 }
 
+/* Define output sections */
 SECTIONS
 {
+  /* The startup code goes first into FLASH */
   .isr_vector :
   {
     . = ALIGN(4);
-    KEEP(*(.isr_vector))            /* Startup code */
+    KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
 
+  /* The program code and other data goes into FLASH */
   .text :
   {
     . = ALIGN(4);
-    *(.text)                   /* remaining code */
-    *(.text.*)                 /* remaining code */
-    *(.rodata)                 /* read-only data (constants) */
-    *(.rodata*)
-    *(.glue_7)
-    *(.glue_7t)
+    *(.text)           /* .text sections (code) */
+    *(.text*)          /* .text* sections (code) */
+    *(.glue_7)         /* glue arm to thumb code */
+    *(.glue_7t)        /* glue thumb to arm code */
+    *(.eh_frame)
+
     KEEP (*(.init))
     KEEP (*(.fini))
+
     . = ALIGN(4);
-     _etext = .;
-     _sidata = _etext;
+    _etext = .;        /* define a global symbols at end of code */
   } >FLASH
-  
-  .data : AT ( _sidata )
+
+  /* Constant data goes into FLASH */
+  .rodata :
   {
     . = ALIGN(4);
-    _sdata = . ;
-    *(.ramtext*)
+    *(.rodata)         /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-    *(.data*)
-    *(.data.*)
-    . = ALIGN(4);
-     _edata = . ;
-  } >RAM
+  } >FLASH
 
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM : {
+    __exidx_start = .;
+    *(.ARM.exidx*)
+    __exidx_end = .;
+  } >FLASH
+
+  .preinit_array     :
+  {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array*))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } >FLASH
+  .init_array :
+  {
+    PROVIDE_HIDDEN (__init_array_start = .);
+    KEEP (*(SORT(.init_array.*)))
+    KEEP (*(.init_array*))
+    PROVIDE_HIDDEN (__init_array_end = .);
+  } >FLASH
+  .fini_array :
+  {
+    PROVIDE_HIDDEN (__fini_array_start = .);
+    KEEP (*(SORT(.fini_array.*)))
+    KEEP (*(.fini_array*))
+    PROVIDE_HIDDEN (__fini_array_end = .);
+  } >FLASH
+
+  /* used by the startup to initialize data */
+  _sidata = LOADADDR(.data);
+
+  /* Initialized data sections goes into RAM, load LMA copy after code */
+  .data : 
+  {
+    . = ALIGN(4);
+    _sdata = .;        /* create a global symbol at data start */
+    *(.data)           /* .data sections */
+    *(.data*)          /* .data* sections */
+
+    . = ALIGN(4);
+    _edata = .;        /* define a global symbol at data end */
+  } >RAM AT> FLASH
+
+  
+  /* Uninitialized data section */
+  . = ALIGN(4);
   .bss :
   {
-    . = ALIGN(4);
-    _sbss = .;
+    /* This is used by the startup in order to initialize the .bss secion */
+    _sbss = .;         /* define a global symbol at bss start */
+    __bss_start__ = _sbss;
     *(.bss)
     *(.bss*)
     *(COMMON)
+
     . = ALIGN(4);
-   _ebss = . ;
+    _ebss = .;         /* define a global symbol at bss end */
+    __bss_end__ = _ebss;
   } >RAM
-  
-  PROVIDE ( end = _ebss );
-  PROVIDE ( _end = _ebss );
-  
+
+  /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
-    . = ALIGN(4);
+    . = ALIGN(8);
   } >RAM
+
+  
+
+  /* Remove information from the standard libraries */
+  /DISCARD/ :
+  {
+    libc.a ( * )
+    libm.a ( * )
+    libgcc.a ( * )
+  }
+
+  .ARM.attributes 0 : { *(.ARM.attributes) }
 }
+
+

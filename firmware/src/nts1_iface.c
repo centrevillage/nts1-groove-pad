@@ -40,12 +40,7 @@
 #include "stm32f0xx_hal_def.h"
 #include "stm32f0xx_hal_spi.h"
 
-//#include "stm32_def.h"
 #include "stm32f0xx.h"
-#include "PeripheralPins.h"
-#include "PinAF_STM32F1.h"
-#include "pinconfig.h"
-#include "spi_com.h"
 
 #define SPI_PERIPH       SPI2
 #define SPI_MISO_PORT    GPIOB
@@ -694,7 +689,7 @@ nts1_status_t nts1_teardown()
 
 nts1_status_t nts1_idle()
 {
-  debug_text("I1", 2);
+  //debug_text("I1", 2);
 
   // HOST通信の復帰Check
   if (s_started) {
@@ -703,18 +698,15 @@ nts1_status_t nts1_idle()
     }
   }
   
-  debug_text("I2", 2);
+  //debug_text("I2", 2);
 
   // HOST I/F受信データのIdle処理を優先する
-  /* for (uint8_t cnt = 0; cnt < 32; cnt++) { */
-  /*   if (SPI_RX_BUF_EMPTY()) */
-  /*     break; */
   while (!SPI_RX_BUF_EMPTY()) {
-    debug_text("I3", 2);
+    //debug_text("I3", 2);
     // 受信Bufferにデータあり
     s_rx_msg_handler(s_spi_rx_buf_read());
   }
-  debug_text("I4", 2);
+  //debug_text("I4", 2);
 }
 
 // ----------------------------------------------------

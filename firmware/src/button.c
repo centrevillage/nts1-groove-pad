@@ -42,8 +42,8 @@ FORCE_INLINE void button_gpio_pin_init(uint8_t pin, uint8_t out_flag) {
 }
 
 void button_register_single(uint8_t index, uint8_t pin) {
-  ButtonConfigSingle config = {index, pin};
-  button_config_single[button_config_single_size] = config;
+  button_config_single[button_config_single_size].index = index;
+  button_config_single[button_config_single_size].pin = pin;
   ++button_config_single_size;
 
   LL_GPIO_InitTypeDef gpio;

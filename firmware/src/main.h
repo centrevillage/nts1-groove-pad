@@ -1,6 +1,7 @@
 #ifndef __N1GP_MAIN_H__
 #define __N1GP_MAIN_H__
 
+#include <string.h>
 #include "nts1_iface.h"
 //#include "stm32_def.h"
 #include "stm32f0xx.h"

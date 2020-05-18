@@ -14,10 +14,6 @@ void debug_text(const char* text, uint16_t length) {
   debug_text_buffer[i] = 0;
 }
 
-void debug_uint32(uint32_t value) {
-  text_0x_from_uint32(debug_text_buffer, value);
-}
-
 const char* debug_text_get() {
   return (const char*)debug_text_buffer;
 }

@@ -75,6 +75,10 @@ void oled_spi_setup() {
   LL_SPI_EnableNSSPulseMgt(SPI1);
 }
 
+uint8_t oled_spi_is_busy() {
+  return LL_SPI_IsActiveFlag_BSY(SPI1);
+}
+
 uint8_t oled_spi_transfer(uint8_t data) {
   //while (!LL_SPI_IsActiveFlag_TXE(SPI1));
   //LL_SPI_TransmitData8(SPI1, data);
