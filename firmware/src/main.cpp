@@ -103,8 +103,6 @@ void setup() {
 
   //gpio_write(PIN_A12, 1);
 
-  //nts1_note_on(100, 100);
-  
   //debug_text("SETUP", 5); 
 
   touch_setup();
@@ -122,6 +120,8 @@ void setup() {
   //char buf[9];
   //text_0x_from_uint32(buf, SystemCoreClock);
   //debug_text(buf, 8);
+
+  //nts1_note_on(100, 100);
 }
 
 void loop() {

@@ -8,6 +8,7 @@
 #include "stm32_pinconfig.h"
 #include "debug.h"
 #include "common.h"
+#include "version.h"
 
 inline void delay(volatile uint32_t tick) {
   while (tick > 0) {

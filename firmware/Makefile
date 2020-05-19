@@ -45,8 +45,8 @@ MSG_BINARY = Creating Binary:
 MSG_CLEANING = Cleaning project:
 
 CC  =$(addprefix $(BINPATH),arm-none-eabi-gcc)
-# CXX =$(addprefix $(BINPATH),arm-none-eabi-c++)
-CXX =$(addprefix $(BINPATH),arm-none-eabi-g++)
+CXX =$(addprefix $(BINPATH),arm-none-eabi-c++)
+#CXX =$(addprefix $(BINPATH),arm-none-eabi-g++)
 # LD  =$(addprefix $(BINPATH),arm-none-eabi-ld)
 LD  =$(addprefix $(BINPATH),arm-none-eabi-gcc -x assembler-with-cpp)
 CP  =$(addprefix $(BINPATH),arm-none-eabi-objcopy)
@@ -80,14 +80,14 @@ CFLAGS += -O$(ARM_OPTIMIZE) -ffunction-sections -fdata-sections
 CFLAGS += -Wall -c
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -fno-exceptions
-# CFLAGS += -nostdlib 
+CFLAGS += -nostdlib 
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 -include $(OBJ:.o=.d)
 
 ASFLAGS += -ahls $(ARCHFLAGS)
 LDFLAGS += -Wl,-Map=$(TARGET).map,--cref
-LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -specs=rdimon.specs -lc -lm -lnosys 
+LDFLAGS += -Wl,--gc-sections,--relax -Wl,--check-sections -Wl,--entry=Reset_Handler
+LDFLAGS += --specs=nano.specs -lc -lm -lnosys 
 LDFLAGS += -Tstm32f072.ld
 
 ###############################################################################
@@ -131,7 +131,7 @@ $(BUILD_DIR)%.o: %.c Makefile
 
 $(BUILD_DIR)%.o: %.cpp Makefile
 	@echo "Compiling $<..."
-	$(CXX) -std=c++17 $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)$(notdir $(<:.cpp=.lst)) $< -o $@
+	$(CXX) $(CFLAGS) -fno-rtti -fno-threadsafe-statics -Wa,-a,-ad,-alms=$(BUILD_DIR)$(notdir $(<:.cpp=.lst)) $< -o $@
 
 $(BUILD_DIR)%.o: %.s Makefile
 	@echo "Assembling $<..."
