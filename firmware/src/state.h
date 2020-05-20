@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 #define PARAM_UNDEFINED 255
+#define PARAM_NAME_LEN 13
 
 // NTS1 Parameters {{{
 #define OSC_CUSTOM_VALUES_SIZE 6

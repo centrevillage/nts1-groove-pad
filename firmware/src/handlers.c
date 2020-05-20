@@ -2,6 +2,7 @@
 #include "nts1_iface.h"
 #include "text.h"
 #include "debug.h"
+#include "nts1_defs.h"
 
 static char handler_debug_buf[24];
 
@@ -31,6 +32,8 @@ void nts1_handle_unit_desc_event(const nts1_rx_unit_desc_t *unit_desc) {
   //}
   //handler_debug_buf[15] = 0;
   //debug_text(handler_debug_buf, 16);
+
+  nts1_defs_unit_desc_handler(unit_desc);
 }
 
 void nts1_handle_edit_param_desc_event(const nts1_rx_edit_param_desc_t *param_desc) {
@@ -42,6 +45,8 @@ void nts1_handle_edit_param_desc_event(const nts1_rx_edit_param_desc_t *param_de
   //}
   //handler_debug_buf[15] = 0;
   //debug_text(handler_debug_buf, 16);
+
+  nts1_defs_param_desc_handler(param_desc);
 }
 
 void nts1_handle_value_event(const nts1_rx_value_t *value) {
