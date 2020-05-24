@@ -37,49 +37,52 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   if (on) {
     switch(button_idx) {
       case 0:
-        nts1_req_sys_version();
+        nts1_req_sys_version(); // value: k_nts1_tx_event_id_req_value, k_param_id_sys_version, 0, value=120
         break;
       case 1:
-        nts1_req_param_value(0, 0);
+        nts1_req_param_value(0, 0); // value: k_nts1_tx_event_id_req_value, 0, 0, value=4
         break;
       case 2:
-        nts1_req_osc_count();
+        nts1_req_osc_count(); // value: k_nts1_tx_event_id_req_unit_count, 0, 127, value=20
         break;
       case 3:
-        nts1_req_osc_desc(0);
+        //nts1_req_osc_desc(0); // unit desc: k_param_id_osc_type, 0, 0, "SAW"
+        nts1_req_osc_desc(4); // unit desc: k_param_id_osc_type, 4, 6, "waves"
         break;
       case 4:
-        nts1_req_osc_edit_param_desc(0);
+        nts1_param_change(k_param_id_osc_type, 0, 4);
+        //nts1_req_osc_edit_param_desc(4); // edit param desc: k_param_id_osc_edit, sub_id=4, value_type=0, min=0, max=64, "Ring Mix" 
+        nts1_req_osc_edit_param_desc(0); // edit param desc: k_param_id_osc_edit, sub_id=0, value_type=2, min=0, max=45, "Wave A" 
         break;
       case 5:
-        nts1_req_filt_count();
+        nts1_req_filt_count(); // value: k_nts1_tx_event_id_req_unit_count, k_param_id_filt_type, 127, value=7
         break;
       case 6:
-        nts1_req_filt_desc(0);
+        nts1_req_filt_desc(0); // unit desc: k_param_id_filt_type, 0, 0, "LP 2"
         break;
       case 7:
-        nts1_req_ampeg_count();
+        nts1_req_ampeg_count(); // k_nts1_tx_event_id_req_unit_count, k_param_id_ampeg_type, 127, value=5
         break;
       case 8:
-        nts1_req_ampeg_desc(0);
+        nts1_req_ampeg_desc(0); // unit desc: k_param_id_ampeg_type, 0, 0, "ADSR"
         break;
       case 9:
-        nts1_req_mod_count();
+        nts1_req_mod_count(); // value: k_nts1_tx_event_id_req_unit_count, k_param_id_mod_type, sub_id=127, value=5
         break;
       case 10:
-        nts1_req_mod_desc(0);
+        nts1_req_mod_desc(0); // unit desc: k_param_id_mod_type, 0, 0, "OFF"
         break;
       case 11:
-        nts1_req_del_count();
+        nts1_req_del_count(); // value: k_nts1_tx_event_id_req_unit_count, k_param_id_del_type, sub_id=127, value=6
         break;
       case 12:
-        nts1_req_del_desc(0);
+        nts1_req_del_desc(0); // unit desc: k_param_id_del_type, 0, 0, "OFF"
         break;
       case 13:
-        nts1_req_rev_count();
+        nts1_req_rev_count(); //value: k_nts1_tx_event_id_req_unit_count, k_param_id_del_type, sub_id=127, value=6
         break;
       case 14:
-        nts1_req_rev_desc(0);
+        nts1_req_rev_desc(0); // unit desc: k_param_id_rev_type, 0, 0, "OFF"
         break;
       case 15:
         break;

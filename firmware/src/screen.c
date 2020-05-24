@@ -89,7 +89,7 @@ void screen_draw_input_debug(uint8_t* buffer) {
       }
     }
   }
-  draw_text_medium(buffer, debug_text_get(), 8, 1, 32);
+  draw_text_medium(buffer, debug_text_get(), 32, 0, 32);
 }
 
 typedef void (*ScreenModeFunction)(uint8_t* buffer);

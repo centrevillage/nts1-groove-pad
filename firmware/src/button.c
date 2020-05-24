@@ -90,7 +90,7 @@ void button_setup() {
 }
 
 void button_event_callback_null(uint8_t button_idx, uint8_t on) {}
-static ButtonEventCallback button_event_callback = button_event_callback_null;
+volatile ButtonEventCallback button_event_callback = button_event_callback_null;
 void button_event_listen(ButtonEventCallback cb) {
   button_event_callback = cb;
 }

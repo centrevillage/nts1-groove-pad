@@ -2,8 +2,14 @@
 #include "font.h"
 
 void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_t page, uint16_t offset) {
-  for (uint8_t pos=0; pos<length; ++pos) {
-    char c = text[pos];
+  uint8_t pos = 0;
+  for (uint8_t i=0; i<length; ++i) {
+    char c = text[i];
+    if (c == '\n') {
+      page += 2;
+      pos = 0;
+      continue;
+    }
     if (c < 32 || c > 126) {
       return; // null or meta char
     }
@@ -13,6 +19,7 @@ void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_
       buffer[((page)*SCREEN_WIDTH)+(pos*8)+offset+x] = (uint8_t)bits;
       buffer[((page+1)*SCREEN_WIDTH)+(pos*8)+offset+x] = (uint8_t)(bits>>8);
     }
+    ++pos;
   }
 }
 

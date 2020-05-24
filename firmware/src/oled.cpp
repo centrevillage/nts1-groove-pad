@@ -173,7 +173,7 @@ void oled_process() {
 
   //text_0x_from_uint32(oled_text_buffer, input_state.touch_values[0]);
   //text_0x_from_uint32(oled_text_buffer, TSC->IOGXCR[0]);
-  draw_text_medium(oled_buffer, debug_text_get(), 8, 1, 32);
+  draw_text_medium(oled_buffer, debug_text_get(), 32, 0, 32);
 
   //ssd1306_UpdateScreen();
   oled_update_screen();
