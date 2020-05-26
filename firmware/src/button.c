@@ -104,10 +104,10 @@ void button_process() {
     button_state_history[config.index] |= (!gpio_read(config.pin) ? 1 : 0);
     uint8_t on = (button_state_history[config.index] == 0xFF);
     uint8_t off = (button_state_history[config.index] == 0x00);
-    if (before_on != on) {
+    if (before_on != on && on) {
       button_state[config.index] = 1;
       button_event_callback(config.index, 1);
-    } else if (before_off != off) {
+    } else if (before_off != off && !off) {
       button_state[config.index] = 0;
       button_event_callback(config.index, 0);
     }
@@ -127,10 +127,10 @@ void button_process() {
       button_state_history[index] |= (gpio_read(col_pin) ? 1 : 0);
       uint8_t on = (button_state_history[index] == 0xFF);
       uint8_t off = (button_state_history[index] == 0x00);
-      if (before_on != on) {
+      if (before_on != on && on) {
         button_state[index] = 1;
         button_event_callback(index, 1);
-      } else if (before_off != off) {
+      } else if (before_off != off && !off) {
         button_state[index] = 0;
         button_event_callback(index, 0);
       }

@@ -4,25 +4,28 @@
 #include "button.h"
 #include "led.h"
 #include "nts1_iface.h"
+#include "state.h"
+#include "preset.h"
+#include "nts1_defs.h"
 
-#define BTN_MODE_IDX 16
+#define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
 #define BTN_L_IDX    18
 #define BTN_R_IDX    19
 
-#define BTN_MODE_PIN PIN_A11
+#define BTN_SEQ_PIN  PIN_A11
 #define BTN_RUN_PIN  PIN_C1
 #define BTN_L_PIN    PIN_A8
 #define BTN_R_PIN    PIN_A15
 
-__IO InputState input_state = {0};
+volatile InputState input_state = {0};
 
 void input_touch_handler(uint8_t touch_idx, uint8_t on, uint32_t value) {
   input_state.touch_bits = (input_state.touch_bits & ~(1<<touch_idx)) | ((on ? 1 : 0)<<touch_idx);
   input_state.touch_values[touch_idx] = value;
 }
 
-void input_button_handler(uint8_t button_idx, uint8_t on) {
+void input_button_debug_handler(uint8_t button_idx, uint8_t on) {
   if (button_idx < 18) {
     led_set(button_idx, on);
   }
@@ -92,6 +95,315 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   }
 }
 
+static inline uint8_t input_button_is_seq_pressed() {
+  return input_state.button_bits & (1<<BTN_SEQ_IDX);
+}
+
+static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
+  switch(input_state.mode) {
+    case INPUT_MODE_OSC:
+      if (osc_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.osc.index = (preset_state.osc.index + 1) % osc_defs_size;
+          } else {
+            preset_state.osc.index = (preset_state.osc.index + osc_defs_size - 1) % osc_defs_size;
+          }
+          nts1_param_change(k_param_id_osc_type, 0, preset_state.osc.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_CUSTOM:
+      if (osc_defs[preset_state.osc.index].param_count > 2) {
+        uint8_t last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
+        if (on) {
+          if (is_right) {
+            input_state.current_page = (input_state.current_page+1) % (last_page+1);
+          } else {
+            input_state.current_page = (input_state.current_page+last_page) % (last_page+1);
+          }
+          // TODO: temporary save
+          preset_state.osc.custom_value_selected_page = input_state.current_page;
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_FILTER:
+      if (filter_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.filter.index = (preset_state.filter.index + 1) % filter_defs_size;
+          } else {
+            preset_state.filter.index = (preset_state.filter.index + filter_defs_size - 1) % filter_defs_size;
+          }
+          nts1_param_change(k_param_id_filt_type, 0, preset_state.filter.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_AMPEG:
+      if (ampeg_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.ampeg.index = (preset_state.ampeg.index + 1) % ampeg_defs_size;
+          } else {
+            preset_state.ampeg.index = (preset_state.ampeg.index + ampeg_defs_size - 1) % ampeg_defs_size;
+          }
+          nts1_param_change(k_param_id_ampeg_type, 0, preset_state.ampeg.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_MODFX:
+      if (modfx_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.modfx.index = (preset_state.modfx.index + 1) % modfx_defs_size;
+          } else {
+            preset_state.modfx.index = (preset_state.modfx.index + modfx_defs_size - 1) % modfx_defs_size;
+          }
+          nts1_param_change(k_param_id_mod_type, 0, preset_state.modfx.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_DELFX:
+      if (delfx_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.delfx.index = (preset_state.delfx.index + 1) % delfx_defs_size;
+          } else {
+            preset_state.delfx.index = (preset_state.delfx.index + delfx_defs_size - 1) % delfx_defs_size;
+          }
+          nts1_param_change(k_param_id_del_type, 0, preset_state.delfx.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_REVFX:
+      if (revfx_defs_size > 1) {
+        if (on) {
+          if (is_right) {
+            preset_state.revfx.index = (preset_state.revfx.index + 1) % revfx_defs_size;
+          } else {
+            preset_state.revfx.index = (preset_state.revfx.index + revfx_defs_size - 1) % revfx_defs_size;
+          }
+          nts1_param_change(k_param_id_rev_type, 0, preset_state.revfx.index);
+          // TODO: temporary save
+          input_refresh();
+        }
+      }
+      break;
+    case INPUT_MODE_ARP:
+      if (on) {
+        uint8_t last_page = 2;
+        if (is_right) {
+          input_state.current_page = (input_state.current_page+1) % (last_page+1);
+        } else {
+          input_state.current_page = (input_state.current_page+last_page) % (last_page+1);
+        }
+        // TODO: temporary save
+        input_refresh();
+      }
+      break;
+    case INPUT_MODE_SAVE:
+      break;
+    case INPUT_MODE_LOAD:
+      break;
+    case INPUT_MODE_CLEAR:
+      break;
+    case INPUT_MODE_GLOBAL:
+      break;
+    case INPUT_MODE_SCALE:
+      break;
+    case INPUT_MODE_TRANS:
+      break;
+    case INPUT_MODE_STUTTER:
+      break;
+    case INPUT_MODE_LFO:
+      break;
+    case INPUT_MODE_SEQ_SELECT:
+      break;
+    case INPUT_MODE_SEQ_NOTE:
+      break;
+    case INPUT_MODE_SEQ_OSC:
+      break;
+    case INPUT_MODE_SEQ_CUSTOM:
+      break;
+    case INPUT_MODE_SEQ_FILTER:
+      break;
+    case INPUT_MODE_SEQ_AMPEG:
+      break;
+    case INPUT_MODE_SEQ_MODFX:
+      break;
+    case INPUT_MODE_SEQ_DELFX:
+      break;
+    case INPUT_MODE_SEQ_REVFX:
+      break;
+    case INPUT_MODE_SEQ_ARP:
+      break;
+    case INPUT_MODE_SEQ_SCALE:
+      break;
+    case INPUT_MODE_SEQ_TRANS:
+      break;
+    case INPUT_MODE_SEQ_STUTTER:
+      break;
+    case INPUT_MODE_SEQ_LFO:
+      break;
+    case INPUT_MODE_SIZE:
+      break;
+  }
+}
+
+volatile uint8_t _input_planned_seq_mode = 255;
+
+void input_button_handler(uint8_t button_idx, uint8_t on) {
+  uint8_t prev_mode = input_state.mode;
+  input_state.button_bits = (input_state.button_bits & ~(1<<button_idx)) | (!!on<<button_idx);
+  if (input_button_is_seq_pressed()) {
+    switch(button_idx) {
+      case 0:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_OSC;
+        break;
+      case 1:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_CUSTOM;
+        break;
+      case 2:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_FILTER;
+        break;
+      case 3:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_AMPEG;
+        break;
+      case 4:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_MODFX;
+        break;
+      case 5:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_DELFX;
+        break;
+      case 6:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_REVFX;
+        break;
+      case 7:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_ARP;
+        break;
+      case 8: // save
+        break;
+      case 9: // load
+        break;
+      case 10: // clear
+        break;
+      case 11: // global
+        break;
+      case 12:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_SCALE;
+        break;
+      case 13:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_TRANS;
+        break;
+      case 14:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_STUTTER;
+        break;
+      case 15:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_LFO;
+        break;
+      case BTN_SEQ_IDX:
+        _input_planned_seq_mode = INPUT_MODE_SEQ_NOTE;
+        input_state.mode = INPUT_MODE_SEQ_SELECT;
+        break;
+      case BTN_RUN_IDX:
+        break;
+      case BTN_L_IDX:
+        break;
+      case BTN_R_IDX:
+        break;
+      default:
+        break;
+    }
+  } else {
+    switch(button_idx) {
+      case 0:
+        input_state.mode = INPUT_MODE_OSC;
+        break;
+      case 1:
+        input_state.mode = INPUT_MODE_CUSTOM;
+        break;
+      case 2:
+        input_state.mode = INPUT_MODE_FILTER;
+        break;
+      case 3:
+        input_state.mode = INPUT_MODE_AMPEG;
+        break;
+      case 4:
+        input_state.mode = INPUT_MODE_MODFX;
+        break;
+      case 5:
+        input_state.mode = INPUT_MODE_DELFX;
+        break;
+      case 6:
+        input_state.mode = INPUT_MODE_REVFX;
+        break;
+      case 7:
+        input_state.mode = INPUT_MODE_ARP;
+        break;
+      case 8:
+        input_state.mode = INPUT_MODE_SAVE;
+        break;
+      case 9:
+        input_state.mode = INPUT_MODE_LOAD;
+        break;
+      case 10:
+        input_state.mode = INPUT_MODE_CLEAR;
+        break;
+      case 11:
+        input_state.mode = INPUT_MODE_GLOBAL;
+        break;
+      case 12:
+        input_state.mode = INPUT_MODE_SCALE;
+        break;
+      case 13:
+        input_state.mode = INPUT_MODE_TRANS;
+        break;
+      case 14:
+        input_state.mode = INPUT_MODE_STUTTER;
+        break;
+      case 15:
+        input_state.mode = INPUT_MODE_LFO;
+        break;
+      case BTN_SEQ_IDX:
+        if (INPUT_MODE_SEQ_NOTE <= _input_planned_seq_mode && _input_planned_seq_mode <= INPUT_MODE_SEQ_LFO) {
+          input_state.mode = _input_planned_seq_mode;
+        } else {
+          input_state.mode = INPUT_MODE_SEQ_NOTE;
+        }
+        break;
+      case BTN_RUN_IDX:
+        break;
+      case BTN_L_IDX:
+        input_edit_lr_button_handler(0, on);
+        break;
+      case BTN_R_IDX:
+        input_edit_lr_button_handler(1, on);
+        break;
+      default:
+        break;
+    }
+  }
+  if (prev_mode != input_state.mode) {
+    if (input_state.mode == INPUT_MODE_CUSTOM) {
+      input_state.current_page = preset_state.osc.custom_value_selected_page;
+    } else {
+      input_state.current_page = 0;
+    }
+    input_refresh();
+  }
+}
+
 void input_setup() {
   input_state.touch_bits = 0;
   for (uint8_t i=0; i<9; ++i) {
@@ -109,10 +421,193 @@ void input_setup() {
   button_register_matrix_col_pin(matrix_idx, 2, PIN_C6);
   button_register_matrix_col_pin(matrix_idx, 3, PIN_C7);
 
-  button_register_single(BTN_MODE_IDX, BTN_MODE_PIN);
+  button_register_single(BTN_SEQ_IDX, BTN_SEQ_PIN);
   button_register_single(BTN_RUN_IDX, BTN_RUN_PIN);
   button_register_single(BTN_L_IDX, BTN_L_PIN);
   button_register_single(BTN_R_IDX, BTN_R_PIN);
 
+  //button_event_listen(input_button_debug_handler);
   button_event_listen(input_button_handler);
+
+  input_state.touch_bits = 0;
+}
+
+void input_refresh() {
+  screen_edit_clear();
+  if (input_state.mode < INPUT_MODE_SIZE) {
+    screen_edit_set_title(input_mode_names[input_state.mode], 16);
+  }
+  switch(input_state.mode) {
+    case INPUT_MODE_OSC:
+      {
+        //screen_edit_set_page(1, 1);
+        screen_edit_set_type(osc_defs[preset_state.osc.index].name, PARAM_NAME_LEN);
+        screen_edit_set_param_name(0, "ShiftSh", 7);
+        screen_edit_set_param_name(1, "Shape", 5);
+        screen_edit_set_param_value(0, preset_state.osc.shift_shape);
+        screen_edit_set_param_value(1, preset_state.osc.shape);
+      }
+      break;
+    case INPUT_MODE_CUSTOM:
+      {
+        //screen_edit_set_page(input_state.current_page+1, osc_defs[preset_state.osc.index].param_count / 2);
+        if (osc_defs[preset_state.osc.index].param_count > 0) {
+          char page_text[8] = {
+            'P', 'a', 'g', 'e', ' ',
+            input_state.current_page+1+48,
+            '/',
+            ((osc_defs[preset_state.osc.index].param_count / 2) % 10)+48
+          };
+          screen_edit_set_type(page_text, 8);
+          ParamDef* param_def = &(osc_defs[preset_state.osc.index].params[input_state.current_page*2]);
+          screen_edit_set_param_name(0, param_def->name, PARAM_NAME_LEN);
+          screen_edit_set_param_value(0, preset_state.osc.custom_values[input_state.current_page*2]);
+
+          uint8_t is_last_page = input_state.current_page == (osc_defs[preset_state.osc.index].param_count / 2);
+          if (!is_last_page || (osc_defs[preset_state.osc.index].param_count % 2) == 0) {
+            param_def = &(osc_defs[preset_state.osc.index].params[input_state.current_page*2+1]);
+            screen_edit_set_param_name(1, param_def->name, PARAM_NAME_LEN);
+            screen_edit_set_param_value(1, preset_state.osc.custom_values[input_state.current_page*2+1]);
+          }
+        } else {
+          screen_edit_set_type("No Param", PARAM_NAME_LEN);
+        }
+      }
+      break;
+    case INPUT_MODE_FILTER:
+      //screen_edit_set_page(1, 1);
+      screen_edit_set_type(filter_defs[preset_state.filter.index].name, PARAM_NAME_LEN);
+      screen_edit_set_param_name(0, "Peak", 4);
+      screen_edit_set_param_name(1, "Cutoff", 6);
+      screen_edit_set_param_value(0, preset_state.filter.peak);
+      screen_edit_set_param_value(1, preset_state.filter.cutoff);
+      break;
+    case INPUT_MODE_AMPEG:
+      //screen_edit_set_page(1, 1);
+      screen_edit_set_type(ampeg_defs[preset_state.ampeg.index].name, PARAM_NAME_LEN);
+      screen_edit_set_param_name(0, "Attack", 6);
+      screen_edit_set_param_name(1, "Release", 7);
+      screen_edit_set_param_value(0, preset_state.ampeg.attack);
+      screen_edit_set_param_value(1, preset_state.ampeg.release);
+      break;
+    case INPUT_MODE_MODFX:
+      //screen_edit_set_page(1, 1);
+      screen_edit_set_type(modfx_defs[preset_state.modfx.index].name, PARAM_NAME_LEN);
+      screen_edit_set_param_name(0, "Time", 4);
+      screen_edit_set_param_name(1, "Depth", 5);
+      screen_edit_set_param_value(0, preset_state.modfx.time);
+      screen_edit_set_param_value(1, preset_state.modfx.depth);
+      break;
+    case INPUT_MODE_DELFX:
+      //screen_edit_set_page(1, 1);
+      screen_edit_set_type(delfx_defs[preset_state.delfx.index].name, PARAM_NAME_LEN);
+      screen_edit_set_param_name(0, "Time", 4);
+      screen_edit_set_param_name(1, "Depth", 5);
+      screen_edit_set_param_value(0, preset_state.delfx.time);
+      screen_edit_set_param_value(1, preset_state.delfx.depth);
+      break;
+    case INPUT_MODE_REVFX:
+      //screen_edit_set_page(1, 1);
+      screen_edit_set_type(revfx_defs[preset_state.revfx.index].name, PARAM_NAME_LEN);
+      screen_edit_set_param_name(0, "Time", 4);
+      screen_edit_set_param_name(1, "Depth", 5);
+      screen_edit_set_param_value(0, preset_state.revfx.time);
+      screen_edit_set_param_value(1, preset_state.revfx.depth);
+      break;
+    case INPUT_MODE_ARP:
+      //screen_edit_set_page(1, 1);
+      {
+        char page_text[8] = {
+          'P', 'a', 'g', 'e', ' ',
+            input_state.current_page+1+48,
+          '/', '3'
+        };
+        screen_edit_set_type(page_text, 8);
+        if (input_state.current_page == 0) {
+          screen_edit_set_param_name(0, "Type", 4);
+          screen_edit_set_param_name(1, "Interval", 8);
+          // TODO: defs からパラメータ名を拾ってくる
+          screen_edit_set_param_value(0, preset_state.arp.index);
+          screen_edit_set_param_value(1, preset_state.arp.intervals);
+        } else if (input_state.current_page == 1) {
+          screen_edit_set_param_name(0, "Length", 6);
+          screen_edit_set_param_name(1, "State", 5);
+          screen_edit_set_param_value(0, preset_state.arp.length);
+          screen_edit_set_param_value(1, preset_state.arp.state);
+        } else {
+          screen_edit_set_param_name(0, "Tempo", 5);
+          screen_edit_set_param_value(0, preset_state.arp.tempo);
+        }
+      }
+      break;
+    case INPUT_MODE_SAVE:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_LOAD:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_CLEAR:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_GLOBAL:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SCALE:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_TRANS:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_STUTTER:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_LFO:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_SELECT:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_NOTE:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_OSC:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_CUSTOM:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_FILTER:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_AMPEG:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_MODFX:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_DELFX:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_REVFX:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_ARP:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_SCALE:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_TRANS:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_STUTTER:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SEQ_LFO:
+      //screen_edit_set_page(1, 1);
+      break;
+    case INPUT_MODE_SIZE:
+      break;
+  }
+  screen_set_dirty();
 }

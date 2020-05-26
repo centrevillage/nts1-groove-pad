@@ -8,23 +8,7 @@ extern "C" {
 #endif
 
 typedef enum {
-  SCREEN_MODE_OSC = 0,
-  SCREEN_MODE_FILTER,
-  SCREEN_MODE_EG,
-  SCREEN_MODE_MOD,
-  SCREEN_MODE_DELAY,
-  SCREEN_MODE_REVERB,
-  SCREEN_MODE_LFO,
-  SCREEN_MODE_SEQ,
-  SCREEN_MODE_SAVE,
-  SCREEN_MODE_LOAD,
-  SCREEN_MODE_CLEAR,
-  SCREEN_MODE_SCALE,
-  SCREEN_MODE_TRANS,
-  SCREEN_MODE_STUTTER,
-  SCREEN_MODE_SLIDE,
-  SCREEN_MODE_RAND,
-
+  SCREEN_MODE_EDIT = 0,
   SCREEN_MODE_INPUT_DEBUG,
 
   SCREEN_MODE_SIZE
@@ -36,6 +20,17 @@ void screen_set_default(ScreenMode screen_mode);
 void screen_back_to_default();
 void screen_draw(uint8_t* buffer);
 void screen_set_dirty();
+
+// SCREEN_MODE_EDIT の時の表示コマンド
+// parameter 表示は1ページあたり2
+void screen_edit_set_title(const char* title_text, uint8_t len);
+void screen_edit_set_type(const char* type_text, uint8_t len);
+void screen_edit_set_page(uint8_t current_page, uint8_t page_size);
+void screen_edit_set_param_name(uint8_t is_right, const char* param_name, uint8_t len);
+// TODO: value_type の扱い
+void screen_edit_set_param_value(uint8_t is_right, uint16_t value);
+void screen_edit_set_hint(const char* hint_text, uint8_t len);
+void screen_edit_clear();
 
 #ifdef __cplusplus
 }

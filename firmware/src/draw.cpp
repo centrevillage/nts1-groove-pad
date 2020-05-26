@@ -1,5 +1,6 @@
 #include "draw.h"
 #include "font.h"
+#include "screen_conf.h"
 
 void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_t page, uint16_t offset) {
   uint8_t pos = 0;
@@ -18,6 +19,27 @@ void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_
       uint16_t bits = image[x];
       buffer[((page)*SCREEN_WIDTH)+(pos*8)+offset+x] = (uint8_t)bits;
       buffer[((page+1)*SCREEN_WIDTH)+(pos*8)+offset+x] = (uint8_t)(bits>>8);
+    }
+    ++pos;
+  }
+}
+
+void draw_text_small(uint8_t *buffer, const char* text, uint8_t length, uint16_t page, uint16_t offset) {
+  uint8_t pos = 0;
+  for (uint8_t i=0; i<length; ++i) {
+    char c = text[i];
+    if (c == '\n') {
+      page += 1;
+      pos = 0;
+      continue;
+    }
+    if (c < 32 || c > 126) {
+      return; // null or meta char
+    }
+    const uint8_t* image = font_small_image[c-32];
+    for (uint8_t x=0; x<8; ++x) {
+      uint8_t bits = image[x];
+      buffer[((page)*SCREEN_WIDTH)+(pos*5)+offset+x] = bits;
     }
     ++pos;
   }
@@ -71,5 +93,19 @@ void draw_touch_pad(uint8_t *buffer, DrawPadType type) {
       break;
     default:
       break;
+  }
+}
+
+void draw_fill_bg(uint8_t *buffer) {
+  uint16_t size = SCREEN_WIDTH * SCREEN_HEIGHT / 8;
+  for (size_t i = 0; i < size; ++i) {
+    buffer[i] = 0;
+  }
+}
+
+void draw_fill_fg(uint8_t *buffer) {
+  uint16_t size = SCREEN_WIDTH * SCREEN_HEIGHT / 8;
+  for (size_t i = 0; i < size; ++i) {
+    buffer[i] = 0xFF;
   }
 }

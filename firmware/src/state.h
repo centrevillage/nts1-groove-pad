@@ -21,6 +21,7 @@ typedef struct {
   uint8_t custom_index;
   uint8_t custom_values[OSC_CUSTOM_VALUES_SIZE];
   uint8_t custom_value_types[OSC_CUSTOM_VALUES_SIZE];
+  uint8_t custom_value_selected_page; // 選択中のページIDX
 } OscState;
 
 typedef struct {

@@ -2,15 +2,24 @@
 #include "nts1_defs.h"
 #include "state.h"
 #include "timer.h"
+#include "debug.h"
 
 volatile OscDef osc_defs[OSC_DEFS_SIZE];
+volatile FilterDef filter_defs[FILTER_DEFS_SIZE];
+volatile AmpEgDef ampeg_defs[AMPEG_DEFS_SIZE];
 volatile ModFxDef modfx_defs[MODFX_DEFS_SIZE];
 volatile DelFxDef delfx_defs[DELFX_DEFS_SIZE];
 volatile RevFxDef revfx_defs[REVFX_DEFS_SIZE];
+volatile ArpPatDef arppat_defs[ARPPAT_DEFS_SIZE];
+volatile ArpIntervalsDef arpint_defs[ARPINT_DEFS_SIZE];
 volatile uint8_t osc_defs_size = 0;
+volatile uint8_t filter_defs_size;
+volatile uint8_t ampeg_defs_size;
 volatile uint8_t modfx_defs_size = 0;
 volatile uint8_t delfx_defs_size = 0;
 volatile uint8_t revfx_defs_size = 0;
+volatile uint8_t arppat_defs_size;
+volatile uint8_t arpint_defs_size;
 
 typedef enum {
   NTS1_DEF_LOAD_PHASE_INIT = 0,
@@ -59,7 +68,7 @@ typedef enum {
 } Nts1DefLoadPhase;
 
 volatile Nts1DefLoadPhase _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
-volatile uint32_t _nts1_defs_load_bits = 0;
+static volatile uint32_t _nts1_defs_load_bits = 0;
 volatile uint8_t _nts1_defs_osc_param_loading_idx = 0;
 volatile uint32_t _nts1_defs_phase_start_mmsec = 0;
 volatile nts1_tx_event_t _nts1_defs_load_events[32];
@@ -78,7 +87,7 @@ static inline void nts1_defs_check_timeout() {
   if (_nts1_defs_lphase == NTS1_DEF_LOAD_PHASE_INIT) {
     return;
   }
-  if (current_msec() - _nts1_defs_phase_start_mmsec > 500) {
+  if (current_msec() - _nts1_defs_phase_start_mmsec > 1500) {
     nts1_defs_retry_phase();
   }
 }
@@ -125,111 +134,156 @@ void nts1_defs_process_loading() {
 
   switch (_nts1_defs_lphase) {
     case NTS1_DEF_LOAD_PHASE_INIT:
+      debug_text("INIT", 4);
+
       nts1_defs_next_phase();
-      nts1_send_events(nts1_defs_count_load_requests, NTS1_DEF_COUNT_REQ_SIZE);
+      while (nts1_send_events(nts1_defs_count_load_requests, NTS1_DEF_COUNT_REQ_SIZE) != k_nts1_status_ok);
+      _nts1_defs_phase_start_mmsec = current_msec();
       break;
     case NTS1_DEF_LOAD_PHASE_COUNT:
+      debug_text("COUNT", 5);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, NTS1_DEF_COUNT_REQ_SIZE)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<osc_defs_size;++i) {
-          nts1_req_osc_desc(i);
+          while (nts1_req_osc_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_OSC_DESC:
+      debug_text("OSC_DESC", 8);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, osc_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<filter_defs_size;++i) {
-          nts1_req_filt_desc(i);
+          while (nts1_req_filt_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_FILTER_DESC:
+      debug_text("FILT_DESC", 9);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, filter_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<ampeg_defs_size;++i) {
-          nts1_req_ampeg_desc(i);
+          while (nts1_req_ampeg_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_AMPEG_DESC:
+      debug_text("EG_DESC", 7);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, ampeg_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<modfx_defs_size;++i) {
-          nts1_req_mod_desc(i);
+          while (nts1_req_mod_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_MODFX_DESC:
+      debug_text("MODFX_DESC", 10);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, modfx_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<delfx_defs_size;++i) {
-          nts1_req_del_desc(i);
+          while (nts1_req_del_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_DELFX_DESC:
+      debug_text("DELFX_DESC", 10);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, delfx_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<revfx_defs_size;++i) {
-          nts1_req_rev_desc(i);
+          while (nts1_req_rev_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_REVFX_DESC:
+      debug_text("REVFX_DESC", 10);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, revfx_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<arppat_defs_size;++i) {
-          nts1_req_arp_pattern_desc(i);
+          while (nts1_req_arp_pattern_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_ARPPAT_DESC:
+      debug_text("ARPPAT_DESC", 11);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, arppat_defs_size)) {
         nts1_defs_next_phase();
         for (uint8_t i=0;i<arpint_defs_size;++i) {
-          nts1_req_arp_intervals_desc(i);
+          while (nts1_req_arp_intervals_desc(i) != k_nts1_status_ok);
+          _nts1_defs_phase_start_mmsec = current_msec();
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_ARPINT_DESC:
+      debug_text("ARPINT_DESC", 11);
+
       if (_nts1_def_is_all_ok(_nts1_defs_load_bits, arpint_defs_size)) {
         if (osc_defs_size > 0) {
           nts1_defs_next_phase();
+          debug_text("PARAM1", 6);
           if (osc_defs[0].param_count > 0) {
-            nts1_param_change(k_param_id_osc_type, 0, 0);
-            for (uint8_t i=0;osc_defs[0].param_count;++i) {
-              nts1_req_osc_edit_param_desc(i);
+            while (nts1_param_change(k_param_id_osc_type, 0, 0) != k_nts1_status_ok);
+            _nts1_defs_phase_start_mmsec = current_msec();
+            for (uint8_t i=0; i < osc_defs[0].param_count; ++i) {
+              while (nts1_req_osc_edit_param_desc(i) != k_nts1_status_ok);
+              _nts1_defs_phase_start_mmsec = current_msec();
             }
           }
         } else {
-          nts1_param_change(k_param_id_osc_type, 0, 0);
+          while (nts1_param_change(k_param_id_osc_type, 0, 0) != k_nts1_status_ok);
           _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
         }
       }
       break;
     case NTS1_DEF_LOAD_PHASE_OSC32_PARAM:
+      debug_text("PARAM32", 7);
+
       if (osc_defs_size < 32) {
-        nts1_param_change(k_param_id_osc_type, 0, 0);
+        while (nts1_param_change(k_param_id_osc_type, 0, 0) != k_nts1_status_ok);
         _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
+        debug_text("COMPLETE", 8);
       } else if (_nts1_def_is_all_ok(_nts1_defs_load_bits, osc_defs[31].param_count)) {
-        nts1_param_change(k_param_id_osc_type, 0, 0);
+        while (nts1_param_change(k_param_id_osc_type, 0, 0) != k_nts1_status_ok);
         nts1_defs_next_phase();
+        debug_text("COMPLETE", 8);
       }
       break;
     default:
       if (NTS1_DEF_LOAD_PHASE_OSC1_PARAM <= _nts1_defs_lphase && _nts1_defs_lphase < NTS1_DEF_LOAD_PHASE_OSC32_PARAM) {
+        //if (_nts1_defs_load_bits) {
+        //  _nts1_defs_phase_start_mmsec = current_msec();
+        //  char tmp[8];
+        //  text_from_uint32(tmp, _nts1_defs_load_bits);
+        //  debug_text(tmp, 8);
+        //}
         uint8_t osc_defs_idx = _nts1_defs_lphase - NTS1_DEF_LOAD_PHASE_OSC1_PARAM;
         if (osc_defs_size <= osc_defs_idx) {
-          nts1_param_change(k_param_id_osc_type, 0, 0);
+          while (nts1_param_change(k_param_id_osc_type, 0, 0) != k_nts1_status_ok);
           _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
+          debug_text("COMPLETE", 8);
         } else if (_nts1_def_is_all_ok(_nts1_defs_load_bits, osc_defs[osc_defs_idx].param_count)) {
           nts1_defs_next_phase();
           osc_defs_idx = _nts1_defs_lphase - NTS1_DEF_LOAD_PHASE_OSC1_PARAM;
           if (osc_defs[osc_defs_idx].param_count > 0) {
-            nts1_param_change(k_param_id_osc_type, 0, osc_defs_idx);
-            for (uint8_t i=0;osc_defs[osc_defs_idx].param_count;++i) {
-              nts1_req_osc_edit_param_desc(i);
+            while (nts1_param_change(k_param_id_osc_type, 0, osc_defs_idx) != k_nts1_status_ok);
+            _nts1_defs_phase_start_mmsec = current_msec();
+            for (uint8_t i=0; i < osc_defs[osc_defs_idx].param_count; ++i) {
+              while (nts1_req_osc_edit_param_desc(i) != k_nts1_status_ok);
+              _nts1_defs_phase_start_mmsec = current_msec();
             }
           }
         }
@@ -325,7 +379,7 @@ void nts1_defs_param_desc_handler(const nts1_rx_edit_param_desc_t* param_desc) {
       osc_defs[osc_idx].params[param_idx].min = param_desc->min;
       osc_defs[osc_idx].params[param_idx].max = param_desc->max;
       _nts1_defs_set_desc_name(osc_defs[osc_idx].params[param_idx].name, param_desc->name);
-      _nts1_defs_load_bits |= 1 << param_idx;
+      _nts1_defs_load_bits |= 1 << (uint32_t)param_idx;
     }
   }
 }

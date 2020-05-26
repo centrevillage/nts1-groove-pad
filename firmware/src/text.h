@@ -7,9 +7,12 @@
 extern "C" {
 #endif
 
-void text_0x_from_uint8(char* result_text, uint8_t value);
-void text_0x_from_uint16(char* result_text, uint16_t value);
-void text_0x_from_uint32(char* result_text, uint32_t value);
+uint8_t text_0x_from_uint8(char* result_text, uint8_t value);
+uint8_t text_0x_from_uint16(char* result_text, uint16_t value);
+uint8_t text_0x_from_uint32(char* result_text, uint32_t value);
+uint8_t text_from_uint8(char* result_text, uint8_t value);
+uint8_t text_from_uint16(char* result_text, uint16_t value);
+uint8_t text_from_uint32(char* result_text, uint32_t value);
 
 #ifdef __cplusplus
 }

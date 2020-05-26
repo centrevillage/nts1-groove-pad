@@ -9,6 +9,8 @@
 #include "debug.h"
 #include "text.h"
 #include "button.h"
+#include "nts1_defs.h"
+#include "screen.h"
 
 extern "C" {
 #ifndef USE_ARDUINO
@@ -100,10 +102,10 @@ void setup() {
   oled_setup();
   input_setup();
   button_setup();
+  screen_setup();
 
   //gpio_write(PIN_A12, 1);
 
-  //debug_text("SETUP", 5); 
 
   touch_setup();
 
@@ -122,6 +124,16 @@ void setup() {
   //debug_text(buf, 8);
 
   //nts1_note_on(100, 100);
+
+  debug_text("LOADING", 7); 
+  screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
+
+  nts1_defs_req_load();
+  while (!nts1_defs_is_complete_loading()) {
+    nts1_defs_process_loading();
+  }
+
+  screen_set_mode(SCREEN_MODE_EDIT);
 }
 
 void loop() {
