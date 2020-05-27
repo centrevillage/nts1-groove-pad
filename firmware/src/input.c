@@ -7,6 +7,7 @@
 #include "state.h"
 #include "preset.h"
 #include "nts1_defs.h"
+#include "screen.h"
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -313,8 +314,10 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
         _input_planned_seq_mode = INPUT_MODE_SEQ_LFO;
         break;
       case BTN_SEQ_IDX:
-        _input_planned_seq_mode = INPUT_MODE_SEQ_NOTE;
-        input_state.mode = INPUT_MODE_SEQ_SELECT;
+        if (on) {
+          _input_planned_seq_mode = INPUT_MODE_SEQ_NOTE;
+          input_state.mode = INPUT_MODE_SEQ_SELECT;
+        }
         break;
       case BTN_RUN_IDX:
         break;
@@ -328,28 +331,52 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   } else {
     switch(button_idx) {
       case 0:
-        input_state.mode = INPUT_MODE_OSC;
+        if (on) {
+          input_state.mode = INPUT_MODE_OSC;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 1:
-        input_state.mode = INPUT_MODE_CUSTOM;
+        if (on) {
+          input_state.mode = INPUT_MODE_CUSTOM;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 2:
-        input_state.mode = INPUT_MODE_FILTER;
+        if (on) {
+          input_state.mode = INPUT_MODE_FILTER;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 3:
-        input_state.mode = INPUT_MODE_AMPEG;
+        if (on) {
+          input_state.mode = INPUT_MODE_AMPEG;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 4:
-        input_state.mode = INPUT_MODE_MODFX;
+        if (on) {
+          input_state.mode = INPUT_MODE_MODFX;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 5:
-        input_state.mode = INPUT_MODE_DELFX;
+        if (on) {
+          input_state.mode = INPUT_MODE_DELFX;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 6:
-        input_state.mode = INPUT_MODE_REVFX;
+        if (on) {
+          input_state.mode = INPUT_MODE_REVFX;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 7:
-        input_state.mode = INPUT_MODE_ARP;
+        if (on) {
+          input_state.mode = INPUT_MODE_ARP;
+          screen_set_mode(SCREEN_MODE_EDIT);
+        }
         break;
       case 8:
         input_state.mode = INPUT_MODE_SAVE;
@@ -376,10 +403,14 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
         input_state.mode = INPUT_MODE_LFO;
         break;
       case BTN_SEQ_IDX:
-        if (INPUT_MODE_SEQ_NOTE <= _input_planned_seq_mode && _input_planned_seq_mode <= INPUT_MODE_SEQ_LFO) {
-          input_state.mode = _input_planned_seq_mode;
-        } else {
-          input_state.mode = INPUT_MODE_SEQ_NOTE;
+        if (!on) {
+          if (INPUT_MODE_SEQ_NOTE <= _input_planned_seq_mode && _input_planned_seq_mode <= INPUT_MODE_SEQ_LFO) {
+            input_state.mode = _input_planned_seq_mode;
+            screen_set_mode(SCREEN_MODE_SEQ_NOTE);
+          } else {
+            input_state.mode = INPUT_MODE_SEQ_NOTE;
+            screen_set_mode(SCREEN_MODE_SEQ_NOTE);
+          }
         }
         break;
       case BTN_RUN_IDX:
@@ -405,10 +436,6 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
 }
 
 void input_setup() {
-  input_state.touch_bits = 0;
-  for (uint8_t i=0; i<9; ++i) {
-    input_state.touch_values[i] = 0;
-  }
   touch_event_listen(input_touch_handler);
 
   uint8_t matrix_idx = button_register_matrix(0, 4, 4);
@@ -430,6 +457,9 @@ void input_setup() {
   button_event_listen(input_button_handler);
 
   input_state.touch_bits = 0;
+  for (uint8_t i=0; i<9; ++i) {
+    input_state.touch_values[i] = 0;
+  }
 }
 
 void input_refresh() {
@@ -459,14 +489,14 @@ void input_refresh() {
             (((osc_defs[preset_state.osc.index].param_count+1) / 2) % 10)+48
           };
           screen_edit_set_type(page_text, 8);
-          ParamDef* param_def = &(osc_defs[preset_state.osc.index].params[input_state.current_page*2]);
-          screen_edit_set_param_name(0, param_def->name, PARAM_NAME_LEN);
+          char* param_name = osc_defs[preset_state.osc.index].params[input_state.current_page*2].name;
+          screen_edit_set_param_name(0, param_name, PARAM_NAME_LEN);
           screen_edit_set_param_value(0, preset_state.osc.custom_values[input_state.current_page*2]);
 
           uint8_t is_last_page = input_state.current_page == (osc_defs[preset_state.osc.index].param_count / 2);
           if (!is_last_page || (osc_defs[preset_state.osc.index].param_count % 2) == 0) {
-            param_def = &(osc_defs[preset_state.osc.index].params[input_state.current_page*2+1]);
-            screen_edit_set_param_name(1, param_def->name, PARAM_NAME_LEN);
+            char* param_name2 = osc_defs[preset_state.osc.index].params[input_state.current_page*2+1].name;
+            screen_edit_set_param_name(1, param_name2, PARAM_NAME_LEN);
             screen_edit_set_param_value(1, preset_state.osc.custom_values[input_state.current_page*2+1]);
           }
         } else {

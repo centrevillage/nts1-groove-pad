@@ -11,6 +11,7 @@
 #include "button.h"
 #include "nts1_defs.h"
 #include "screen.h"
+#include "preset.h"
 
 extern "C" {
 #ifndef USE_ARDUINO
@@ -134,7 +135,9 @@ void setup() {
     nts1_idle();
   }
 
+  preset_setup();
   screen_set_mode(SCREEN_MODE_EDIT);
+  input_refresh();
 }
 
 void loop() {

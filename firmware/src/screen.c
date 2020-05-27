@@ -2,6 +2,7 @@
 #include "input.h"
 #include "draw.h"
 #include "text.h"
+#include "preset.h"
 
 volatile ScreenMode _screen_mode = SCREEN_MODE_INPUT_DEBUG;
 volatile ScreenMode _screen_mode_default = SCREEN_MODE_INPUT_DEBUG;
@@ -64,6 +65,30 @@ void screen_draw_edit(uint8_t* buffer) {
   }
 }
 
+void screen_draw_seq_note(uint8_t* buffer) {
+  if (_screen_is_dirty) {
+    draw_fill_bg(buffer);
+    uint8_t title_offset = (SCREEN_WIDTH - _screen_edit_title_text_size * 5) / 2;
+    draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
+
+    draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
+
+    char str[3];
+    for (uint8_t i = 0; i < 8; ++i) {
+      text_12dec_from_note(str, seq_state.steps[i].note);
+      draw_text_medium(buffer, &(str[0]), 1, 2, i*16);
+      draw_text_medium(buffer, &(str[1]), 1, 2, (i*16)+7);
+    }
+    for (uint8_t i = 8; i < 16; ++i) {
+      text_12dec_from_note(str, seq_state.steps[i].note);
+      draw_text_medium(buffer, &(str[0]), 1, 5, (i-8)*16);
+      draw_text_medium(buffer, &(str[1]), 1, 5, ((i-8)*16)+7);
+    }
+
+    _screen_is_dirty = 0;
+  }
+}
+
 void screen_draw_input_debug(uint8_t* buffer) {
   draw_fill_bg(buffer);
   if (input_state.touch_bits) {
@@ -80,6 +105,7 @@ typedef void (*ScreenModeFunction)(uint8_t* buffer);
 static const ScreenModeFunction _screen_mode_to_function[SCREEN_MODE_SIZE] = {
   screen_draw_edit,
   screen_draw_input_debug,
+  screen_draw_seq_note,
 };
 
 void screen_draw(uint8_t* buffer) {

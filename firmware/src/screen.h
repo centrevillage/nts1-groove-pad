@@ -10,6 +10,7 @@ extern "C" {
 typedef enum {
   SCREEN_MODE_EDIT = 0,
   SCREEN_MODE_INPUT_DEBUG,
+  SCREEN_MODE_SEQ_NOTE,
 
   SCREEN_MODE_SIZE
 } ScreenMode;

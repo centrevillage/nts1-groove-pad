@@ -373,7 +373,7 @@ void nts1_defs_unit_desc_handler(const nts1_rx_unit_desc_t* unit_desc) {
 void nts1_defs_param_desc_handler(const nts1_rx_edit_param_desc_t* param_desc) {
   if (param_desc->main_id == k_param_id_osc_edit) {
     if (NTS1_DEF_LOAD_PHASE_OSC1_PARAM <= _nts1_defs_lphase && _nts1_defs_lphase <= NTS1_DEF_LOAD_PHASE_OSC32_PARAM) {
-      uint8_t osc_idx = _nts1_defs_lphase - _nts1_defs_lphase;
+      uint8_t osc_idx = _nts1_defs_lphase - NTS1_DEF_LOAD_PHASE_OSC1_PARAM;
       uint8_t param_idx = param_desc->sub_id;
       osc_defs[osc_idx].params[param_idx].value_type = param_desc->value_type;
       osc_defs[osc_idx].params[param_idx].min = param_desc->min;

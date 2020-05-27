@@ -8,6 +8,10 @@ static const char dec_chars[10] = {
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 };
 
+static const char twlv_chars[12] = {
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B'
+};
+
 uint8_t text_0x_from_uint8(char* result_text, uint8_t value) {
   result_text[0] = oct_chars[value >> 4];
   result_text[1] = oct_chars[value & 0x0F];
@@ -68,4 +72,11 @@ uint8_t text_from_uint32(char* result_text, uint32_t value) {
   result_text[9] = oct_chars[value % 10];
   result_text[10] = 0; // null terminate
   return 10;
+}
+
+uint8_t text_12dec_from_note(char* result_text, uint8_t note) {
+  result_text[0] = twlv_chars[(note / 12) % 12];
+  result_text[1] = twlv_chars[note % 12];
+  result_text[2] = 0; // null terminate
+  return 2;
 }
