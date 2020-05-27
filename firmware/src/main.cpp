@@ -43,7 +43,6 @@ void timer_4_event_handler() {
 
 void timer_5_event_handler() {
   if (timer_is_update(5)) {
-    nts1_idle();
     timer_clear_update_flag(5);
   }
 }
@@ -129,14 +128,17 @@ void setup() {
   screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
 
   nts1_defs_req_load();
+  nts1_idle();
   while (!nts1_defs_is_complete_loading()) {
     nts1_defs_process_loading();
+    nts1_idle();
   }
 
   screen_set_mode(SCREEN_MODE_EDIT);
 }
 
 void loop() {
+  nts1_idle();
 }
 
 #ifndef USE_ARDUINO
