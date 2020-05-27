@@ -37,7 +37,7 @@ void draw_text_small(uint8_t *buffer, const char* text, uint8_t length, uint16_t
       return; // null or meta char
     }
     const uint8_t* image = font_small_image[c-32];
-    for (uint8_t x=0; x<8; ++x) {
+    for (uint8_t x=0; x<5; ++x) {
       uint8_t bits = image[x];
       buffer[((page)*SCREEN_WIDTH)+(pos*5)+offset+x] = bits;
     }

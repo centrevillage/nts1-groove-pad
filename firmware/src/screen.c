@@ -99,7 +99,7 @@ void screen_edit_clear() {
 
 void screen_edit_set_title(const char* title_text, uint8_t len) {
   uint8_t i = 0;
-  for (;i<16&&i<len&&title_text[i]!=0;++i) {
+  for (; i<16 && i<len && title_text[i]!=0; ++i) {
     _screen_edit_title_text[i] = title_text[i];
   }
   _screen_edit_title_text_size = i;
@@ -108,7 +108,7 @@ void screen_edit_set_title(const char* title_text, uint8_t len) {
 
 void screen_edit_set_type(const char* type_text, uint8_t len) {
   uint8_t i = 0;
-  for (;i<16&&i<len&&type_text[i]!=0;++i) {
+  for (; i<16 && i<len && type_text[i]!=0; ++i) {
     _screen_edit_type_text[i] = type_text[i];
   }
   _screen_edit_type_text_size = i;
@@ -153,6 +153,9 @@ void screen_edit_set_param_value(uint8_t is_right, uint16_t value) {
       _screen_edit_param_value_text[is_right][i] = tmp[i];
       is_zero = 0;
     }
+  }
+  if (is_zero) {
+    _screen_edit_param_value_text[is_right][i-1] = '0';
   }
   _screen_edit_param_value_text_size[is_right] = i;
   _screen_is_dirty = 1;

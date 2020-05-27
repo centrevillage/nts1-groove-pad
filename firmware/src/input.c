@@ -456,7 +456,7 @@ void input_refresh() {
             'P', 'a', 'g', 'e', ' ',
             input_state.current_page+1+48,
             '/',
-            ((osc_defs[preset_state.osc.index].param_count / 2) % 10)+48
+            (((osc_defs[preset_state.osc.index].param_count+1) / 2) % 10)+48
           };
           screen_edit_set_type(page_text, 8);
           ParamDef* param_def = &(osc_defs[preset_state.osc.index].params[input_state.current_page*2]);
