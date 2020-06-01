@@ -138,6 +138,7 @@ void setup() {
   preset_setup();
   screen_set_mode(SCREEN_MODE_EDIT);
   input_refresh();
+  input_touch_init();
 }
 
 void loop() {

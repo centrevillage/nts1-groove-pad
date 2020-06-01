@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "oled.h"
-#include "oled_spi.h"
+#include "spi.h"
 #include "input.h"
 #include "screen_conf.h"
 #include "ssd1306_pinconfig.h"
@@ -136,7 +136,7 @@ void oled_update_screen() {
 void oled_send_command(uint8_t byte) {
   LL_GPIO_ResetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // select OLED
   LL_GPIO_ResetOutputPin(SSD1306_DC_Port, SSD1306_DC_Pin); // command
-  oled_spi_transfer(byte);
+  spi_transmit(0, byte);
   LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // un-select OLED
 }
 
@@ -144,16 +144,16 @@ void oled_send_data(uint8_t* buffer, size_t buff_size) {
   LL_GPIO_ResetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // select OLED
   LL_GPIO_SetOutputPin(SSD1306_DC_Port, SSD1306_DC_Pin); // data
   // NOTE: なぜか先頭2byte分が常に欠けてしまうのでダミーで0を送信
-  oled_spi_transfer(0);
-  oled_spi_transfer(0);
+  spi_transmit(0, 0);
+  spi_transmit(0, 0);
   for (size_t i = 0; i < buff_size; ++i) {
-    oled_spi_transfer(buffer[i]);
+    spi_transmit(0, buffer[i]);
   }
   LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // un-select OLED
 }
 
 void oled_setup() {
-  oled_spi_setup();
+  spi_simple_setup(0, PIN_A7, PIN_A6, PIN_A5, SystemCoreClock / 2);
   oled_gpio_setup();
   oled_init();
 }

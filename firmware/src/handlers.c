@@ -72,45 +72,45 @@ void nts1_handle_edit_param_desc_event(const nts1_rx_edit_param_desc_t *param_de
 }
 
 void nts1_handle_value_event(const nts1_rx_value_t *ve) {
-  //handler_debug_buf[0] = 'V';
-  //handler_debug_buf[1] = 'a';
-  //handler_debug_buf[2] = 'l';
-  //handler_debug_buf[3] = 'u';
-  //handler_debug_buf[4] = 'e';
-  //handler_debug_buf[5] = '\n';
-  //text_0x_from_uint8(&(handler_debug_buf[6]), ve->req_id);
-  //handler_debug_buf[8] = ':';
-  //text_0x_from_uint8(&(handler_debug_buf[9]), ve->main_id);
-  //handler_debug_buf[11] = ':';
-  //text_0x_from_uint8(&(handler_debug_buf[12]), ve->sub_id);
-  //handler_debug_buf[14] = '\n';
+  handler_debug_buf[0] = 'V';
+  handler_debug_buf[1] = 'a';
+  handler_debug_buf[2] = 'l';
+  handler_debug_buf[3] = 'u';
+  handler_debug_buf[4] = 'e';
+  handler_debug_buf[5] = '\n';
+  text_0x_from_uint8(&(handler_debug_buf[6]), ve->req_id);
+  handler_debug_buf[8] = ':';
+  text_0x_from_uint8(&(handler_debug_buf[9]), ve->main_id);
+  handler_debug_buf[11] = ':';
+  text_0x_from_uint8(&(handler_debug_buf[12]), ve->sub_id);
+  handler_debug_buf[14] = '\n';
 
-  //// NOTE: 最適化オプションが -Os だとtext_0x_from_uint16呼び出し内の8bit右シフトでフリーズしてしまう
-  ////       -Os や -Og だと問題ないので、何かしら最適化の問題がある。
-  //text_0x_from_uint16(&(handler_debug_buf[15]), ve->value);
-  ////text_0x_from_uint8(&(handler_debug_buf[15]), ve->value);
+  // NOTE: 最適化オプションが -Os だとtext_0x_from_uint16呼び出し内の8bit右シフトでフリーズしてしまう
+  //       -Os や -Og だと問題ないので、何かしら最適化の問題がある。
+  text_0x_from_uint16(&(handler_debug_buf[15]), ve->value);
+  //text_0x_from_uint8(&(handler_debug_buf[15]), ve->value);
 
-  //debug_text(handler_debug_buf, 20);
+  debug_text(handler_debug_buf, 20);
 
   nts1_defs_param_value_handler(ve);
 }
 
 void nts1_handle_param_change(const nts1_rx_param_change_t *param_change) {
-  //handler_debug_buf[0] = 'P';
-  //handler_debug_buf[1] = 'C';
-  //handler_debug_buf[2] = 'h';
-  //handler_debug_buf[3] = 'a';
-  //handler_debug_buf[4] = 'n';
-  //handler_debug_buf[5] = 'g';
-  //handler_debug_buf[6] = 'e';
-  //handler_debug_buf[7] = '!';
-  //handler_debug_buf[8] = '\n';
-  //text_0x_from_uint8(&(handler_debug_buf[9]), param_change->param_id);
-  //handler_debug_buf[11] = ':';
-  //text_0x_from_uint8(&(handler_debug_buf[12]), param_change->param_subid);
-  //handler_debug_buf[13] = '\n';
-  //text_0x_from_uint8(&(handler_debug_buf[14]), param_change->msb);
-  //handler_debug_buf[16] = ':';
-  //text_0x_from_uint8(&(handler_debug_buf[17]), param_change->lsb);
-  //debug_text(handler_debug_buf, 20);
+  handler_debug_buf[0] = 'P';
+  handler_debug_buf[1] = 'C';
+  handler_debug_buf[2] = 'h';
+  handler_debug_buf[3] = 'a';
+  handler_debug_buf[4] = 'n';
+  handler_debug_buf[5] = 'g';
+  handler_debug_buf[6] = 'e';
+  handler_debug_buf[7] = '!';
+  handler_debug_buf[8] = '\n';
+  text_0x_from_uint8(&(handler_debug_buf[9]), param_change->param_id);
+  handler_debug_buf[11] = ':';
+  text_0x_from_uint8(&(handler_debug_buf[12]), param_change->param_subid);
+  handler_debug_buf[13] = '\n';
+  text_0x_from_uint8(&(handler_debug_buf[14]), param_change->msb);
+  handler_debug_buf[16] = ':';
+  text_0x_from_uint8(&(handler_debug_buf[17]), param_change->lsb);
+  debug_text(handler_debug_buf, 20);
 }

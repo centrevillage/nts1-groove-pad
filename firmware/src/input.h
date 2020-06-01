@@ -2,6 +2,7 @@
 #define __N1GP_INPUT_H__
 
 #include "main.h"
+#include "touch_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,12 +84,14 @@ typedef struct {
   uint32_t button_bits;
   InputMode mode;
   uint8_t current_page;
+  TouchState touch_states[2];
 } InputState;
 
 extern volatile InputState input_state;
 
 void input_setup();
 void input_refresh();
+void input_touch_init();
 
 #ifdef __cplusplus
 }

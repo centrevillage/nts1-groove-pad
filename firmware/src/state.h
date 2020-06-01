@@ -14,10 +14,10 @@ extern "C" {
 #define OSC_CUSTOM_VALUES_SIZE 6
 typedef struct {
   uint8_t index; 
-  uint8_t shape;
-  uint8_t shift_shape;
-  uint8_t lfo_rate;
-  uint8_t lfo_depth;
+  uint16_t shape;
+  uint16_t shift_shape;
+  uint16_t lfo_rate;
+  uint16_t lfo_depth;
   uint8_t custom_index;
   uint8_t custom_values[OSC_CUSTOM_VALUES_SIZE];
   uint8_t custom_value_types[OSC_CUSTOM_VALUES_SIZE];
@@ -26,47 +26,47 @@ typedef struct {
 
 typedef struct {
   uint8_t index; 
-  uint8_t cutoff;
-  uint8_t peak;
-  uint8_t lfo_rate;
-  uint8_t lfo_depth;
-  uint8_t _reserved1;
+  uint16_t cutoff;
+  uint16_t peak;
+  uint16_t lfo_rate;
+  uint16_t lfo_depth;
+  uint16_t _reserved1;
 } FilterState;
 
 typedef struct {
   uint8_t index;
-  uint8_t attack;
-  uint8_t release;
-  uint8_t lfo_rate;
-  uint8_t lfo_depth;
-  uint8_t _reserved1;
+  uint16_t attack;
+  uint16_t release;
+  uint16_t lfo_rate;
+  uint16_t lfo_depth;
+  uint16_t _reserved1;
 } AmpEgState;
 
 typedef struct {
   uint8_t index;
-  uint8_t time;
-  uint8_t depth;
-  uint8_t _reserved1;
-  uint8_t _reserved2;
-  uint8_t _reserved3;
+  uint16_t time;
+  uint16_t depth;
+  uint16_t _reserved1;
+  uint16_t _reserved2;
+  uint16_t _reserved3;
 } ModFxState;
 
 typedef struct {
   uint8_t index;
-  uint8_t time;
-  uint8_t depth;
-  uint8_t _reserved1;
-  uint8_t mix;
-  uint8_t _reserved2;
+  uint16_t time;
+  uint16_t depth;
+  uint16_t _reserved1;
+  uint16_t mix;
+  uint16_t _reserved2;
 } DelFxState;
 
 typedef struct {
   uint8_t index;
-  uint8_t time;
-  uint8_t depth;
-  uint8_t _reserved1;
-  uint8_t mix;
-  uint8_t _reserved2;
+  uint16_t time;
+  uint16_t depth;
+  uint16_t _reserved1;
+  uint16_t mix;
+  uint16_t _reserved2;
 } RevFxState;
 
 typedef struct {

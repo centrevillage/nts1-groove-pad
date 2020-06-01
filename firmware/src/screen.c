@@ -187,4 +187,13 @@ void screen_edit_set_param_value(uint8_t is_right, uint16_t value) {
   _screen_is_dirty = 1;
 }
 
+void screen_edit_set_param_value_text(uint8_t is_right, const char* text, uint8_t len) {
+  uint8_t i = 0;
+  for (; i < 8 && i < len && text[i] != 0; ++i) {
+    _screen_edit_param_value_text[is_right][i] = text[i];
+  }
+  _screen_edit_param_value_text_size[is_right] = i;
+  _screen_is_dirty = 1;
+}
+
 
