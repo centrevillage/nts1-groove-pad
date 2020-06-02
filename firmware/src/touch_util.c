@@ -1,7 +1,7 @@
 #include "touch_util.h"
 
 const int8_t touch_util_state_bits_to_idx[16] = {
-  // 0b000
+  // 0b0000
   TOUCH_NO_VALUE,
   // 0b0001
   0,
@@ -17,6 +17,8 @@ const int8_t touch_util_state_bits_to_idx[16] = {
   3,
   // 0b0111
   TOUCH_HOLD_VALUE,
+  // 0b1000
+  TOUCH_NO_VALUE,
   // 0b1001
   0,
   // 0b1010
@@ -39,6 +41,7 @@ void touch_value_init(TouchState* value) {
   value->state_bits = 0;
   value->max_value = 32;
   value->min_value = 0;
+  value->steps = 2;
 }
 
 static inline uint8_t touch_util_is_center_pressed(TouchState* value) {
@@ -62,6 +65,7 @@ static inline void touch_util_rot_switch_process(uint8_t key_idx, uint8_t press_
   }
 }
 
+// TODO: 指を離したときに値がずれるのを抑止
 static inline void touch_util_rot_value_process(uint8_t key_idx, uint8_t press_state, TouchState* value, uint8_t new_state_bits) {
   int8_t rot_value_prev = touch_util_state_bits_to_idx[value->state_bits];
   int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
@@ -74,7 +78,7 @@ static inline void touch_util_rot_value_process(uint8_t key_idx, uint8_t press_s
         if (touch_util_is_center_pressed(value)) {
           tmp += 1;
         } else {
-          tmp += 2;
+          tmp += value->steps;
         }
         value->value = tmp < value->max_value ? tmp : value->max_value;
       }
@@ -85,7 +89,7 @@ static inline void touch_util_rot_value_process(uint8_t key_idx, uint8_t press_s
         if (touch_util_is_center_pressed(value)) {
           tmp -= 1;
         } else {
-          tmp -= 2;
+          tmp -= value->steps;
         }
         value->value = tmp > value->min_value ? tmp : value->min_value;
       }

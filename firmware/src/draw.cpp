@@ -45,7 +45,54 @@ void draw_text_small(uint8_t *buffer, const char* text, uint8_t length, uint16_t
   }
 }
 
-inline void draw_touch_pad_l(uint8_t *buffer, const uint32_t* image, uint16_t page) {
+void draw_touch_pad_small_l(uint8_t *buffer, const uint8_t* image, uint16_t page) {
+  for (uint8_t i=0; i<8; ++i) {
+    uint8_t bits = image[i];
+    buffer[((page)*SCREEN_WIDTH)+i] |= bits;
+  }
+}
+
+void draw_touch_pad_small_r(uint8_t *buffer, const uint8_t* image, uint16_t page) {
+  const uint16_t offset = SCREEN_WIDTH - 8;
+  for (uint8_t i=0; i<8; ++i) {
+    uint8_t bits = image[i];
+    buffer[((page)*SCREEN_WIDTH)+offset+i] |= bits;
+  }
+}
+
+
+void draw_touch_pad_small(uint8_t *buffer, DrawPadType type) {
+  switch(type) {
+    case DRAW_PAD_L1:
+      draw_touch_pad_small_l(buffer, touch_pad_image_small[0], 0);
+      break;
+    case DRAW_PAD_L2:
+      draw_touch_pad_small_l(buffer, touch_pad_image_small[1], 0);
+      break;
+    case DRAW_PAD_L3:
+      draw_touch_pad_small_l(buffer, touch_pad_image_small[2], 0);
+      break;
+    case DRAW_PAD_R1:
+      draw_touch_pad_small_r(buffer, touch_pad_image_small[4], 0);
+      break;
+    case DRAW_PAD_R2:
+      draw_touch_pad_small_r(buffer, touch_pad_image_small[5], 0);
+      break;
+    case DRAW_PAD_R3:
+      draw_touch_pad_small_r(buffer, touch_pad_image_small[6], 0);
+      break;
+    case DRAW_PAD_C1:
+      draw_touch_pad_small_l(buffer, touch_pad_image_small[3], 0);
+      break;
+    case DRAW_PAD_C2:
+      draw_touch_pad_small_r(buffer, touch_pad_image_small[3], 0);
+      break;
+    default:
+      break;
+  }
+}
+
+void draw_touch_pad_l(uint8_t *buffer, const uint32_t* image, uint16_t page) {
   for (uint8_t i=0; i<32; ++i) {
     uint32_t bits = image[i];
     for (uint8_t j=0; j<4; ++j) {
@@ -54,7 +101,7 @@ inline void draw_touch_pad_l(uint8_t *buffer, const uint32_t* image, uint16_t pa
   }
 }
 
-inline void draw_touch_pad_r(uint8_t *buffer, const uint32_t* image, uint16_t page) {
+void draw_touch_pad_r(uint8_t *buffer, const uint32_t* image, uint16_t page) {
   const uint16_t offset = SCREEN_WIDTH - 32;
   for (uint16_t i=0; i<32; ++i) {
     uint32_t bits = image[i];

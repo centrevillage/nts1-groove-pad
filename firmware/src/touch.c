@@ -9,7 +9,8 @@
 
 #include "debug.h"
 
-#define THRESHOLD 1500
+#define THRESHOLD 1000
+#define MAX_COUNT 16383
 
 typedef enum {  
   TSC_RELEASE,  
@@ -25,14 +26,14 @@ typedef struct {
 
 ChannelStatus touch_channels[3][3] = {
   { // L
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<17},
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<18},
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<19}
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<17},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<18},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<19}
   },
   { // R
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<1},
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<2},
-    {2500, 2500, TSC_RELEASE, ((uint32_t)1)<<3}
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<1},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<2},
+    {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<3}
   },
   { // center L / R
     {2000, 2000, TSC_RELEASE, ((uint32_t)1)<<9},
@@ -62,7 +63,7 @@ void touch_event_listen(TouchEventCallback cb) {
   touch_event_callback = cb;
 }
 
-void touch_scan_request(int index) {  
+void touch_scan_request(uint8_t index) {  
   TSC->IOCCR = touch_channels[0][index].enable_mask | touch_channels[1][index].enable_mask | touch_channels[2][index].enable_mask;
   TSC->ICR |= 0x03; // request clearing MCEF and EOAF flags
   TSC->CR |= 0x02; // start acquisition
@@ -72,6 +73,10 @@ void touch_scan_request(int index) {
 uint8_t touch_scan_check_eoc() {  
   //return (TSC->ISR & 0x01) && !(TSC->ISR & 0x02);
   return (TSC->ISR & 0x01);
+}
+
+uint8_t touch_scan_check_error() {  
+  return TSC->ISR & 0x02;
 }
 
 static const uint8_t hard_index_to_touch_idx[3][3] = {
@@ -105,6 +110,9 @@ void touch_scan_execute() {
   //}
  
   for (uint8_t i=0; i<3; ++i) {
+    if (touch_channels[i][touch_process_index].current_value == MAX_COUNT) {
+      continue;
+    }
     int32_t diff = abs(touch_channels[i][touch_process_index].current_value - touch_channels[i][touch_process_index].fixed_value);
     if(diff > THRESHOLD)  {  
       if (touch_channels[i][touch_process_index].status != TSC_PRESSED) {
@@ -131,7 +139,9 @@ void touch_process() {
   } else {
     //debug_text("START", 5);
     if (touch_scan_check_eoc()) {
-      touch_scan_execute();
+      //if (!touch_scan_check_error()) {
+        touch_scan_execute();
+      //}
       touch_process_index = (touch_process_index+1) % 3;
       touch_process_state = TPS_READY;
       //debug_text("*READY", 6);

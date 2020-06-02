@@ -43,6 +43,23 @@ void screen_set_dirty() {
   _screen_is_dirty = 1;
 }
 
+void _screen_status_draw_pad(uint8_t* buffer) {
+  static uint8_t prev_touch_bits = 0;
+  if (prev_touch_bits != input_state.touch_bits) {
+    // clear
+    for (uint8_t i = 0; i < 8; ++i) {
+      buffer[i] = 0;
+      buffer[(SCREEN_WIDTH-8)+i] = 0;
+    }
+    for (uint8_t pad_idx = 0; pad_idx < 8; ++pad_idx) {
+      if (input_state.touch_bits & (1<<pad_idx)) {
+        draw_touch_pad_small(buffer, pad_idx);
+      }
+    }
+  }
+  prev_touch_bits = input_state.touch_bits;
+}
+
 void screen_draw_edit(uint8_t* buffer) {
   if (_screen_is_dirty) {
     draw_fill_bg(buffer);
@@ -110,6 +127,7 @@ static const ScreenModeFunction _screen_mode_to_function[SCREEN_MODE_SIZE] = {
 
 void screen_draw(uint8_t* buffer) {
   _screen_mode_to_function[_screen_mode](buffer);
+  _screen_status_draw_pad(buffer);
 }
 
 void screen_edit_clear() {

@@ -18,6 +18,7 @@ typedef struct {
   int16_t max_value;
   int16_t min_value;
   uint8_t state_bits;
+  uint8_t steps;
 } TouchState;
 
 void touch_value_init(TouchState* value);
