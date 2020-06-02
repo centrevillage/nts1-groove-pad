@@ -29,6 +29,7 @@ void timer_2_event_handler() {
     touch_process();
     button_process();
     led_process();
+    input_process();
 
     timer_clear_update_flag(2);
   }

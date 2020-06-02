@@ -18,10 +18,11 @@ typedef struct {
   int16_t max_value;
   int16_t min_value;
   uint8_t state_bits;
+  uint32_t state_bits_history;
   uint8_t steps;
 } TouchState;
 
 void touch_value_init(TouchState* value);
-int16_t touch_util_process(uint8_t key_idx, uint8_t press_state, TouchState* value);
+int16_t touch_util_process(uint8_t state_bits, TouchState* value);
 
 #endif /* __N1GP_TOUCH_UTIL_H__ */

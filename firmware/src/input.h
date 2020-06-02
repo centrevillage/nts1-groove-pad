@@ -92,6 +92,7 @@ extern volatile InputState input_state;
 void input_setup();
 void input_refresh();
 void input_touch_init();
+void input_process();
 
 #ifdef __cplusplus
 }

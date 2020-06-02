@@ -43,9 +43,9 @@ void screen_set_dirty() {
   _screen_is_dirty = 1;
 }
 
-void _screen_status_draw_pad(uint8_t* buffer) {
+void _screen_status_draw_pad(uint8_t* buffer, uint8_t force_update) {
   static uint8_t prev_touch_bits = 0;
-  if (prev_touch_bits != input_state.touch_bits) {
+  if (force_update || prev_touch_bits != input_state.touch_bits) {
     // clear
     for (uint8_t i = 0; i < 8; ++i) {
       buffer[i] = 0;
@@ -63,6 +63,7 @@ void _screen_status_draw_pad(uint8_t* buffer) {
 void screen_draw_edit(uint8_t* buffer) {
   if (_screen_is_dirty) {
     draw_fill_bg(buffer);
+
     uint8_t title_offset = (SCREEN_WIDTH - _screen_edit_title_text_size * 5) / 2;
     draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
     //uint8_t page_text_offset = (SCREEN_WIDTH - _screen_edit_page_text_size * 5) / 2;
@@ -85,6 +86,7 @@ void screen_draw_edit(uint8_t* buffer) {
 void screen_draw_seq_note(uint8_t* buffer) {
   if (_screen_is_dirty) {
     draw_fill_bg(buffer);
+
     uint8_t title_offset = (SCREEN_WIDTH - _screen_edit_title_text_size * 5) / 2;
     draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
 
@@ -126,8 +128,9 @@ static const ScreenModeFunction _screen_mode_to_function[SCREEN_MODE_SIZE] = {
 };
 
 void screen_draw(uint8_t* buffer) {
+  uint8_t is_dirty = _screen_is_dirty;
   _screen_mode_to_function[_screen_mode](buffer);
-  _screen_status_draw_pad(buffer);
+  _screen_status_draw_pad(buffer, is_dirty);
 }
 
 void screen_edit_clear() {

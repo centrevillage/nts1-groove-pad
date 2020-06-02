@@ -39,6 +39,7 @@ void touch_value_init(TouchState* value) {
   value->touch_type = TOUCH_TYPE_SWITCH;
   value->value = TOUCH_NO_VALUE;
   value->state_bits = 0;
+  value->state_bits_history = 0;
   value->max_value = 32;
   value->min_value = 0;
   value->steps = 2;
@@ -48,7 +49,7 @@ static inline uint8_t touch_util_is_center_pressed(TouchState* value) {
   return value->state_bits & 0b1000;
 }
 
-static inline void touch_util_switch_process(uint8_t key_idx, uint8_t press_state, TouchState* value, uint8_t new_state_bits) {
+static inline void touch_util_switch_process(TouchState* value, uint8_t new_state_bits) {
   int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
   if (rot_value_current == TOUCH_NO_VALUE) {
     value->value = TOUCH_NO_VALUE;
@@ -58,40 +59,45 @@ static inline void touch_util_switch_process(uint8_t key_idx, uint8_t press_stat
   }
 }
 
-static inline void touch_util_rot_switch_process(uint8_t key_idx, uint8_t press_state, TouchState* value, uint8_t new_state_bits) {
+static inline void touch_util_rot_switch_process(TouchState* value, uint8_t new_state_bits) {
   int8_t v = touch_util_state_bits_to_idx[new_state_bits];
   if (v != TOUCH_HOLD_VALUE) {
     value->value = touch_util_state_bits_to_idx[new_state_bits];
   }
 }
 
-// TODO: 指を離したときに値がずれるのを抑止
-static inline void touch_util_rot_value_process(uint8_t key_idx, uint8_t press_state, TouchState* value, uint8_t new_state_bits) {
-  int8_t rot_value_prev = touch_util_state_bits_to_idx[value->state_bits];
-  int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
+static inline void touch_util_rot_value_process(TouchState* value, uint8_t new_state_bits) {
+  //int8_t rot_value_prev = touch_util_state_bits_to_idx[value->state_bits];
+  //int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
+  if (!(new_state_bits & 0b0111)) {
+    // released
+    return;
+  }
+  int8_t rot_value_prev = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*2)) & 0x0F];
+  int8_t rot_value_current = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*1)) & 0x0F];
   if (rot_value_prev != rot_value_current
       && rot_value_current >= 0 && rot_value_prev >= 0) {
     if (rot_value_current == (rot_value_prev + 1) % 6) {
       // move high position
       if (value->value < value->max_value) {
-        int16_t tmp = value->value;
+        volatile int16_t tmp = value->value;
         if (touch_util_is_center_pressed(value)) {
           tmp += 1;
         } else {
           tmp += value->steps;
         }
-        value->value = tmp < value->max_value ? tmp : value->max_value;
+        value->value = (tmp < (value->max_value) ? tmp : (value->max_value));
       }
     } else if (rot_value_current == (rot_value_prev + 5) % 6) {
       // move low position
       if (value->value > value->min_value) {
-        int16_t tmp = value->value;
+        volatile int16_t tmp = value->value;
         if (touch_util_is_center_pressed(value)) {
           tmp -= 1;
         } else {
           tmp -= value->steps;
         }
-        value->value = tmp > value->min_value ? tmp : value->min_value;
+        value->value = (tmp > (value->min_value) ? tmp : (value->min_value));
       }
     }
   } else if (rot_value_current == TOUCH_HOLD_VALUE) {
@@ -100,17 +106,18 @@ static inline void touch_util_rot_value_process(uint8_t key_idx, uint8_t press_s
 }
 
 
-int16_t touch_util_process(uint8_t key_idx, uint8_t press_state, TouchState* value) {
-  uint8_t state_bits = ((value->state_bits) & ~(1<<key_idx)) | (press_state << key_idx);
+int16_t touch_util_process(uint8_t state_bits, TouchState* value) {
+  value->state_bits_history <<= 4;
+  value->state_bits_history |= state_bits & 0x0F;
   switch (value->touch_type) {
     case TOUCH_TYPE_SWITCH:
-      touch_util_switch_process(key_idx, press_state, value, state_bits);
+      touch_util_switch_process(value, state_bits);
       break;
     case TOUCH_TYPE_ROT_SWITCH:
-      touch_util_rot_switch_process(key_idx, press_state, value, state_bits);
+      touch_util_rot_switch_process(value, state_bits);
       break;
     case TOUCH_TYPE_ROT_VALUE:
-      touch_util_rot_value_process(key_idx, press_state, value, state_bits);
+      touch_util_rot_value_process(value, state_bits);
       break;
   }
   value->state_bits = state_bits;

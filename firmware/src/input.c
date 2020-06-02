@@ -248,25 +248,23 @@ void input_update_pad_value(uint8_t is_right, int16_t value) {
   input_refresh();
 }
 
-void input_touch_handler(uint8_t touch_idx, uint8_t on, uint32_t touch_value) {
-  input_state.touch_bits = (input_state.touch_bits & ~(1<<touch_idx)) | ((on ? 1 : 0)<<touch_idx);
-  input_state.touch_values[touch_idx] = touch_value;
-  if (touch_idx < 3) {
-    int16_t prev_value = input_state.touch_states[0].value;
-    int16_t value = touch_util_process(touch_idx, on, &(input_state.touch_states[0]));
-    if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-      input_update_pad_value(0, value);
-    }
-  } else if (touch_idx < 6) {
-    int16_t prev_value = input_state.touch_states[1].value;
-    int16_t value = touch_util_process(touch_idx-3, on, &(input_state.touch_states[1]));
-    if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-      input_update_pad_value(1, value);
-    }
-  } else if (touch_idx == 6) {
-    touch_util_process(3, on, &(input_state.touch_states[0]));
-  } else if (touch_idx == 7) {
-    touch_util_process(3, on, &(input_state.touch_states[1]));
+void input_touch_handler(uint8_t touch_bits) {
+  input_state.touch_bits = touch_bits;
+
+  // L
+  int16_t prev_value = input_state.touch_states[0].value;
+  uint8_t state_bits = (touch_bits & 0b0111) | ((touch_bits & 0b01000000) >> 3);
+  int16_t value = touch_util_process(state_bits, &(input_state.touch_states[0]));
+  if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+    input_update_pad_value(0, value);
+  }
+
+  // R
+  prev_value = input_state.touch_states[1].value;
+  state_bits = ((touch_bits >> 3) & 0b0111) | ((touch_bits & 0b10000000) >> 4);
+  value = touch_util_process(state_bits, &(input_state.touch_states[1]));
+  if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+    input_update_pad_value(1, value);
   }
 }
 
@@ -346,6 +344,7 @@ static inline void input_set_touch(uint8_t touch_state_idx, TouchType type, int1
   input_state.touch_states[touch_state_idx].min_value = min;
   input_state.touch_states[touch_state_idx].max_value = max;
   input_state.touch_states[touch_state_idx].state_bits = 0;
+  input_state.touch_states[touch_state_idx].state_bits_history = 0;
   input_state.touch_states[touch_state_idx].steps = steps;
 }
 
@@ -1006,4 +1005,7 @@ void input_refresh() {
       break;
   }
   screen_set_dirty();
+}
+
+void input_process() {
 }

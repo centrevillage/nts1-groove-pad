@@ -50,12 +50,13 @@ ChannelStatus touch_channels[3][3] = {
 #define TPS_READY 1
 #define TPS_START 0
 
-__IO uint8_t touch_process_state = TPS_READY;
-static uint8_t touch_process_index = 0;
+volatile uint8_t touch_process_state = TPS_READY;
+volatile uint8_t touch_process_index = 0;
+volatile uint8_t touch_bits = 0;
 
 //static uint32_t touch_request_msec = 0;
 
-void touch_event_callback_null(uint8_t touch_idx, uint8_t on, uint32_t value) {}
+void touch_event_callback_null(uint8_t touch_bits) {}
 
 static TouchEventCallback touch_event_callback = touch_event_callback_null;
 
@@ -104,10 +105,6 @@ void touch_scan_execute() {
   touch_channels[0][touch_process_index].current_value = TSC->IOGXCR[4];
   touch_channels[1][touch_process_index].current_value = TSC->IOGXCR[0];
   touch_channels[2][touch_process_index].current_value = TSC->IOGXCR[2];
-
-  //if (touch_process_index == 1) {
-  //  debug_uint32(touch_channels[1][touch_process_index].current_value);
-  //}
  
   for (uint8_t i=0; i<3; ++i) {
     if (touch_channels[i][touch_process_index].current_value == MAX_COUNT) {
@@ -117,14 +114,19 @@ void touch_scan_execute() {
     if(diff > THRESHOLD)  {  
       if (touch_channels[i][touch_process_index].status != TSC_PRESSED) {
         touch_channels[i][touch_process_index].status = TSC_PRESSED;  
-        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 1, touch_channels[i][touch_process_index].current_value);
+        uint8_t key_idx = hard_index_to_touch_idx[i][touch_process_index];
+        touch_bits = (touch_bits & ~(1<<key_idx)) | (1<<key_idx);
       }
     }  else  {  
       if (touch_channels[i][touch_process_index].status != TSC_RELEASE) {
         touch_channels[i][touch_process_index].status = TSC_RELEASE;  
-        touch_event_callback(hard_index_to_touch_idx[i][touch_process_index], 0, touch_channels[i][touch_process_index].current_value);
+        uint8_t key_idx = hard_index_to_touch_idx[i][touch_process_index];
+        touch_bits = (touch_bits & ~(1<<key_idx));
       }
     }  
+  }
+  if (touch_process_index == 2) {
+    touch_event_callback(touch_bits);
   }
 }
 
@@ -252,4 +254,5 @@ void touch_setup() {
   touch_tsc_init();
   touch_process_state = TPS_READY;
   touch_process_index = 0;
+  touch_bits = 0;
 }
