@@ -6,6 +6,7 @@
 #include "nts1_iface.h"
 #include "state.h"
 #include "preset.h"
+#include "preset_event.h"
 #include "nts1_defs.h"
 #include "screen.h"
 
@@ -30,7 +31,8 @@ void input_osc_update_shift_shape(int16_t value) {
 void input_osc_update_shape(int16_t value) {
   preset_state.osc.shape = value;
   nts1_param_change(k_param_id_osc_shape, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_OSC_SHAPE_TMP_SAVE, 0, value);
+  //preset_event_create(PST_EVT_PRESET_TMP_SAVE, 0, 0);
 }
 
 void input_osc_update_param(uint8_t param_idx, int16_t value) {

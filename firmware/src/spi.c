@@ -73,6 +73,7 @@ void spi_simple_setup(uint8_t spi_idx, uint8_t mosi_pin, uint8_t miso_pin, uint8
 
   LL_SPI_Init(spi_def.p_spi, &spi);
   LL_SPI_SetStandard(spi_def.p_spi, LL_SPI_PROTOCOL_MOTOROLA);
+  LL_SPI_SetRxFIFOThreshold(spi_def.p_spi, LL_SPI_RX_FIFO_TH_QUARTER);
   LL_SPI_Enable(spi_def.p_spi);
   LL_SPI_EnableNSSPulseMgt(spi_def.p_spi);
 }
@@ -80,12 +81,11 @@ void spi_simple_setup(uint8_t spi_idx, uint8_t mosi_pin, uint8_t miso_pin, uint8
 uint8_t spi_transmit(uint8_t spi_idx, uint8_t data) {
   SPI_TypeDef* p_spi = spi_def_get(spi_idx).p_spi;
   while (LL_SPI_IsActiveFlag_BSY(p_spi));
-  if (LL_SPI_IsActiveFlag_RXNE(p_spi)) LL_SPI_ReceiveData8(p_spi); // clear read buffer
   if (!LL_SPI_IsEnabled(p_spi)) LL_SPI_Enable(p_spi);
-  LL_SPI_TransmitData8(p_spi, data);
   while (!LL_SPI_IsActiveFlag_TXE(p_spi));
-  uint8_t received = LL_SPI_ReceiveData8(p_spi);
-  return received;
+  LL_SPI_TransmitData8(p_spi, data);
+  while (!LL_SPI_IsActiveFlag_RXNE(p_spi));
+  return LL_SPI_ReceiveData8(p_spi);
 }
 
 uint8_t spi_is_busy(uint8_t spi_idx) {

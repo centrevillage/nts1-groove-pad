@@ -12,6 +12,8 @@
 #include "nts1_defs.h"
 #include "screen.h"
 #include "preset.h"
+#include "preset_event.h"
+#include "ram.h"
 
 extern "C" {
 #ifndef USE_ARDUINO
@@ -37,7 +39,12 @@ void timer_2_event_handler() {
 
 void timer_4_event_handler() {
   if (timer_is_update(4)) {
-    oled_process();
+    if (preset_event_is_empty() && !preset_is_processing()) {
+      oled_process();
+    } else {
+      preset_process();
+      ram_process();
+    }
     //nts1_req_sys_version();
     timer_clear_update_flag(4);
   }
@@ -137,6 +144,7 @@ void setup() {
   }
 
   preset_setup();
+
   screen_set_mode(SCREEN_MODE_EDIT);
   input_refresh();
   input_touch_init();

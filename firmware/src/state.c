@@ -1,6 +1,8 @@
 #include "state.h"
 
 void state_reset_preset(PresetState* preset) {
+  preset->version = PANEL_VERSION;
+
   preset->osc.index = 0;
   preset->osc.shape = 0;
   preset->osc.shift_shape = 0;
@@ -96,8 +98,5 @@ void state_reset_seq(SeqState* seq) {
     seq->steps[i].note = 64;
     seq->steps[i].velocity = 100;
     seq->steps[i].length = 127;
-    for (uint8_t j=0;j<MOTION_VALUES_SIZE;++j) {
-      seq->steps[i].motion_values[j] = PARAM_UNDEFINED;
-    }
   }
 }
