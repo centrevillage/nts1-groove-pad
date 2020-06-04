@@ -2,6 +2,7 @@
 #include "preset_event.h"
 #include "ram.h"
 #include "stm32f0xx_ll_gpio.h"
+#include "input.h"
 
 // アドレス範囲(256Kb= 0x00000-0x3FFFF)
 // プリセットを保持するアドレス
@@ -268,6 +269,7 @@ void preset_tmp_load_complate() {
     state_reset_preset(&preset_state);
     preset_event_create(PST_EVT_PRESET_TMP_SAVE, 0, 0);
   }
+  input_refresh();
 }
 
 void preset_tmp_save_complate() {
