@@ -31,74 +31,73 @@ void input_osc_update_shift_shape(int16_t value) {
 void input_osc_update_shape(int16_t value) {
   preset_state.osc.shape = value;
   nts1_param_change(k_param_id_osc_shape, 0, value);
-  preset_event_create(PST_EVT_OSC_SHAPE_TMP_SAVE, 0, value);
-  //preset_event_create(PST_EVT_PRESET_TMP_SAVE, 0, 0);
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_SHAPE, 0);
 }
 
 void input_osc_update_param(uint8_t param_idx, int16_t value) {
   preset_state.osc.custom_values[param_idx] = value;
   nts1_param_change(k_param_id_osc_edit, param_idx, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_CUSTOM_VALUES, param_idx);
 }
 
 void input_filter_update_cutoff(int16_t value) {
   preset_state.filter.cutoff = value;
   nts1_param_change(k_param_id_filt_cutoff, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_FILTER_CUTOFF, 0);
 }
 
 void input_filter_update_peak(int16_t value) {
   preset_state.filter.peak = value;
   nts1_param_change(k_param_id_filt_peak, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_FILTER_PEAK, 0);
 }
 
 void input_ampeg_update_attack(int16_t value) {
   preset_state.ampeg.attack = value;
   nts1_param_change(k_param_id_ampeg_attack, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_AMPEG_ATTACK, 0);
 }
 
 void input_ampeg_update_release(int16_t value) {
   preset_state.ampeg.release = value;
   nts1_param_change(k_param_id_ampeg_release, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_AMPEG_RELEASE, 0);
 }
 
 void input_modfx_update_time(int16_t value) {
   preset_state.modfx.time = value;
   nts1_param_change(k_param_id_mod_time, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_MODFX_TIME, 0);
 }
 
 void input_modfx_update_depth(int16_t value) {
   preset_state.modfx.depth = value;
   nts1_param_change(k_param_id_mod_depth, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_MODFX_DEPTH, 0);
 }
 
 void input_delfx_update_time(int16_t value) {
   preset_state.delfx.time = value;
   nts1_param_change(k_param_id_del_time, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_DELFX_TIME, 0);
 }
 
 void input_delfx_update_depth(int16_t value) {
   preset_state.delfx.depth = value;
   nts1_param_change(k_param_id_del_depth, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_DELFX_DEPTH, 0);
 }
 
 void input_revfx_update_time(int16_t value) {
   preset_state.revfx.time = value;
   nts1_param_change(k_param_id_rev_time, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_REVFX_TIME, 0);
 }
 
 void input_revfx_update_depth(int16_t value) {
   preset_state.revfx.depth = value;
   nts1_param_change(k_param_id_rev_depth, 0, value);
-  // TODO: temporary save
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_REVFX_DEPTH, 0);
 }
 
 void input_arp_update_pattern(int16_t value) {

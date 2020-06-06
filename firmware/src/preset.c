@@ -276,6 +276,153 @@ void preset_tmp_save_complate() {
   _preset_is_processing = 0;
 }
 
+static inline void preset_realtime_tmpsave_proc_uint8(uint32_t addr, uint16_t target_value) {
+  preset_data_buf[0] = target_value;
+  ram_write_request(preset_data_buf, 1, TEMP_PRESET_RAM_ADDRESS + addr, preset_partial_save_complete);
+  _preset_is_processing = 1;
+}
+
+static inline void preset_realtime_tmpsave_proc_uint16(uint32_t addr, uint16_t target_value) {
+  preset_data_set_uint16(0, (uint16_t)target_value);
+  ram_write_request(preset_data_buf, 2, TEMP_PRESET_RAM_ADDRESS + addr, preset_partial_save_complete);
+  _preset_is_processing = 1;
+}
+
+static inline void preset_realtime_tmp_save_process(PresetEventTargetId target_id, uint16_t value) {
+  switch (target_id) {
+    case PST_EVT_TARGET_OSC_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_OSC_INDEX_ADDR, preset_state.osc.index);
+      break;
+    case PST_EVT_TARGET_OSC_SHAPE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_OSC_SHAPE_ADDR, preset_state.osc.shape);
+      break;
+    case PST_EVT_TARGET_OSC_SHIFT_SHAPE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_OSC_SHIFT_SHAPE_ADDR, preset_state.osc.shift_shape);
+      break;
+    case PST_EVT_TARGET_OSC_LFO_RATE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_OSC_LFO_RATE_ADDR, preset_state.osc.lfo_rate);
+      break;
+    case PST_EVT_TARGET_OSC_LFO_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_OSC_LFO_DEPTH_ADDR, preset_state.osc.lfo_depth);
+      break;
+    case PST_EVT_TARGET_OSC_CUSTOM_VALUES:
+      if (value < OSC_CUSTOM_VALUES_SIZE) {
+        preset_realtime_tmpsave_proc_uint8(PRESET_STATE_OSC_CUSTOM_VALUES_ADDR + value, preset_state.osc.custom_values[value]);
+      }
+      break;
+    case PST_EVT_TARGET_FILTER_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_FILTER_INDEX_ADDR, preset_state.filter.index);
+      break;
+    case PST_EVT_TARGET_FILTER_CUTOFF:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_FILTER_CUTOFF_ADDR, preset_state.filter.cutoff);
+      break;
+    case PST_EVT_TARGET_FILTER_PEAK:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_FILTER_PEAK_ADDR, preset_state.filter.peak);
+      break;
+    case PST_EVT_TARGET_FILTER_LFO_RATE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_FILTER_LFO_RATE_ADDR, preset_state.filter.lfo_rate);
+      break;
+    case PST_EVT_TARGET_FILTER_LFO_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_FILTER_LFO_DEPTH_ADDR, preset_state.filter.lfo_depth);
+      break;
+    case PST_EVT_TARGET_AMPEG_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_AMPEG_INDEX_ADDR, preset_state.ampeg.index);
+      break;
+    case PST_EVT_TARGET_AMPEG_ATTACK:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_AMPEG_ATTACK_ADDR, preset_state.ampeg.attack);
+      break;
+    case PST_EVT_TARGET_AMPEG_RELEASE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_AMPEG_RELEASE_ADDR, preset_state.ampeg.release);
+      break;
+    case PST_EVT_TARGET_AMPEG_LFO_RATE:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_AMPEG_LFO_RATE_ADDR, preset_state.ampeg.lfo_rate);
+      break;
+    case PST_EVT_TARGET_AMPEG_LFO_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_AMPEG_LFO_DEPTH_ADDR, preset_state.ampeg.lfo_depth);
+      break;
+    case PST_EVT_TARGET_MODFX_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_MODFX_INDEX_ADDR, preset_state.modfx.index);
+      break;
+    case PST_EVT_TARGET_MODFX_TIME:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_MODFX_TIME_ADDR, preset_state.modfx.time);
+      break;
+    case PST_EVT_TARGET_MODFX_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_MODFX_DEPTH_ADDR, preset_state.modfx.depth);
+      break;
+    case PST_EVT_TARGET_DELFX_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_DELFX_INDEX_ADDR, preset_state.delfx.index);
+      break;
+    case PST_EVT_TARGET_DELFX_TIME:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_DELFX_TIME_ADDR, preset_state.delfx.time);
+      break;
+    case PST_EVT_TARGET_DELFX_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_DELFX_DEPTH_ADDR, preset_state.delfx.depth);
+      break;
+    case PST_EVT_TARGET_DELFX_MIX:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_DELFX_MIX_ADDR, preset_state.delfx.mix);
+      break;
+    case PST_EVT_TARGET_REVFX_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_REVFX_INDEX_ADDR, preset_state.revfx.index);
+      break;
+    case PST_EVT_TARGET_REVFX_TIME:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_REVFX_TIME_ADDR, preset_state.revfx.time);
+      break;
+    case PST_EVT_TARGET_REVFX_DEPTH:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_REVFX_DEPTH_ADDR, preset_state.revfx.depth);
+      break;
+    case PST_EVT_TARGET_REVFX_MIX:
+      preset_realtime_tmpsave_proc_uint16(PRESET_STATE_REVFX_MIX_ADDR, preset_state.revfx.mix);
+      break;
+    case PST_EVT_TARGET_ARP_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_ARP_INDEX_ADDR, preset_state.arp.index);
+      break;
+    case PST_EVT_TARGET_ARP_INTERVALS:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_ARP_INTERVALS_ADDR, preset_state.arp.intervals);
+      break;
+    case PST_EVT_TARGET_ARP_LENGTH:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_ARP_LENGTH_ADDR, preset_state.arp.length);
+      break;
+    case PST_EVT_TARGET_ARP_STATE:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_ARP_STATE_ADDR, preset_state.arp.state);
+      break;
+    case PST_EVT_TARGET_ARP_TEMPO:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_ARP_TEMPO_ADDR, preset_state.arp.tempo);
+      break;
+    case PST_EVT_TARGET_LFO_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_LFO_INDEX_ADDR, preset_state.lfo.index);
+      break;
+    case PST_EVT_TARGET_LFO_RATE:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_LFO_RATE_ADDR, preset_state.lfo.rate);
+      break;
+    case PST_EVT_TARGET_LFO_DEPTH:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_LFO_DEPTH_ADDR, preset_state.lfo.depth);
+      break;
+    case PST_EVT_TARGET_LFO_BPM_SYNC:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_LFO_BPM_SYNC_ADDR, preset_state.lfo.bpm_sync);
+      break;
+    case PST_EVT_TARGET_SCALE_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_SCALE_INDEX_ADDR, preset_state.scale.index);
+      break;
+    case PST_EVT_TARGET_TRANSPOSE_OFFSET:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_TRANSPOSE_OFFSET_ADDR, preset_state.transpose.offset);
+      break;
+    case PST_EVT_TARGET_STUTTER_INDEX:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_STUTTER_INDEX_ADDR, preset_state.stutter.index);
+      break;
+    case PST_EVT_TARGET_SLIDE_VALUE:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_SLIDE_VALUE_ADDR, preset_state.slide.value);
+      break;
+    case PST_EVT_TARGET_SLIDE_TYPE:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_SLIDE_TYPE_ADDR, preset_state.slide.type);
+      break;
+    case PST_EVT_TARGET_RAND_PITCH:
+      preset_realtime_tmpsave_proc_uint8(PRESET_STATE_RAND_PITCH_ADDR, preset_state.rand.pitch);
+      break;
+    case PST_EVT_TARGET_NONE:
+      break;
+  }
+}
+
 void preset_process() {
   if (preset_is_processing()) { return; }
   PresetEvent event = preset_event_get();
@@ -283,13 +430,6 @@ void preset_process() {
     case PST_EVT_PRESET_SAVE:
       break;
     case PST_EVT_PRESET_LOAD:
-      break;
-    case PST_EVT_OSC_SHAPE_TMP_SAVE:
-      preset_data_set_uint16(0, (uint16_t)preset_state.osc.shape);
-      ram_write_request(preset_data_buf, 2,
-          TEMP_PRESET_RAM_ADDRESS + PRESET_STATE_OSC_SHAPE_ADDR,
-          preset_partial_save_complete);
-      _preset_is_processing = 1;
       break;
     case PST_EVT_PRESET_TMP_SAVE:
       preset_save_to_buf();
@@ -299,6 +439,9 @@ void preset_process() {
     case PST_EVT_PRESET_TMP_LOAD:
       ram_read_request(preset_data_buf, PRESET_STATE_SIZE, TEMP_PRESET_RAM_ADDRESS, preset_tmp_load_complate);
       _preset_is_processing = 1;
+      break;
+    case PST_EVT_REALTIME_TMP_SAVE:
+      preset_realtime_tmp_save_process(event.target_id, event.value);
       break;
     default:
       break;
