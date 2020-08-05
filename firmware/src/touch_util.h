@@ -10,6 +10,7 @@ typedef enum {
   TOUCH_TYPE_SWITCH = 0,
   TOUCH_TYPE_ROT_SWITCH,
   TOUCH_TYPE_ROT_VALUE,
+  TOUCH_TYPE_ROT_VALUE_RELATIVE,
 } TouchType;
 
 typedef struct {
@@ -23,6 +24,6 @@ typedef struct {
 } TouchState;
 
 void touch_value_init(TouchState* value);
-int16_t touch_util_process(uint8_t state_bits, TouchState* value);
+uint8_t touch_util_process(uint8_t state_bits, TouchState* value);
 
 #endif /* __N1GP_TOUCH_UTIL_H__ */

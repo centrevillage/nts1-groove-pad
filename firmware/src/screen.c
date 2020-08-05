@@ -97,11 +97,17 @@ void screen_draw_seq_note(uint8_t* buffer) {
       text_12dec_from_note(str, seq_state.steps[i].note);
       draw_text_medium(buffer, &(str[0]), 1, 2, i*16);
       draw_text_medium(buffer, &(str[1]), 1, 2, (i*16)+7);
+      if (input_state.seq_selected_steps & ((uint16_t)1<<i)){
+        draw_invert(buffer, 2, 15, 2, i*16);
+      }
     }
     for (uint8_t i = 8; i < 16; ++i) {
       text_12dec_from_note(str, seq_state.steps[i].note);
       draw_text_medium(buffer, &(str[0]), 1, 5, (i-8)*16);
       draw_text_medium(buffer, &(str[1]), 1, 5, ((i-8)*16)+7);
+      if (input_state.seq_selected_steps & ((uint16_t)1<<i)){
+        draw_invert(buffer, 2, 15, 5, i*16);
+      }
     }
 
     _screen_is_dirty = 0;

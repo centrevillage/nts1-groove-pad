@@ -45,6 +45,14 @@ void draw_text_small(uint8_t *buffer, const char* text, uint8_t length, uint16_t
   }
 }
 
+void draw_invert(uint8_t *buffer, uint8_t page_size, uint16_t length, uint16_t page, uint16_t offset) {
+  for (uint16_t i=0; i<length; ++i) {
+    for (uint16_t page_i=0; page_i<page_size; ++page_i) {
+      buffer[((page+page_i)*SCREEN_WIDTH) + offset + i] ^= 0xFF; 
+    }
+  }
+}
+
 void draw_touch_pad_small_l(uint8_t *buffer, const uint8_t* image, uint16_t page) {
   for (uint8_t i=0; i<8; ++i) {
     uint8_t bits = image[i];

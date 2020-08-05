@@ -9,6 +9,7 @@
 #include "preset_event.h"
 #include "nts1_defs.h"
 #include "screen.h"
+#include "util.h"
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -130,7 +131,6 @@ void input_arp_update_tempo(int16_t value) {
   // TODO: temporary save
 }
 
-
 void input_update_pad_value(uint8_t is_right, int16_t value) {
   switch(input_state.mode) {
     case INPUT_MODE_OSC:
@@ -218,6 +218,13 @@ void input_update_pad_value(uint8_t is_right, int16_t value) {
     case INPUT_MODE_SEQ_SELECT:
       break;
     case INPUT_MODE_SEQ_NOTE:
+      if (is_right) {
+        for (uint8_t i = 0; i < SEQ_STEP_MAX; ++i) {
+          if (input_state.seq_selected_steps & ((uint16_t)1<<i)) {
+            seq_state.steps[i].note = (uint8_t)clipping_int16((int16_t)seq_state.steps[i].note + value, 0, 127);
+          }
+        }
+      }
       break;
     case INPUT_MODE_SEQ_OSC:
       break;
@@ -249,23 +256,96 @@ void input_update_pad_value(uint8_t is_right, int16_t value) {
   input_refresh();
 }
 
+void input_release_pad(uint8_t is_right) {
+  switch(input_state.mode) {
+    case INPUT_MODE_OSC:
+      break;
+    case INPUT_MODE_CUSTOM:
+      break;
+    case INPUT_MODE_FILTER:
+      break;
+    case INPUT_MODE_AMPEG:
+      break;
+    case INPUT_MODE_MODFX:
+      break;
+    case INPUT_MODE_DELFX:
+      break;
+    case INPUT_MODE_REVFX:
+      break;
+    case INPUT_MODE_ARP:
+      break;
+    case INPUT_MODE_SAVE:
+      break;
+    case INPUT_MODE_LOAD:
+      break;
+    case INPUT_MODE_CLEAR:
+      break;
+    case INPUT_MODE_GLOBAL:
+      break;
+    case INPUT_MODE_SCALE:
+      break;
+    case INPUT_MODE_TRANS:
+      break;
+    case INPUT_MODE_STUTTER:
+      break;
+    case INPUT_MODE_LFO:
+      break;
+    case INPUT_MODE_SEQ_SELECT:
+      break;
+    case INPUT_MODE_SEQ_NOTE:
+      break;
+    case INPUT_MODE_SEQ_OSC:
+      break;
+    case INPUT_MODE_SEQ_CUSTOM:
+      break;
+    case INPUT_MODE_SEQ_FILTER:
+      break;
+    case INPUT_MODE_SEQ_AMPEG:
+      break;
+    case INPUT_MODE_SEQ_MODFX:
+      break;
+    case INPUT_MODE_SEQ_DELFX:
+      break;
+    case INPUT_MODE_SEQ_REVFX:
+      break;
+    case INPUT_MODE_SEQ_ARP:
+      break;
+    case INPUT_MODE_SEQ_SCALE:
+      break;
+    case INPUT_MODE_SEQ_TRANS:
+      break;
+    case INPUT_MODE_SEQ_STUTTER:
+      break;
+    case INPUT_MODE_SEQ_LFO:
+      break;
+    case INPUT_MODE_SIZE:
+      break;
+  }
+}
+
 void input_touch_handler(uint8_t touch_bits) {
   input_state.touch_bits = touch_bits;
 
   // L
-  int16_t prev_value = input_state.touch_states[0].value;
   uint8_t state_bits = (touch_bits & 0b0111) | ((touch_bits & 0b01000000) >> 3);
-  int16_t value = touch_util_process(state_bits, &(input_state.touch_states[0]));
-  if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+  uint8_t is_changed = touch_util_process(state_bits, &(input_state.touch_states[0]));
+  int16_t value = input_state.touch_states[0].value;
+  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
     input_update_pad_value(0, value);
+  }
+  if (value == TOUCH_NO_VALUE) {
+    input_release_pad(0);
   }
 
   // R
-  prev_value = input_state.touch_states[1].value;
   state_bits = ((touch_bits >> 3) & 0b0111) | ((touch_bits & 0b10000000) >> 4);
-  value = touch_util_process(state_bits, &(input_state.touch_states[1]));
-  if (prev_value != value && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+  is_changed = touch_util_process(state_bits, &(input_state.touch_states[1]));
+  value = input_state.touch_states[1].value;
+  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
     input_update_pad_value(1, value);
+  }
+  if (value == TOUCH_NO_VALUE) {
+    input_release_pad(1);
   }
 }
 
@@ -419,6 +499,8 @@ void input_touch_init() {
     case INPUT_MODE_SEQ_SELECT:
       break;
     case INPUT_MODE_SEQ_NOTE:
+      input_set_touch(0, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
+      input_set_touch(1, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
       break;
     case INPUT_MODE_SEQ_OSC:
       break;
@@ -624,11 +706,98 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
   }
 }
 
-volatile uint8_t _input_planned_seq_mode = 255;
+FORCE_INLINE void input_back_to_edit_mode() {
+  switch (input_state.mode) {
+    case INPUT_MODE_SEQ_NOTE:
+      input_state.mode = INPUT_MODE_OSC;
+      break;
+    case INPUT_MODE_SEQ_OSC:
+      input_state.mode = INPUT_MODE_OSC;
+      break;
+    case INPUT_MODE_SEQ_CUSTOM:
+      input_state.mode = INPUT_MODE_CUSTOM;
+      break;
+    case INPUT_MODE_SEQ_FILTER:
+      input_state.mode = INPUT_MODE_FILTER;
+      break;
+    case INPUT_MODE_SEQ_AMPEG:
+      input_state.mode = INPUT_MODE_AMPEG;
+      break;
+    case INPUT_MODE_SEQ_MODFX:
+      input_state.mode = INPUT_MODE_MODFX;
+      break;
+    case INPUT_MODE_SEQ_DELFX:
+      input_state.mode = INPUT_MODE_DELFX;
+      break;
+    case INPUT_MODE_SEQ_REVFX:
+      input_state.mode = INPUT_MODE_REVFX;
+      break;
+    case INPUT_MODE_SEQ_ARP:
+      input_state.mode = INPUT_MODE_ARP;
+      break;
+    case INPUT_MODE_SEQ_SCALE:
+      input_state.mode = INPUT_MODE_SCALE;
+      break;
+    case INPUT_MODE_SEQ_TRANS:
+      input_state.mode = INPUT_MODE_TRANS;
+      break;
+    case INPUT_MODE_SEQ_STUTTER:
+      input_state.mode = INPUT_MODE_STUTTER;
+      break;
+    case INPUT_MODE_SEQ_LFO:
+      input_state.mode = INPUT_MODE_LFO;
+      break;
+    default:
+      break;
+  }
+}
 
-void input_button_handler(uint8_t button_idx, uint8_t on) {
-  uint8_t prev_mode = input_state.mode;
-  input_state.button_bits = (input_state.button_bits & ~(1<<button_idx)) | (!!on<<button_idx);
+FORCE_INLINE void input_button_seq_mode_handler(uint8_t button_idx, uint8_t on) {
+  switch(button_idx) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+      {
+        uint16_t bit = (uint16_t)1<<button_idx;
+        if (on) {
+          if ((uint16_t)input_state.button_bits == bit) {
+            input_state.seq_selected_steps = bit;
+          } else {
+            input_state.seq_selected_steps |= bit;
+          }
+        }
+      }
+      break;
+    case BTN_SEQ_IDX:
+      input_back_to_edit_mode();
+      break;
+    case BTN_RUN_IDX:
+      break;
+    case BTN_L_IDX:
+      break;
+    case BTN_R_IDX:
+      break;
+    default:
+      break;
+  }
+}
+
+FORCE_INLINE void input_button_edit_mode_handler(uint8_t button_idx, uint8_t on) {
+  volatile static uint8_t _input_planned_seq_mode = 255;
+
   if (input_button_is_seq_pressed()) {
     switch(button_idx) {
       case 0:
@@ -786,6 +955,16 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
       default:
         break;
     }
+  }
+}
+
+void input_button_handler(uint8_t button_idx, uint8_t on) {
+  uint8_t prev_mode = input_state.mode;
+  input_state.button_bits = (input_state.button_bits & ~(1<<button_idx)) | (!!on<<button_idx);
+  if (INPUT_MODE_SEQ_START <= input_state.mode && input_state.mode <= INPUT_MODE_SEQ_END) {
+    input_button_seq_mode_handler(button_idx, on);
+  } else {
+    input_button_edit_mode_handler(button_idx, on);
   }
   if (prev_mode != input_state.mode) {
     if (input_state.mode == INPUT_MODE_CUSTOM) {

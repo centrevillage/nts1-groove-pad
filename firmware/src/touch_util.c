@@ -49,30 +49,35 @@ static inline uint8_t touch_util_is_center_pressed(TouchState* value) {
   return value->state_bits & 0b1000;
 }
 
-static inline void touch_util_switch_process(TouchState* value, uint8_t new_state_bits) {
+static inline uint8_t touch_util_switch_process(TouchState* value, uint8_t new_state_bits) {
   int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
+  int16_t prev_value = value->value;
   if (rot_value_current == TOUCH_NO_VALUE) {
     value->value = TOUCH_NO_VALUE;
   } else if (rot_value_current == TOUCH_HOLD_VALUE) {
   } else {
     value->value = rot_value_current / 2;
   }
+  return prev_value != value->value;
 }
 
-static inline void touch_util_rot_switch_process(TouchState* value, uint8_t new_state_bits) {
+static inline uint8_t touch_util_rot_switch_process(TouchState* value, uint8_t new_state_bits) {
   int8_t v = touch_util_state_bits_to_idx[new_state_bits];
   if (v != TOUCH_HOLD_VALUE) {
     value->value = touch_util_state_bits_to_idx[new_state_bits];
+    return 1;
   }
+  return 0;
 }
 
-static inline void touch_util_rot_value_process(TouchState* value, uint8_t new_state_bits) {
+static inline uint8_t touch_util_rot_value_process(TouchState* value, uint8_t new_state_bits) {
   //int8_t rot_value_prev = touch_util_state_bits_to_idx[value->state_bits];
   //int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
   if (!(new_state_bits & 0b0111)) {
     // released
-    return;
+    return 0;
   }
+  int16_t prev_value = value->value;
   int8_t rot_value_prev = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*2)) & 0x0F];
   int8_t rot_value_current = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*1)) & 0x0F];
   if (rot_value_prev != rot_value_current
@@ -103,23 +108,65 @@ static inline void touch_util_rot_value_process(TouchState* value, uint8_t new_s
   } else if (rot_value_current == TOUCH_HOLD_VALUE) {
   } else if (rot_value_current == TOUCH_NO_VALUE) {
   }
+  return prev_value != value->value;
+}
+
+static inline uint8_t touch_util_rot_value_relative_process(TouchState* value, uint8_t new_state_bits) {
+  //int8_t rot_value_prev = touch_util_state_bits_to_idx[value->state_bits];
+  //int8_t rot_value_current = touch_util_state_bits_to_idx[new_state_bits];
+  if (!(new_state_bits & 0b0111)) {
+    // released
+    return 0;
+  }
+  uint8_t is_changed = 0;
+  int8_t rot_value_prev = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*2)) & 0x0F];
+  int8_t rot_value_current = touch_util_state_bits_to_idx[(value->state_bits_history >> (4*1)) & 0x0F];
+  if (rot_value_prev != rot_value_current
+      && rot_value_current >= 0 && rot_value_prev >= 0) {
+    if (rot_value_current == (rot_value_prev + 1) % 6) {
+      // move high position
+      volatile int16_t tmp = value->value;
+      if (touch_util_is_center_pressed(value)) {
+        value->value = 1;
+      } else {
+        value->value = value->steps;
+      }
+      is_changed = 1;
+    } else if (rot_value_current == (rot_value_prev + 5) % 6) {
+      // move low position
+      volatile int16_t tmp = value->value;
+      if (touch_util_is_center_pressed(value)) {
+        value->value = -1;
+      } else {
+        value->value = -(value->steps);
+      }
+      is_changed = 1;
+    }
+  } else if (rot_value_current == TOUCH_HOLD_VALUE) {
+  } else if (rot_value_current == TOUCH_NO_VALUE) {
+  }
+  return is_changed;
 }
 
 
-int16_t touch_util_process(uint8_t state_bits, TouchState* value) {
+uint8_t touch_util_process(uint8_t state_bits, TouchState* value) {
   value->state_bits_history <<= 4;
   value->state_bits_history |= state_bits & 0x0F;
+  uint8_t is_changed = 0;
   switch (value->touch_type) {
     case TOUCH_TYPE_SWITCH:
-      touch_util_switch_process(value, state_bits);
+      is_changed = touch_util_switch_process(value, state_bits);
       break;
     case TOUCH_TYPE_ROT_SWITCH:
-      touch_util_rot_switch_process(value, state_bits);
+      is_changed = touch_util_rot_switch_process(value, state_bits);
       break;
     case TOUCH_TYPE_ROT_VALUE:
-      touch_util_rot_value_process(value, state_bits);
+      is_changed = touch_util_rot_value_process(value, state_bits);
+      break;
+    case TOUCH_TYPE_ROT_VALUE_RELATIVE:
+      is_changed = touch_util_rot_value_relative_process(value, state_bits);
       break;
   }
   value->state_bits = state_bits;
-  return value->value;
+  return is_changed;
 }

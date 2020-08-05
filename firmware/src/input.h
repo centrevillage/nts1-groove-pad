@@ -44,6 +44,9 @@ typedef enum {
   INPUT_MODE_SIZE,
 } InputMode;
 
+#define INPUT_MODE_SEQ_START INPUT_MODE_SEQ_NOTE
+#define INPUT_MODE_SEQ_END INPUT_MODE_SEQ_LFO
+
 static const char* input_mode_names[INPUT_MODE_SIZE] = {
   "OSC",
   "Custom",
@@ -85,6 +88,7 @@ typedef struct {
   InputMode mode;
   uint8_t current_page;
   TouchState touch_states[2];
+  uint16_t seq_selected_steps;
 } InputState;
 
 extern volatile InputState input_state;
