@@ -3,7 +3,7 @@
     "cpu": "cortex-m0",
     "extra_flags": "-DSTM32F072xB",
     "f_cpu": "48000000L",
-    "mcu": "stm32f072r8t6",
+    "mcu": "stm32f072rbt6",
     "variant": "DISCO_F072RB"
   },
   "connectivity": [
@@ -13,7 +13,7 @@
     "default_tools": [
       "stlink"
     ],
-    "jlink_device": "STM32F072R8",
+    "jlink_device": "STM32F072RB",
     "onboard_tools": [
       "stlink"
     ],
@@ -25,10 +25,10 @@
     "mbed",
     "stm32cube"
   ],
-  "name": "STM32F072R8",
+  "name": "STM32F072RB",
   "upload": {
     "maximum_ram_size": 16384,
-    "maximum_size": 65536,
+    "maximum_size": 131072,
     "protocol": "stlink",
     "protocols": [
       "jlink",

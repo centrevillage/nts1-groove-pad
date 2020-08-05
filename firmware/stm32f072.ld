@@ -1,6 +1,6 @@
 /*
  * SRAM=16kb
- * FLASH=64kb
+ * FLASH=128kb
  */
 /* Entry Point */
 ENTRY(Reset_Handler)
@@ -15,7 +15,7 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 16K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 64K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K
 }
 
 /* Define output sections */
