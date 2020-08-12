@@ -6,7 +6,6 @@
 #include <functional>
 
 namespace igb_sdk {
-  using namespace std;
 // 同期用のカウンター
 //
 // 同期のトリガーとなる信号は、Trigger In, MIDI Clock等、それぞれ異なる速さ(Step per Clock)を持っている。
