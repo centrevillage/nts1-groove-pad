@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "common.h"
 #include "version.h"
+#include "user_conf.h"
 
 #define FORCE_INLINE static inline __attribute__((always_inline, optimize("Ofast"))) 
 

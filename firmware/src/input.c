@@ -219,7 +219,7 @@ void input_update_pad_value(uint8_t is_right, int16_t value) {
       break;
     case INPUT_MODE_SEQ_NOTE:
       if (is_right) {
-        for (uint8_t i = 0; i < SEQ_STEP_MAX; ++i) {
+        for (uint8_t i = 0; i < SEQ_STEP_SIZE; ++i) {
           if (input_state.seq_selected_steps & ((uint16_t)1<<i)) {
             seq_state.steps[i].note = (uint8_t)clipping_int16((int16_t)seq_state.steps[i].note + value, 0, 127);
           }

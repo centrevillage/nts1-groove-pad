@@ -3,17 +3,6 @@
 #include "timer_def.h"
 #include "debug.h"
 
-#ifndef USE_ARDUINO
-void systick_setup() {
-  /* Setup SysTick Timer for 1 msec interrupts  */
-  if (SysTick_Config((SystemCoreClock) / 1000)) { 
-    /* Capture error */ 
-    while (1);
-  }
-  NVIC_SetPriority(SysTick_IRQn, 0x0);
-}
-#endif
-
 void timer_simple_setup(uint8_t timer_idx, uint16_t prescale, uint32_t period, uint16_t priority) {
   timer_clock_enable(timer_idx);
   TimerDef timer_def = timer_def_get(timer_idx);
@@ -41,10 +30,8 @@ void timer_start(uint8_t timer_idx) {
   LL_TIM_EnableCounter(timer_def.p_tim);
 }
 
-
-#ifndef USE_ARDUINO
-volatile uint32_t _current_msec = 0;
-void SysTick_Handler(void) {
-  _current_msec++;
+void timer_stop(uint8_t timer_idx) {
+  TimerDef timer_def = timer_def_get(timer_idx);
+  LL_TIM_DisableCounter(timer_def.p_tim);
 }
-#endif
+

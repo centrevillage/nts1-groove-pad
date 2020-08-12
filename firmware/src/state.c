@@ -88,11 +88,8 @@ void state_reset_global(GlobalState* global) {
 
 void state_reset_seq(SeqState* seq) {
   seq->active_steps = 0;
-  seq->active_slides = 0;
-  seq->start = 0;
   seq->length = 16;
   seq->direction = 0;
-  seq->clock_div = 1;
 
   for (uint8_t i=0;i<16;++i) {
     seq->steps[i].note = 64;

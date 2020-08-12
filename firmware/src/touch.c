@@ -1,5 +1,4 @@
 #include "touch.h"
-#include "timer.h"
 #include "input.h"
 #include <stdlib.h>
 
@@ -68,7 +67,6 @@ void touch_scan_request(uint8_t index) {
   TSC->IOCCR = touch_channels[0][index].enable_mask | touch_channels[1][index].enable_mask | touch_channels[2][index].enable_mask;
   TSC->ICR |= 0x03; // request clearing MCEF and EOAF flags
   TSC->CR |= 0x02; // start acquisition
-  //touch_request_msec = current_msec();
 }
 
 uint8_t touch_scan_check_eoc() {  

@@ -1,7 +1,7 @@
 #include "nts1_iface.h"
 #include "nts1_defs.h"
 #include "state.h"
-#include "timer.h"
+#include "systick_timer.h"
 #include "debug.h"
 
 volatile OscDef osc_defs[OSC_DEFS_SIZE];

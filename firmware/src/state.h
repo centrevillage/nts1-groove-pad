@@ -333,17 +333,14 @@ typedef struct {
   // TODO:
 } SeqStepState;
 
-#define SEQ_STEP_MAX 16
+#define SEQ_STEP_SIZE 16
 
 typedef struct {
   uint16_t active_steps;
-  uint16_t active_slides;
-  uint8_t start;
   uint8_t length;
   uint8_t direction;
-  uint8_t clock_div;
   
-  SeqStepState steps[SEQ_STEP_MAX];
+  SeqStepState steps[SEQ_STEP_SIZE];
 } SeqState;
 
 void state_reset_preset(PresetState* preset);
