@@ -30,6 +30,7 @@ void screen_edit_set_page(uint8_t current_page, uint8_t page_size);
 void screen_edit_set_param_name(uint8_t is_right, const char* param_name, uint8_t len);
 // TODO: value_type の扱い
 void screen_edit_set_param_value(uint8_t is_right, uint16_t value);
+void screen_edit_set_param_value_text(uint8_t is_right, const char* text, uint8_t len);
 void screen_edit_set_hint(const char* hint_text, uint8_t len);
 void screen_edit_clear();
 

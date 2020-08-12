@@ -3,6 +3,10 @@
 
 #include "main.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TOUCH_NO_VALUE -128
 #define TOUCH_HOLD_VALUE -127
 
@@ -25,5 +29,9 @@ typedef struct {
 
 void touch_value_init(TouchState* value);
 uint8_t touch_util_process(uint8_t state_bits, TouchState* value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __N1GP_TOUCH_UTIL_H__ */

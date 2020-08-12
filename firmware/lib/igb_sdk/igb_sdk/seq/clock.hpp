@@ -1,10 +1,12 @@
-#ifndef SEQ_CLOCK_H
-#define SEQ_CLOCK_H
+#ifndef IGB_SDK_SEQ_CLOCK_H
+#define IGB_SDK_SEQ_CLOCK_H
 
-#include "main.h"
+#include <igb_sdk/base.hpp>
 #include <array>
 #include <functional>
 
+namespace igb_sdk {
+  using namespace std;
 // 同期用のカウンター
 //
 // 同期のトリガーとなる信号は、Trigger In, MIDI Clock等、それぞれ異なる速さ(Step per Clock)を持っている。
@@ -133,4 +135,6 @@ struct Seq2Clock {
   }
 };
 
-#endif /* SEQ_CLOCK_H */
+}
+
+#endif /* IGB_SDK_SEQ_CLOCK_H */

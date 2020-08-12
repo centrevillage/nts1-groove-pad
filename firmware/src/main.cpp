@@ -128,7 +128,7 @@ void setup() {
   timer_start(TIM_COMMON_ID);
   timer_simple_setup(TIM_SPI_ID, 255, 0xFFF, 5);
   timer_start(TIM_SPI_ID);
-  timer_simple_setup(TIM_SEQ_ID, 16, 100, 0);
+  timer_simple_setup(TIM_SEQ_ID, 7000, 5000, 0);
 
   //char buf[9];
   //text_0x_from_uint32(buf, SystemCoreClock);

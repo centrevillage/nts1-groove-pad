@@ -10,6 +10,7 @@
 #include "nts1_defs.h"
 #include "screen.h"
 #include "util.h"
+#include "app_seq.h"
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -752,6 +753,14 @@ FORCE_INLINE void input_back_to_edit_mode() {
   }
 }
 
+FORCE_INLINE void input_toggle_run_state() {
+  if (seq.run_state) {
+    seq.stop();
+  } else {
+    seq.start();
+  }
+}
+
 FORCE_INLINE void input_button_seq_mode_handler(uint8_t button_idx, uint8_t on) {
   switch(button_idx) {
     case 0:
@@ -785,6 +794,7 @@ FORCE_INLINE void input_button_seq_mode_handler(uint8_t button_idx, uint8_t on) 
       input_back_to_edit_mode();
       break;
     case BTN_RUN_IDX:
+      input_toggle_run_state();
       break;
     case BTN_L_IDX:
       break;
@@ -945,6 +955,7 @@ FORCE_INLINE void input_button_edit_mode_handler(uint8_t button_idx, uint8_t on)
         }
         break;
       case BTN_RUN_IDX:
+        input_toggle_run_state();
         break;
       case BTN_L_IDX:
         input_edit_lr_button_handler(0, on);

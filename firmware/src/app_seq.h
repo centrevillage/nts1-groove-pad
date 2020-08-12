@@ -1,9 +1,11 @@
 #ifndef APP_SEQ_H
 #define APP_SEQ_H
 
-#include "seq.h"
+#include <igb_sdk/seq/seq.hpp>
 #include "app_seq_clock.h"
 #include "state.h"
+
+using namespace igb_sdk;
 
 struct AppSequencer;
 extern AppSequencer seq;
@@ -13,6 +15,7 @@ extern AppSequencer seq;
 struct AppSequencer {
   // 1 トラックのみのシンプルシーケンサー
   Sequencer<SimpleTrack<SimpleSteps>, 1, AppSeqClock> base_seq;
+  bool run_state = 0;
 
   void init();
 

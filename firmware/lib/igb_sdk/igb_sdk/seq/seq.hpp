@@ -1,9 +1,11 @@
-#ifndef __N1GP_SEQ_H__
-#define __N1GP_SEQ_H__
+#ifndef IGB_SDK_SEQ_SEQ_H
+#define IGB_SDK_SEQ_SEQ_H
 
-#include "main.h"
+#include <igb_sdk/base.hpp>
 #include <array>
 #include <functional>
+
+namespace igb_sdk {
 
 struct SimpleSteps {
   uint16_t active_bits = 0;
@@ -65,5 +67,6 @@ struct Sequencer {
   }
 };
 
+}
 
-#endif /* __N1GP_SEQ_H__ */
+#endif /* IGB_SDK_SEQ_SEQ_H */
