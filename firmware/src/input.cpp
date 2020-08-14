@@ -11,6 +11,7 @@
 #include "screen.h"
 #include "util.h"
 #include "app_seq.h"
+#include "app_button.hpp"
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -22,7 +23,19 @@
 #define BTN_L_PIN    PIN_A8
 #define BTN_R_PIN    PIN_A15
 
-volatile InputState input_state = {0};
+using namespace igb_stm32;
+using namespace igb_sdk;
+
+volatile InputState input_state;
+
+// NOTE:
+// 本来なら、これは割り込みを考慮して volatile 修飾すべきだが、
+// 全メンバ変数が volatile 修飾されてしまうため、volatile 修飾された型以外の値が
+// 設定できなくなってしまう。
+// 例えば lambda 関数には volatile 修飾ができないため、コールバック関数を設定できなくなってしまう。
+//
+// 将来的には、volatile修飾以外の方法で同期を保証する様にすべき。
+AppButtons app_buttons;
 
 void input_osc_update_shift_shape(int16_t value) {
   preset_state.osc.shift_shape = value;
@@ -988,9 +1001,14 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   }
 }
 
+void input_button_handler_for_sdk(AppBtnID id, bool on) {
+  input_button_handler(static_cast<uint8_t>(id), on);
+}
+
 void input_setup() {
   touch_event_listen(input_touch_handler);
 
+#if 0
   uint8_t matrix_idx = button_register_matrix(0, 4, 4);
   button_register_matrix_row_pin(matrix_idx, 0, PIN_B11);
   button_register_matrix_row_pin(matrix_idx, 1, PIN_B10);
@@ -1008,6 +1026,16 @@ void input_setup() {
 
   //button_event_listen(input_button_debug_handler);
   button_event_listen(input_button_handler);
+#endif
+
+#if 1
+  app_buttons.init();
+  //app_buttons.on_change = input_button_handler_for_sdk;
+  app_buttons.on_change = [](AppBtnID id, bool on){
+    input_button_handler(static_cast<uint8_t>(id), on);
+  };
+#endif
+
 
   input_state.touch_bits = 0;
   for (uint8_t i=0; i<9; ++i) {
