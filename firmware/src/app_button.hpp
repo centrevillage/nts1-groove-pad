@@ -129,7 +129,9 @@ struct AppButtons {
     btn_matrix.process();
     uint32_t new_bits = 0;
     for (uint8_t i = 0; i < static_cast<uint8_t>(AppBtnID::SIZE); ++i) {
-      new_bits |= (uint32_t)1 << (isOn(static_cast<AppBtnID>(i)) ? 1 : 0);
+      if (isOn(static_cast<AppBtnID>(i))) {
+        new_bits |= (uint32_t)1 << i;
+      }
     }
     if (state_bits != new_bits) {
       if (on_change) {
