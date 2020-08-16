@@ -1,7 +1,6 @@
 #include "input.h"
 #include "touch.h"
 #include "oled.h"
-#include "button.h"
 #include "led.h"
 #include "nts1_iface.h"
 #include "state.h"
@@ -547,7 +546,7 @@ void input_touch_init() {
 }
 
 static inline uint8_t input_button_is_seq_pressed() {
-  return input_state.button_bits & (1<<BTN_SEQ_IDX);
+  return app_buttons.state_bits & (1<<BTN_SEQ_IDX);
 }
 
 static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
@@ -796,7 +795,7 @@ FORCE_INLINE void input_button_seq_mode_handler(uint8_t button_idx, uint8_t on) 
       {
         uint16_t bit = (uint16_t)1<<button_idx;
         if (on) {
-          if ((uint16_t)input_state.button_bits == bit) {
+          if ((uint16_t)app_buttons.state_bits == bit) {
             input_state.seq_selected_steps = bit;
           } else {
             input_state.seq_selected_steps |= bit;
@@ -985,7 +984,6 @@ FORCE_INLINE void input_button_edit_mode_handler(uint8_t button_idx, uint8_t on)
 
 void input_button_handler(uint8_t button_idx, uint8_t on) {
   uint8_t prev_mode = input_state.mode;
-  input_state.button_bits = (input_state.button_bits & ~(1<<button_idx)) | (!!on<<button_idx);
   if (INPUT_MODE_SEQ_START <= input_state.mode && input_state.mode <= INPUT_MODE_SEQ_END) {
     input_button_seq_mode_handler(button_idx, on);
   } else {
@@ -1005,43 +1003,10 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
 void input_setup() {
   touch_event_listen(input_touch_handler);
 
-#if 0
-  uint8_t matrix_idx = button_register_matrix(0, 4, 4);
-  button_register_matrix_row_pin(matrix_idx, 0, PIN_B11);
-  button_register_matrix_row_pin(matrix_idx, 1, PIN_B10);
-  button_register_matrix_row_pin(matrix_idx, 2, PIN_C2);
-  button_register_matrix_row_pin(matrix_idx, 3, PIN_C3);
-  button_register_matrix_col_pin(matrix_idx, 0, PIN_A4);
-  button_register_matrix_col_pin(matrix_idx, 1, PIN_C4);
-  button_register_matrix_col_pin(matrix_idx, 2, PIN_C6);
-  button_register_matrix_col_pin(matrix_idx, 3, PIN_C7);
-
-  button_register_single(BTN_SEQ_IDX, BTN_SEQ_PIN);
-  button_register_single(BTN_RUN_IDX, BTN_RUN_PIN);
-  button_register_single(BTN_L_IDX, BTN_L_PIN);
-  button_register_single(BTN_R_IDX, BTN_R_PIN);
-
-  //button_event_listen(input_button_debug_handler);
-  button_event_listen(input_button_handler);
-#endif
-
-#if 1
   app_buttons.init();
   app_buttons.on_change = [](AppBtnID id, bool on){
-    // debug
-    //if (on) {
-    //  char buf[8] = {' ', 'O', 'N', ':', ' ', ' ', ' '};
-    //  text_0x_from_uint8(&(buf[5]), static_cast<uint8_t>(id));
-    //  debug_text(buf, 7);
-    //} else {
-    //  char buf[8] = {'O', 'F', 'F', ':', ' ', ' ', ' '};
-    //  text_0x_from_uint8(&(buf[5]), static_cast<uint8_t>(id));
-    //  debug_text(buf, 7);
-    //}
     input_button_handler(static_cast<uint8_t>(id), on);
   };
-#endif
-
 
   input_state.touch_bits = 0;
   for (uint8_t i=0; i<9; ++i) {
@@ -1233,10 +1198,5 @@ void input_refresh() {
 }
 
 void input_process() {
-#if 0
-  button_process();
-#endif
-#if 1
   app_buttons.process();
-#endif
 }

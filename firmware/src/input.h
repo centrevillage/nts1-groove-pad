@@ -84,7 +84,6 @@ static const char* input_mode_names[INPUT_MODE_SIZE] = {
 typedef struct {
   uint8_t touch_bits;
   uint32_t touch_values[9];
-  uint32_t button_bits;
   InputMode mode;
   uint8_t current_page;
   TouchState touch_states[2];

@@ -1,5 +1,4 @@
 #include "main.h"
-#include "button.h"
 #include "touch.h"
 #include "led.h"
 #include "oled.h"
@@ -9,7 +8,6 @@
 #include "timer.h"
 #include "debug.h"
 #include "text.h"
-#include "button.h"
 #include "nts1_defs.h"
 #include "screen.h"
 #include "preset.h"
@@ -111,7 +109,6 @@ void setup() {
   led_setup();
   oled_setup();
   input_setup();
-  button_setup();
   screen_setup();
   seq.init();
 
