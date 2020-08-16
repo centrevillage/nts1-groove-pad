@@ -4,6 +4,7 @@
 #include <igb_stm32/gpio.hpp>
 #include <igb_sdk/ui/button.hpp>
 #include <functional>
+#include <tuple>
 
 // 危険は承知の上・・・
 using namespace igb_stm32;
@@ -59,14 +60,56 @@ struct AppButtons {
     l_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
     r_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
 
-    for (auto& in_pin : btn_matrix.in_pins) {
+    for (const auto& in_pin : btn_matrix.in_pins) {
       in_pin.initInput(GPIOPullMode::NO, GPIOSpeedMode::HIGH);
     }
-    for (auto& out_pin : btn_matrix.out_pins) {
+    for (const auto& out_pin : btn_matrix.out_pins) {
       out_pin.initOutput(GPIOOutputMode::PUSHPULL, GPIOSpeedMode::HIGH);
     }
 
     btn_matrix.init();
+  }
+
+  inline bool _isOn4Matrix(AppBtnID btn_id) {
+    std::tuple<uint8_t, uint8_t> in_out_pin_idx {0, 0};
+
+    switch (btn_id) {
+      case AppBtnID::OSC:
+        in_out_pin_idx = {0, 0}; break;
+      case AppBtnID::PARAM:
+        in_out_pin_idx = {1, 0}; break;
+      case AppBtnID::FILTER:
+        in_out_pin_idx = {2, 0}; break;
+      case AppBtnID::EG:
+        in_out_pin_idx = {3, 0}; break;
+      case AppBtnID::MOD:
+        in_out_pin_idx = {0, 1}; break;
+      case AppBtnID::DELAY:
+        in_out_pin_idx = {1, 1}; break;
+      case AppBtnID::REVERB:
+        in_out_pin_idx = {2, 1}; break;
+      case AppBtnID::ARP:
+        in_out_pin_idx = {3, 1}; break;
+      case AppBtnID::SAVE:
+        in_out_pin_idx = {0, 2}; break;
+      case AppBtnID::LOAD:
+        in_out_pin_idx = {1, 2}; break;
+      case AppBtnID::CLEAR:
+        in_out_pin_idx = {2, 2}; break;
+      case AppBtnID::GLOBAL:
+        in_out_pin_idx = {3, 2}; break;
+      case AppBtnID::SCALE:
+        in_out_pin_idx = {0, 3}; break;
+      case AppBtnID::TRANS:
+        in_out_pin_idx = {1, 3}; break;
+      case AppBtnID::STUTTER:
+        in_out_pin_idx = {2, 3}; break;
+      case AppBtnID::LFO:
+        in_out_pin_idx = {3, 3}; break;
+      default:
+        break;
+    }
+    return btn_matrix.isOn(std::get<0>(in_out_pin_idx), std::get<1>(in_out_pin_idx));
   }
 
   // TODO: ボタンと対応するインデックスの関連づけ、もっとシンプルに定義できる様にしたい
@@ -75,37 +118,23 @@ struct AppButtons {
 
     switch (btn_id) {
       case AppBtnID::OSC:
-        on = btn_matrix.isOn(0, 0); break;
       case AppBtnID::PARAM:
-        on = btn_matrix.isOn(1, 0); break;
       case AppBtnID::FILTER:
-        on = btn_matrix.isOn(2, 0); break;
       case AppBtnID::EG:
-        on = btn_matrix.isOn(3, 0); break;
       case AppBtnID::MOD:
-        on = btn_matrix.isOn(0, 1); break;
       case AppBtnID::DELAY:
-        on = btn_matrix.isOn(1, 1); break;
       case AppBtnID::REVERB:
-        on = btn_matrix.isOn(2, 1); break;
       case AppBtnID::ARP:
-        on = btn_matrix.isOn(3, 1); break;
       case AppBtnID::SAVE:
-        on = btn_matrix.isOn(0, 2); break;
       case AppBtnID::LOAD:
-        on = btn_matrix.isOn(1, 2); break;
       case AppBtnID::CLEAR:
-        on = btn_matrix.isOn(2, 2); break;
       case AppBtnID::GLOBAL:
-        on = btn_matrix.isOn(3, 2); break;
       case AppBtnID::SCALE:
-        on = btn_matrix.isOn(0, 3); break;
       case AppBtnID::TRANS:
-        on = btn_matrix.isOn(1, 3); break;
       case AppBtnID::STUTTER:
-        on = btn_matrix.isOn(2, 3); break;
       case AppBtnID::LFO:
-        on = btn_matrix.isOn(3, 3); break;
+        on = _isOn4Matrix(btn_id);
+        break;
       case AppBtnID::SEQ:
         on = seq_btn.isOn(); break;
       case AppBtnID::RUN:

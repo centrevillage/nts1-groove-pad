@@ -31,7 +31,6 @@ extern "C" {
 TIMER_EVENT_HANDLER(TIM_COMMON_ID) {
   if (timer_is_update(TIM_COMMON_ID)) {
     touch_process();
-    button_process();
     led_process();
     input_process();
 

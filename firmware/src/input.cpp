@@ -12,6 +12,7 @@
 #include "util.h"
 #include "app_seq.h"
 #include "app_button.hpp"
+#include "text.h"
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -1001,10 +1002,6 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
   }
 }
 
-void input_button_handler_for_sdk(AppBtnID id, bool on) {
-  input_button_handler(static_cast<uint8_t>(id), on);
-}
-
 void input_setup() {
   touch_event_listen(input_touch_handler);
 
@@ -1030,8 +1027,17 @@ void input_setup() {
 
 #if 1
   app_buttons.init();
-  //app_buttons.on_change = input_button_handler_for_sdk;
   app_buttons.on_change = [](AppBtnID id, bool on){
+    // debug
+    //if (on) {
+    //  char buf[8] = {' ', 'O', 'N', ':', ' ', ' ', ' '};
+    //  text_0x_from_uint8(&(buf[5]), static_cast<uint8_t>(id));
+    //  debug_text(buf, 7);
+    //} else {
+    //  char buf[8] = {'O', 'F', 'F', ':', ' ', ' ', ' '};
+    //  text_0x_from_uint8(&(buf[5]), static_cast<uint8_t>(id));
+    //  debug_text(buf, 7);
+    //}
     input_button_handler(static_cast<uint8_t>(id), on);
   };
 #endif
@@ -1227,4 +1233,10 @@ void input_refresh() {
 }
 
 void input_process() {
+#if 0
+  button_process();
+#endif
+#if 1
+  app_buttons.process();
+#endif
 }

@@ -90,7 +90,7 @@ struct ButtonMatrix {
     prev_out_pin.write(is_pull_up);
     out_pin.write(!is_pull_up);
 
-    for (uint8_t i; i < in_pin_size; ++i) {
+    for (uint8_t i = 0; i < in_pin_size; ++i) {
       const auto& in_pin = in_pins[i];
       bufs[i][_out_pin_idx].add(!!in_pin.read() == !is_pull_up);
     }
