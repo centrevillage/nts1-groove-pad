@@ -23,9 +23,6 @@
 #define BTN_L_PIN    PIN_A8
 #define BTN_R_PIN    PIN_A15
 
-using namespace igb_stm32;
-using namespace igb_sdk;
-
 volatile InputState input_state;
 
 // NOTE:

@@ -1,7 +1,7 @@
 #ifndef APP_BUTTON_H
 #define APP_BUTTON_H
 
-#include <igb_stm32/gpio.hpp>
+#include <igb_stm32/periph/gpio.hpp>
 #include <igb_sdk/ui/button.hpp>
 #include <functional>
 #include <tuple>
