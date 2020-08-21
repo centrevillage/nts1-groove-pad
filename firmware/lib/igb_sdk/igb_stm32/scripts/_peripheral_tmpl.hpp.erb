@@ -12,32 +12,76 @@
 <% end %>
 <% end %>
 
-#include <igb_stm32/base/info.hpp>
-
 namespace igb_stm32 {
 
-const struct PeripheralInfo {
+enum class PeriphGroupType : uint16_t {
+<% first = true %>
+<% @cpp_structs.each do |group_name, structs| %>
+<%  next if !structs || structs.empty? %>
+  <%= group_name.downcase %><%= (first = false) or ' = 0' if first %>,
+<% end %>
+};
+
+enum class PeriphType : uint16_t {
+<% first = true %>
+<% @cpp_structs.each do |group_name, structs| %>
+<%  next if !structs || structs.empty? %>
+<%  structs.each do |struct| %>
+  <%= struct[:periph].downcase %><%= (first = false) or ' = 0' if first %>,
+<%  end %>
+<% end %>
+};
+
+enum class BusType : uint8_t {
+<% @bus_names.each_with_index do |bus_name, i| %>
+  <%= bus_name.downcase %><%= ' = 0' if i == 0 %>,
+<% end %>
+};
+
+const std::array<__IO uint32_t*, <%= @bus_names.size %>> STM32_BUS_TO_ENR_ADDRESS = {
+<% @bus_names.each_with_index do |bus_name, i| %>
+  &(RCC-><%= bus_name %>ENR),
+<% end %>
+};
+
+const std::array<__IO uint32_t*, <%= @bus_names.size %>> STM32_BUS_TO_RSTR_ADDRESS = {
+<% @bus_names.each_with_index do |bus_name, i| %>
+  &(RCC-><%= bus_name %>RSTR),
+<% end %>
+};
+
+#include <igb_stm32/base/_info.hpp>
+
+const struct PeriphInfo {
 <% @cpp_structs.each do |group_name, structs| %>
 <% next if !structs || structs.empty? %>
 <%  if schema.dig(group_name.to_sym, :singleton) %>
   const <%= schema[group_name.to_sym][:name] %> <%= group_name.downcase %> {
+    .periph_type = PeriphType::<%= structs.first[:periph].downcase %>,
 <%    structs.first[:attrs].each do |key, value| %>
     .<%= key %> = <%= value[:value] %>,
+<%    end  %>
+<%    if bus = structs.first[:bus] %>
+    .bus = PeriphBusInfo { BusType::<%= bus[:name].downcase %>, (uint32_t)1 << <%= bus[:bit_offset] %>},
 <%    end  %>
   };
 <%  else %>
   const std::array<<%= schema[group_name.to_sym][:name] %>, <%= structs.size %>> <%= group_name.downcase %> {
 <%    structs.each do |struct| %>
     <%= schema[group_name.to_sym][:name] %> {
+      .periph_type = PeriphType::<%= struct[:periph].downcase %>,
 <%      struct[:attrs].each do |key, value| %>
       .<%= key %> = <%= value[:value] %>,
 <%      end %>
+<%      if bus = struct[:bus] %>
+      .bus = PeriphBusInfo { BusType::<%= bus[:name].downcase %>, (uint32_t)1 << <%= bus[:bit_offset] %>},
+<%      end  %>
     },
 <%    end %>
   };
 <%  end %>
 <% end %>
-} PERIPHERAL_INFO;
+} STM32_PERIPH_INFO;
 
 }
 

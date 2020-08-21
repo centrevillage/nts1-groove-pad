@@ -17,7 +17,10 @@ class SVDParser
     # ペリフェラルをグループごとにざっくり分割
     @parsed = {}
 
+    @periph_to_group = {}
+
     @cpp_structs = {}
+    @bus_names = Set.new
   end
 
   def debug(text)
@@ -30,19 +33,23 @@ class SVDParser
       REXML::XPath.match(@doc, "/device/peripherals/peripheral").each do |peripheral|
 #         debug "[peripheral] name = #{peripheral.elements['name'].text}"
         scan_peripheral(peripheral)
-        REXML::XPath.match(peripheral, "registers/register").each do |register|
-          #debug "[register] name = #{register.elements['name']}"
-          scan_register(peripheral, register)
-        end
       end
 
+      #pp @parsed
+
       gen_structs
+      update_structs_for_bus_clock
+
+      #@cpp_structs.delete_if { |group_name, structs| !structs || structs.empty? }
+
+      #pp @cpp_structs
     end
   end
 
-  # TODO: ペリフェラルの定義から対応するハッシュマップを構築
+  # : ペリフェラルの定義から対応するハッシュマップを構築
   def scan_peripheral(peripheral)
     parent_doc_name = peripheral.attribute("derivedFrom")&.value
+    # TODO: 毎回親ペリフェラルを検索するのは重いのでキャッシュする
     parent_doc = if parent_doc_name
       REXML::XPath.first(@doc, "/device/peripherals/peripheral/name[text()='#{parent_doc_name}']/parent::peripheral")
     end
@@ -53,22 +60,42 @@ class SVDParser
     peripheral_name = fix_ambiguous_peripheral_name(peripheral_name)
 
     debug "[#{group_name}] #{peripheral_name}"
+    
+    group_name = group_name.to_sym
+    peripheral_name = peripheral_name.to_sym
 
     @parsed[group_name] ||= {}
     @parsed[group_name][peripheral_name] ||= {}
 
-    if parent_doc
-      parent_doc.elements.each do |elem|
-        if elem.text && elem.text.size > 0
-          @parsed[group_name][peripheral_name][elem.name.to_sym] = elem.text
-        end
-      end
-    end
+    @parsed[group_name][peripheral_name] = _scan_peripheral(parent_doc) if parent_doc
+    @parsed[group_name][peripheral_name].update(_scan_peripheral(peripheral))
+
+    @periph_to_group[peripheral_name] = group_name
+  end
+
+  def _scan_peripheral(peripheral)
+    result = {}
     peripheral.elements.each do |elem|
       if elem.text && elem.text.size > 0
-        @parsed[group_name][peripheral_name][elem.name.to_sym] = elem.text
+        result[elem.name.to_sym] = elem.text
       end
     end
+
+    result[:addressBlock] = scan_address_block(peripheral.elements['addressBlock']) if peripheral.elements['addressBlock']
+
+    result[:registers] = {}
+    REXML::XPath.match(peripheral, "registers/register").each do |register|
+      reg  = scan_register(register)
+      result[:registers][reg[:name].to_sym] = reg
+    end
+
+    result[:interrupts] = {}
+    REXML::XPath.match(peripheral, "interrupt").each do |interrupt|
+      intr = scan_interrupt(interrupt)
+      result[:interrupts][intr[:name]] = intr
+    end
+
+    result
   end
 
   # 表記揺れの補正
@@ -81,7 +108,36 @@ class SVDParser
     end
   end
 
-  def scan_register(peripheral, register)
+  def scan_address_block(address_block)
+    Hash[*(
+      address_block.elements.flat_map {|elem|
+        [elem.name.to_sym, elem.text]
+      }
+    )]
+  end
+
+  def scan_register(register)
+    register_attrs = Hash[*(
+      register.elements.select{|elem| elem&.text }.flat_map {|elem|
+        [elem.name.to_sym, elem.text]
+      }
+    )]
+
+    fields = []
+    REXML::XPath.match(register, "fields/field").each do |field|
+      fields << Hash[*(field.elements.flat_map {|elem| [elem.name.to_sym, elem&.text]})]
+    end
+    register_attrs[:fields] = fields
+
+    return register_attrs
+  end
+
+  def scan_interrupt(interrupt)
+    Hash[*(
+      interrupt.elements.flat_map {|elem|
+        [elem.name.to_sym, elem.text]
+      }
+    )]
   end
 
   def gen_structs
@@ -96,10 +152,10 @@ class SVDParser
         end
       }.each do |peripheral_name|
         struct = CppStructSchema.create(group_name)
+        struct[:periph] = peripheral_name if struct
         case group_name.to_sym
         when :GPIO
           struct[:attrs][:p_gpio][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :TIM
           struct[:attrs][:p_tim][:value] = peripheral_name
           description = @parsed[group_name][peripheral_name][:description]
@@ -113,25 +169,50 @@ class SVDParser
             #struct[:attrs][:type][:value] = 'TIMType::UNKNOWN'
             raise "Unknown Timer [description=#{description}]"
           end
-          @cpp_structs[group_name] << struct
         when :RCC
           struct[:attrs][:p_rcc][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :I2C
           struct[:attrs][:p_i2c][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :SPI
           struct[:attrs][:p_spi][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :USART
           struct[:attrs][:p_usart][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :ADC
           struct[:attrs][:p_adc][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
         when :DAC
           struct[:attrs][:p_dac][:value] = peripheral_name
-          @cpp_structs[group_name] << struct
+        else
+          next
+        end
+        @cpp_structs[group_name] << struct
+      end
+    end
+  end
+
+  BUSNAME_TO_PERIPHNAME = {
+    IOPA: :GPIOA, IOPB: :GPIOB, IOPC: :GPIOC, IOPD: :GPIOD,
+    IOPE: :GPIOE, IOPF: :GPIOF, IOPG: :GPIOG, IOPH: :GPIOH,
+    IOPI: :GPIOI, IOPJ: :GPIOJ, IOPK: :GPIOK, IOPL: :GPIOL,
+    IOPM: :GPIOM, IOPN: :GPION, IOPO: :GPIOO, IOPP: :GPIOP,
+    ADC:  :ADC1   
+  }
+
+  def update_structs_for_bus_clock
+    %i(AHB APB1 APB2 APB3 APB4).each do |bus_name|
+      if enr = @parsed[:RCC][:RCC][:registers][:"#{bus_name}ENR"]
+        @bus_names << bus_name
+        enr[:fields].each do |field|
+          bus_periph_name = field[:name][0..-3].to_sym
+          if periph_name = BUSNAME_TO_PERIPHNAME[bus_periph_name] || bus_periph_name
+            if group_name = @periph_to_group[periph_name]
+              if periph_struct = @cpp_structs[group_name].find {|elem| elem[:periph].to_sym == periph_name }
+                periph_struct[:bus] = {
+                  name: bus_name,
+                  bit_offset: field[:bitOffset].to_i,
+                }
+              end
+            end
+          end
         end
       end
     end

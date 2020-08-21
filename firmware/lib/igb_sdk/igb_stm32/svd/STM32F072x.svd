@@ -10484,6 +10484,12 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitWidth>1</bitWidth>
             </field>
             <field>
+              <name>IOPEEN</name>
+              <description>I/O port E clock enable</description>
+              <bitOffset>21</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
               <name>IOPFEN</name>
               <description>I/O port F clock enable</description>
               <bitOffset>22</bitOffset>
