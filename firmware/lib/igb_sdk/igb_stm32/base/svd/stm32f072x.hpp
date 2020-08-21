@@ -49,7 +49,7 @@
 #define STM32_PERIPHGRP_SYSCFG_EXISTS 1
 #define STM32_PERIPH_SYSCFG_EXISTS 1
 #define STM32_PERIPHGRP_ADC_EXISTS 1
-#define STM32_PERIPH_ADC_EXISTS 1
+#define STM32_PERIPH_ADC1_EXISTS 1
 #define STM32_PERIPHGRP_USART_EXISTS 1
 #define STM32_PERIPH_USART1_EXISTS 1
 #define STM32_PERIPH_USART2_EXISTS 1
@@ -160,6 +160,11 @@ const struct PeripheralInfo {
   };
   const RCCInfo rcc {
     .p_rcc = RCC,
+  };
+  const std::array<ADCInfo, 1> adc {
+    ADCInfo {
+      .p_adc = ADC1,
+    },
   };
   const std::array<USARTInfo, 4> usart {
     USARTInfo {

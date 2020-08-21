@@ -50,7 +50,10 @@ class SVDParser
     peripheral_name = peripheral.elements['name'].text
     group_name = peripheral.elements['groupName']&.text || parent_doc&.elements['groupName']&.text || peripheral_name
 
+    peripheral_name = fix_ambiguous_peripheral_name(peripheral_name)
+
     debug "[#{group_name}] #{peripheral_name}"
+
     @parsed[group_name] ||= {}
     @parsed[group_name][peripheral_name] ||= {}
 
@@ -65,6 +68,16 @@ class SVDParser
       if elem.text && elem.text.size > 0
         @parsed[group_name][peripheral_name][elem.name.to_sym] = elem.text
       end
+    end
+  end
+
+  # 表記揺れの補正
+  def fix_ambiguous_peripheral_name(name)
+    case name.to_s
+    when 'ADC'
+      'ADC1'
+    else
+      name
     end
   end
 
@@ -113,11 +126,9 @@ class SVDParser
         when :USART
           struct[:attrs][:p_usart][:value] = peripheral_name
           @cpp_structs[group_name] << struct
-        # SVDとCMSISデ表記揺れがあってうまくいかない
-        #when :ADC
-        #  struct[:attrs][:p_adc][:value] = peripheral_name
-        #  struct[:attrs][:p_adc_common][:value] = "#{peripheral_name}_COMMON"
-        #  @cpp_structs[group_name] << struct
+        when :ADC
+          struct[:attrs][:p_adc][:value] = peripheral_name
+          @cpp_structs[group_name] << struct
         when :DAC
           struct[:attrs][:p_dac][:value] = peripheral_name
           @cpp_structs[group_name] << struct

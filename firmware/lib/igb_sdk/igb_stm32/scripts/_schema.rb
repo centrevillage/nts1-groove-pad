@@ -77,22 +77,17 @@ module CppStructSchema
           }
         }
       },
+      ADC: {
+        name: 'ADCInfo',
+        attrs: {
+          p_adc: {
+            value: nil,
+            type: 'ADC_TypeDef*',
+            required: true
+          },
+        }
+      },
       # 下記は未サポート
-      #ADC: {
-      #  name: 'ADCInfo',
-      #  attrs: {
-      #    p_adc: {
-      #      value: nil,
-      #      type: 'ADC_TypeDef*',
-      #      required: true
-      #    },
-      #    p_adc_common: {
-      #      value: nil,
-      #      type: 'ADC_Common_TypeDef*',
-      #      required: true
-      #    }
-      #  }
-      #},
       #FLASH: {
       #  name: 'FLASHCtrl',
       #  attrs: {

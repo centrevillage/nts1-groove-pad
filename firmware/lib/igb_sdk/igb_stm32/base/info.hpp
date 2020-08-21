@@ -83,7 +83,6 @@ struct DACInfo {
 #ifdef STM32_PERIPHGRP_ADC_EXISTS
 struct ADCInfo {
   const ADC_TypeDef* p_adc;
-  const ADC_Common_TypeDef* p_adc_common;
 };
 #endif
 
