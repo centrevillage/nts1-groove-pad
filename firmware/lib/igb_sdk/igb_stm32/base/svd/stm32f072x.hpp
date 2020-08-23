@@ -116,6 +116,46 @@ enum class PeriphType : uint16_t {
   usart4,
 };
 
+enum class GpioType : uint8_t {
+  gpioa = 0,
+  gpiob,
+  gpioc,
+  gpiod,
+  gpioe,
+  gpiof,
+};
+enum class SpiType : uint8_t {
+  spi1 = 0,
+  spi2,
+};
+enum class DacType : uint8_t {
+  dac = 0,
+};
+enum class I2cType : uint8_t {
+  i2c1 = 0,
+  i2c2,
+};
+enum class TimType : uint8_t {
+  tim1 = 0,
+  tim2,
+  tim3,
+  tim6,
+  tim7,
+  tim14,
+  tim15,
+  tim16,
+  tim17,
+};
+enum class AdcType : uint8_t {
+  adc1 = 0,
+};
+enum class UsartType : uint8_t {
+  usart1 = 0,
+  usart2,
+  usart3,
+  usart4,
+};
+
 enum class BusType : uint8_t {
   ahb = 0,
   apb1,

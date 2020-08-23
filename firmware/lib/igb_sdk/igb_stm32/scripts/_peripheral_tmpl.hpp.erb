@@ -32,6 +32,17 @@ enum class PeriphType : uint16_t {
 <% end %>
 };
 
+<% @cpp_structs.each do |group_name, structs| %>
+<%  next if !structs || structs.empty? %>
+<%  next if schema.dig(group_name.to_sym, :singleton) %>
+enum class <%= group_name.capitalize %>Type : uint8_t {
+<%  first = true %>
+<%  structs.each do |struct| %>
+  <%= struct[:periph].downcase %><%= (first = false) or ' = 0' if first %>,
+<%  end %>
+};
+<% end %>
+
 enum class BusType : uint8_t {
 <% @bus_names.each_with_index do |bus_name, i| %>
   <%= bus_name.downcase %><%= ' = 0' if i == 0 %>,
