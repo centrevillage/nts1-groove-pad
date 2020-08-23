@@ -8,14 +8,14 @@ using igb_util::enum_cast;
 
 namespace igb_stm32 {
 
-enum class RCCClockSrc {
+enum class RccClockSrc {
   INTERNAL = 0,
   EXTERNAL,
   PLL,
   HSI48
 };
 
-struct RCCCtrl {
+struct RccCtrl {
   static void enablePeriphBus(PeriphBusInfo periph_bus_info) {
     auto p_enr = STM32_BUS_TO_ENR_ADDRESS[ enum_cast(periph_bus_info.bus_type) ];
     (*p_enr) |= periph_bus_info.periph_bit;

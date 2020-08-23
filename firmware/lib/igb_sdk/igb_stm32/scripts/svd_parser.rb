@@ -160,11 +160,11 @@ class SVDParser
           struct[:attrs][:p_tim][:value] = peripheral_name
           description = @parsed[group_name][peripheral_name][:description]
           if description =~ /\AAdvanced/
-            struct[:attrs][:type][:value] = 'TIMType::ADVANCED'
+            struct[:attrs][:category][:value] = 'TimCategory::ADVANCED'
           elsif description =~ /\AGeneral/
-            struct[:attrs][:type][:value] = 'TIMType::GENERAL'
+            struct[:attrs][:category][:value] = 'TimCategory::GENERAL'
           elsif description =~ /\ABasic/
-            struct[:attrs][:type][:value] = 'TIMType::BASIC'
+            struct[:attrs][:category][:value] = 'TimCategory::BASIC'
           else
             #struct[:attrs][:type][:value] = 'TIMType::UNKNOWN'
             raise "Unknown Timer [description=#{description}]"

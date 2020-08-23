@@ -4,14 +4,14 @@ struct PeriphBusInfo {
 };
 
 #ifdef STM32_PERIPHGRP_RCC_EXISTS
-struct RCCInfo {
+struct RccInfo {
   const PeriphType   periph_type;
   const RCC_TypeDef* p_rcc;
 };
 #endif
 
 #ifdef STM32_PERIPHGRP_GPIO_EXISTS
-struct GPIOInfo {
+struct GpioInfo {
   const PeriphType    periph_type;
   const GPIO_TypeDef* p_gpio;
   const PeriphBusInfo bus;
@@ -19,22 +19,22 @@ struct GPIOInfo {
 #endif
 
 #ifdef STM32_PERIPHGRP_TIM_EXISTS
-enum class TIMType {
+enum class TimCategory {
   UNKNOWN = 0,
   ADVANCED,
   GENERAL,
   BASIC,
 };
-struct TIMInfo {
+struct TimInfo {
   const PeriphType      periph_type;
-  const TIMType         type;
+  const TimCategory     category;
   const TIM_TypeDef*    p_tim;
   const PeriphBusInfo   bus;
 };
 #endif
 
 #ifdef STM32_PERIPHGRP_SPI_EXISTS
-struct SPIInfo {
+struct SpiInfo {
   const PeriphType   periph_type;
   const SPI_TypeDef* p_spi;
   const PeriphBusInfo bus;
@@ -42,7 +42,7 @@ struct SPIInfo {
 #endif
 
 #ifdef STM32_PERIPHGRP_I2C_EXISTS
-struct I2CInfo {
+struct I2cInfo {
   const PeriphType   periph_type;
   const I2C_TypeDef* p_i2c;
   const PeriphBusInfo bus;
@@ -50,7 +50,7 @@ struct I2CInfo {
 #endif
 
 #ifdef STM32_PERIPHGRP_USART_EXISTS
-struct USARTInfo {
+struct UsartInfo {
   const PeriphType   periph_type;
   const USART_TypeDef* p_usart;
   const PeriphBusInfo bus;
@@ -58,7 +58,7 @@ struct USARTInfo {
 #endif
 
 #ifdef STM32_PERIPHGRP_DAC_EXISTS
-struct DACInfo {
+struct DacInfo {
   const PeriphType   periph_type;
   const DAC_TypeDef* p_dac;
   const PeriphBusInfo bus;
@@ -66,7 +66,7 @@ struct DACInfo {
 #endif
 
 #ifdef STM32_PERIPHGRP_ADC_EXISTS
-struct ADCInfo {
+struct AdcInfo {
   const PeriphType   periph_type;
   const ADC_TypeDef* p_adc;
   const PeriphBusInfo bus;

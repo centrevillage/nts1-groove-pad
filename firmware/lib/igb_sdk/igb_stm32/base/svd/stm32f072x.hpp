@@ -177,153 +177,153 @@ const std::array<__IO uint32_t*, 3> STM32_BUS_TO_RSTR_ADDRESS = {
 #include <igb_stm32/base/_info.hpp>
 
 const struct PeriphInfo {
-  const std::array<GPIOInfo, 6> gpio {
-    GPIOInfo {
+  const std::array<GpioInfo, 6> gpio {
+    GpioInfo {
       .periph_type = PeriphType::gpioa,
       .p_gpio = GPIOA,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 17},
     },
-    GPIOInfo {
+    GpioInfo {
       .periph_type = PeriphType::gpiob,
       .p_gpio = GPIOB,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 18},
     },
-    GPIOInfo {
+    GpioInfo {
       .periph_type = PeriphType::gpioc,
       .p_gpio = GPIOC,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 19},
     },
-    GPIOInfo {
+    GpioInfo {
       .periph_type = PeriphType::gpiod,
       .p_gpio = GPIOD,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 20},
     },
-    GPIOInfo {
+    GpioInfo {
       .periph_type = PeriphType::gpioe,
       .p_gpio = GPIOE,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 21},
     },
-    GPIOInfo {
+    GpioInfo {
       .periph_type = PeriphType::gpiof,
       .p_gpio = GPIOF,
       .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 22},
     },
   };
-  const std::array<SPIInfo, 2> spi {
-    SPIInfo {
+  const std::array<SpiInfo, 2> spi {
+    SpiInfo {
       .periph_type = PeriphType::spi1,
       .p_spi = SPI1,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 12},
     },
-    SPIInfo {
+    SpiInfo {
       .periph_type = PeriphType::spi2,
       .p_spi = SPI2,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 14},
     },
   };
-  const std::array<DACInfo, 1> dac {
-    DACInfo {
+  const std::array<DacInfo, 1> dac {
+    DacInfo {
       .periph_type = PeriphType::dac,
       .p_dac = DAC,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 29},
     },
   };
-  const std::array<I2CInfo, 2> i2c {
-    I2CInfo {
+  const std::array<I2cInfo, 2> i2c {
+    I2cInfo {
       .periph_type = PeriphType::i2c1,
       .p_i2c = I2C1,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 21},
     },
-    I2CInfo {
+    I2cInfo {
       .periph_type = PeriphType::i2c2,
       .p_i2c = I2C2,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 22},
     },
   };
-  const std::array<TIMInfo, 9> tim {
-    TIMInfo {
+  const std::array<TimInfo, 9> tim {
+    TimInfo {
       .periph_type = PeriphType::tim1,
-      .type = TIMType::ADVANCED,
+      .category = TimCategory::ADVANCED,
       .p_tim = TIM1,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 11},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim2,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM2,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 0},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim3,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM3,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 1},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim6,
-      .type = TIMType::BASIC,
+      .category = TimCategory::BASIC,
       .p_tim = TIM6,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 4},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim7,
-      .type = TIMType::BASIC,
+      .category = TimCategory::BASIC,
       .p_tim = TIM7,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 5},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim14,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM14,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 8},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim15,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM15,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 16},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim16,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM16,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 17},
     },
-    TIMInfo {
+    TimInfo {
       .periph_type = PeriphType::tim17,
-      .type = TIMType::GENERAL,
+      .category = TimCategory::GENERAL,
       .p_tim = TIM17,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 18},
     },
   };
-  const RCCInfo rcc {
+  const RccInfo rcc {
     .periph_type = PeriphType::rcc,
     .p_rcc = RCC,
   };
-  const std::array<ADCInfo, 1> adc {
-    ADCInfo {
+  const std::array<AdcInfo, 1> adc {
+    AdcInfo {
       .periph_type = PeriphType::adc1,
       .p_adc = ADC1,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 9},
     },
   };
-  const std::array<USARTInfo, 4> usart {
-    USARTInfo {
+  const std::array<UsartInfo, 4> usart {
+    UsartInfo {
       .periph_type = PeriphType::usart1,
       .p_usart = USART1,
       .bus = PeriphBusInfo { BusType::apb2, (uint32_t)1 << 14},
     },
-    USARTInfo {
+    UsartInfo {
       .periph_type = PeriphType::usart2,
       .p_usart = USART2,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 17},
     },
-    USARTInfo {
+    UsartInfo {
       .periph_type = PeriphType::usart3,
       .p_usart = USART3,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 18},
     },
-    USARTInfo {
+    UsartInfo {
       .periph_type = PeriphType::usart4,
       .p_usart = USART4,
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 19},

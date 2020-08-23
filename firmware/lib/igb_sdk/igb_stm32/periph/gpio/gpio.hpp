@@ -6,46 +6,46 @@
 namespace igb_stm32 {
 
 // TODO: MCU によって定義される値が違うかも？
-enum class GPIOMode : uint32_t {
+enum class GpioMode : uint32_t {
   INPUT = 0,
   OUTPUT = GPIO_MODER_MODER0_0,
   ALTERNATE = GPIO_MODER_MODER0_1,
   ANALOG = GPIO_MODER_MODER0
 };
 
-enum class GPIOSpeedMode : uint32_t {
+enum class GpioSpeedMode : uint32_t {
   LOW = 0,
   MEDIUM = GPIO_OSPEEDR_OSPEEDR0_0,
   HIGH = GPIO_OSPEEDR_OSPEEDR0
 };
 
-enum class GPIOPullMode: uint32_t {
+enum class GpioPullMode : uint32_t {
   NO = 0,
   UP = GPIO_PUPDR_PUPDR0_0,
   DOWN = GPIO_PUPDR_PUPDR0_1,
 };
 
-enum class GPIOOutputMode : uint32_t {
+enum class GpioOutputMode : uint32_t {
   PUSHPULL = 0,
   OPENDRAIN = GPIO_OTYPER_OT_0
 };
 
-struct GPIOPort {
+struct GpioPort {
   GPIO_TypeDef* p_gpio;
 
-  void setMode(uint32_t pin_bit, GPIOMode mode) {
+  void setMode(uint32_t pin_bit, GpioMode mode) {
     MODIFY_REG(p_gpio->MODER, ((pin_bit * pin_bit) * GPIO_MODER_MODER0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
-  void setOutputMode(uint32_t pin_bit, GPIOOutputMode mode) {
+  void setOutputMode(uint32_t pin_bit, GpioOutputMode mode) {
     MODIFY_REG(p_gpio->OTYPER, pin_bit, (pin_bit * static_cast<uint32_t>(mode)));
   }
 
-  void setPullMode(uint32_t pin_bit, GPIOPullMode mode) {
+  void setPullMode(uint32_t pin_bit, GpioPullMode mode) {
     MODIFY_REG(p_gpio->PUPDR, ((pin_bit * pin_bit) * GPIO_PUPDR_PUPDR0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
-  void setSpeedMode(uint32_t pin_bit, GPIOSpeedMode mode) {
+  void setSpeedMode(uint32_t pin_bit, GpioSpeedMode mode) {
     MODIFY_REG(p_gpio->OSPEEDR, ((pin_bit * pin_bit) * GPIO_OSPEEDR_OSPEEDR0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
@@ -82,23 +82,23 @@ struct GPIOPort {
 
 };
 
-struct GPIOPin {
-  GPIOPort port;
+struct GpioPin {
+  GpioPort port;
   const uint32_t pin_bit = 0;
 
-  void setMode(GPIOMode mode) {
+  void setMode(GpioMode mode) {
     port.setMode(pin_bit, mode);
   }
 
-  void setOutputMode(GPIOOutputMode mode) {
+  void setOutputMode(GpioOutputMode mode) {
     port.setOutputMode(pin_bit, mode);
   }
 
-  void setPullMode(GPIOPullMode mode) {
+  void setPullMode(GpioPullMode mode) {
     port.setPullMode(pin_bit, mode);
   }
 
-  void setSpeedMode(GPIOSpeedMode mode) {
+  void setSpeedMode(GpioSpeedMode mode) {
     port.setSpeedMode(pin_bit, mode);
   }
 
@@ -130,22 +130,22 @@ struct GPIOPin {
     return port.readOutput() & (pin_bit);
   }
 
-  void initInput(GPIOPullMode pull, GPIOSpeedMode speed) {
-    setMode(GPIOMode::INPUT);
+  void initInput(GpioPullMode pull, GpioSpeedMode speed) {
+    setMode(GpioMode::INPUT);
     setPullMode(pull);
     setSpeedMode(speed);
   }
 
-  void initOutput(GPIOOutputMode output_mode, GPIOSpeedMode speed) {
-    setMode(GPIOMode::OUTPUT);
+  void initOutput(GpioOutputMode output_mode, GpioSpeedMode speed) {
+    setMode(GpioMode::OUTPUT);
     setOutputMode(output_mode);
-    setPullMode(GPIOPullMode::NO);
+    setPullMode(GpioPullMode::NO);
     setSpeedMode(speed);
   }
 
   // TODO: pin_idx と pin_bit は扱いが混乱しそうな気もする。
   //       一方で、それぞれに専用型を割り当てると利用が面倒になりそうな懸念もある。
-  static GPIOPin newPin(const GPIOPort port_, uint8_t pin_idx) {
+  static GpioPin newPin(const GpioPort port_, uint8_t pin_idx) {
     return {
       .port = port_,
       .pin_bit = ((uint32_t)1 << pin_idx)

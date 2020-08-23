@@ -23,27 +23,27 @@ struct AppButtons {
   //using namespace igb_stm32;
   //using namespace igb_sdk;
 
-  const GPIOPort port_a { GPIOA };
-  const GPIOPort port_b { GPIOB };
-  const GPIOPort port_c { GPIOC };
+  const GpioPort port_a { GPIOA };
+  const GpioPort port_b { GPIOB };
+  const GpioPort port_c { GPIOC };
 
-  volatile ButtonSingle<GPIOPin> seq_btn { GPIOPin::newPin(port_a, 11) };
-  volatile ButtonSingle<GPIOPin> run_btn { GPIOPin::newPin(port_c,  1) };
-  volatile ButtonSingle<GPIOPin> l_btn   { GPIOPin::newPin(port_a,  8) };
-  volatile ButtonSingle<GPIOPin> r_btn   { GPIOPin::newPin(port_a, 15) };
+  volatile ButtonSingle<GpioPin> seq_btn { GpioPin::newPin(port_a, 11) };
+  volatile ButtonSingle<GpioPin> run_btn { GpioPin::newPin(port_c,  1) };
+  volatile ButtonSingle<GpioPin> l_btn   { GpioPin::newPin(port_a,  8) };
+  volatile ButtonSingle<GpioPin> r_btn   { GpioPin::newPin(port_a, 15) };
 
-  volatile ButtonMatrix<GPIOPin, 4, GPIOPin, 4> btn_matrix {
+  volatile ButtonMatrix<GpioPin, 4, GpioPin, 4> btn_matrix {
     .in_pins = {
-      GPIOPin::newPin(port_a,  4),
-      GPIOPin::newPin(port_c,  4),
-      GPIOPin::newPin(port_c,  6),
-      GPIOPin::newPin(port_c,  7)
+      GpioPin::newPin(port_a,  4),
+      GpioPin::newPin(port_c,  4),
+      GpioPin::newPin(port_c,  6),
+      GpioPin::newPin(port_c,  7)
     },
     .out_pins = {
-      GPIOPin::newPin(port_b, 11),
-      GPIOPin::newPin(port_b, 10),
-      GPIOPin::newPin(port_c,  2),
-      GPIOPin::newPin(port_c,  3)
+      GpioPin::newPin(port_b, 11),
+      GpioPin::newPin(port_b, 10),
+      GpioPin::newPin(port_c,  2),
+      GpioPin::newPin(port_c,  3)
     }
   };
 
@@ -55,16 +55,16 @@ struct AppButtons {
     port_b.enable();
     port_c.enable();
 
-    seq_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
-    run_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
-    l_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
-    r_btn.pin.initInput(GPIOPullMode::UP, GPIOSpeedMode::HIGH);
+    seq_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
+    run_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
+    l_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
+    r_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
 
     for (const auto& in_pin : btn_matrix.in_pins) {
-      in_pin.initInput(GPIOPullMode::NO, GPIOSpeedMode::HIGH);
+      in_pin.initInput(GpioPullMode::NO, GpioSpeedMode::HIGH);
     }
     for (const auto& out_pin : btn_matrix.out_pins) {
-      out_pin.initOutput(GPIOOutputMode::PUSHPULL, GPIOSpeedMode::HIGH);
+      out_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
     }
 
     btn_matrix.init();

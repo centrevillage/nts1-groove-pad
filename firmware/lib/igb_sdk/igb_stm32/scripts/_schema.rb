@@ -2,7 +2,7 @@ module CppStructSchema
   SCHEMA = 
     {
       GPIO: {
-        name: 'GPIOInfo',
+        name: 'GpioInfo',
         attrs: {
           p_gpio: {
             value: nil,
@@ -12,11 +12,11 @@ module CppStructSchema
         }
       },
       TIM: {
-        name: 'TIMInfo',
+        name: 'TimInfo',
         attrs: {
-          type: {
+          category: {
             value: nil,
-            type: 'TIMType',
+            type: 'TimCategory',
             required: true
           },
           p_tim: {
@@ -27,7 +27,7 @@ module CppStructSchema
         }
       },
       RCC: {
-        name: 'RCCInfo',
+        name: 'RccInfo',
         singleton: true,
         attrs: {
           p_rcc: {
@@ -38,7 +38,7 @@ module CppStructSchema
         }
       },
       I2C: {
-        name: 'I2CInfo',
+        name: 'I2cInfo',
         attrs: {
           p_i2c: {
             value: nil,
@@ -48,7 +48,7 @@ module CppStructSchema
         },
       },
       SPI: {
-        name: 'SPIInfo',
+        name: 'SpiInfo',
         attrs: {
           p_spi: {
             value: nil,
@@ -58,7 +58,7 @@ module CppStructSchema
         },
       },
       USART: {
-        name: 'USARTInfo',
+        name: 'UsartInfo',
         attrs: {
           p_usart: {
             value: nil,
@@ -68,7 +68,7 @@ module CppStructSchema
         },
       },
       DAC: {
-        name: 'DACInfo',
+        name: 'DacInfo',
         attrs: {
           p_dac: {
             value: nil,
@@ -78,7 +78,7 @@ module CppStructSchema
         }
       },
       ADC: {
-        name: 'ADCInfo',
+        name: 'AdcInfo',
         attrs: {
           p_adc: {
             value: nil,
