@@ -24,6 +24,11 @@ module CppStructSchema
             type: 'TIM_TypeDef*',
             required: true
           },
+          irqn: {
+            value: nil,
+            type: 'IRQn_Type',
+            required: true
+          }
         }
       },
       RCC: {

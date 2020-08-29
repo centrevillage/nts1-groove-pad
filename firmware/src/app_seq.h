@@ -4,6 +4,7 @@
 #include <igb_sdk/seq/seq.hpp>
 #include "app_seq_clock.h"
 #include "state.h"
+#include "main.h"
 
 using namespace igb_sdk;
 

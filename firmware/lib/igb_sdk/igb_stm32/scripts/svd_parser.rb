@@ -158,6 +158,9 @@ class SVDParser
           struct[:attrs][:p_gpio][:value] = peripheral_name
         when :TIM
           struct[:attrs][:p_tim][:value] = peripheral_name
+          irqn = @parsed[group_name][peripheral_name][:interrupts].keys.first
+          irqn += 'n' if irqn[-1] != 'n'
+          struct[:attrs][:irqn][:value] = irqn
           description = @parsed[group_name][peripheral_name][:description]
           if description =~ /\AAdvanced/
             struct[:attrs][:category][:value] = 'TimCategory::ADVANCED'

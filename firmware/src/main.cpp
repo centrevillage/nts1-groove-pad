@@ -14,6 +14,9 @@
 #include "preset_event.h"
 #include "ram.h"
 #include "app_seq.h"
+#include <igb_stm32/periph/tim.hpp>
+
+using namespace igb_stm32;
 
 extern "C" {
 #ifndef USE_ARDUINO
@@ -21,40 +24,81 @@ extern "C" {
 #endif
   void setup();
   void loop();
-  TIMER_EVENT_HANDLER(TIM_COMMON_ID);
-  TIMER_EVENT_HANDLER(TIM_SPI_ID);
-  TIMER_EVENT_HANDLER(TIM_SEQ_ID);
+//  TIMER_EVENT_HANDLER(TIM_COMMON_ID);
+//  TIMER_EVENT_HANDLER(TIM_SPI_ID);
+//  TIMER_EVENT_HANDLER(TIM_SEQ_ID);
+
+  void TIM_COMMON_HANDLER();
+  void TIM_SPI_HANDLER();
+  void TIM_SEQ_HANDLER();
 }
 
-TIMER_EVENT_HANDLER(TIM_COMMON_ID) {
-  if (timer_is_update(TIM_COMMON_ID)) {
+void TIM_COMMON_HANDLER() {
+  auto tim = Timer { TIM_COMMON };
+  if (tim.isState(TimState::UPDATE)) {
+
     touch_process();
     led_process();
     input_process();
 
-    timer_clear_update_flag(TIM_COMMON_ID);
+    tim.clearState(TimState::UPDATE);
   }
 }
 
-TIMER_EVENT_HANDLER(TIM_SPI_ID) {
-  if (timer_is_update(TIM_SPI_ID)) {
+void TIM_SPI_HANDLER() {
+  auto tim = Timer { TIM_SPI };
+  if (tim.isState(TimState::UPDATE)) {
+
     if (preset_event_is_empty() && !preset_is_processing()) {
       oled_process();
     } else {
       preset_process();
       ram_process();
     }
-    //nts1_req_sys_version();
-    timer_clear_update_flag(TIM_SPI_ID);
+
+    tim.clearState(TimState::UPDATE);
   }
 }
 
-TIMER_EVENT_HANDLER(TIM_SEQ_ID) {
-  if (timer_is_update(TIM_SEQ_ID)) {
+void TIM_SEQ_HANDLER() {
+  auto tim = Timer { TIM_SEQ };
+  if (tim.isState(TimState::UPDATE)) {
+
     seq.receiveClock();
-    timer_clear_update_flag(TIM_SEQ_ID);
+
+    tim.clearState(TimState::UPDATE);
   }
 }
+
+//TIMER_EVENT_HANDLER(TIM_COMMON_ID) {
+//  if (timer_is_update(TIM_COMMON_ID)) {
+//    touch_process();
+//    led_process();
+//    input_process();
+
+//    timer_clear_update_flag(TIM_COMMON_ID);
+//  }
+//}
+
+//TIMER_EVENT_HANDLER(TIM_SPI_ID) {
+//  if (timer_is_update(TIM_SPI_ID)) {
+//    if (preset_event_is_empty() && !preset_is_processing()) {
+//      oled_process();
+//    } else {
+//      preset_process();
+//      ram_process();
+//    }
+//    // nts1_req_sys_version();
+//    timer_clear_update_flag(TIM_SPI_ID);
+//  }
+//}
+
+//TIMER_EVENT_HANDLER(TIM_SEQ_ID) {
+//  if (timer_is_update(TIM_SEQ_ID)) {
+//    seq.receiveClock();
+//    timer_clear_update_flag(TIM_SEQ_ID);
+//  }
+//}
 
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_ll_system.h"
@@ -120,11 +164,22 @@ void setup() {
   //delay_msec(1000);
   nts1_init();
 
-  timer_simple_setup(TIM_COMMON_ID, 255, 100, 2);
-  timer_start(TIM_COMMON_ID);
-  timer_simple_setup(TIM_SPI_ID, 255, 0xFFF, 5);
-  timer_start(TIM_SPI_ID);
-  timer_simple_setup(TIM_SEQ_ID, 7000, 5000, 0);
+  auto common_tim = Timer::newIntervalTimer(TIM_COMMON_TYPE, 255, 100, 2);
+  common_tim.setCount(0);
+  common_tim.enable();
+
+  auto spi_tim = Timer::newIntervalTimer(TIM_SPI_TYPE, 255, 0xFFF, 5);
+  spi_tim.setCount(0);
+  spi_tim.enable();
+
+  auto seq_tim = Timer::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
+  seq_tim.setCount(0);
+
+  //timer_simple_setup(TIM_COMMON_ID, 255, 100, 2);
+  //timer_start(TIM_COMMON_ID);
+  //timer_simple_setup(TIM_SPI_ID, 255, 0xFFF, 5);
+  //timer_start(TIM_SPI_ID);
+  //timer_simple_setup(TIM_SEQ_ID, 7000, 5000, 0);
 
   //char buf[9];
   //text_0x_from_uint32(buf, SystemCoreClock);

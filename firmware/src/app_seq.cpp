@@ -4,6 +4,10 @@
 #include "preset.h"
 #include "nts1_iface.h"
 
+#include <igb_stm32/periph/tim.hpp>
+
+using namespace igb_stm32;
+
 AppSequencer seq;
 
 static uint8_t prev_note = 0;
@@ -27,13 +31,15 @@ void AppSequencer::receiveClock() {
 
 void AppSequencer::start() {
   base_seq.clock.reset();
-  timer_start(TIM_SEQ_ID);
+  auto tim = Timer { TIM_SEQ };
+  tim.enable();
   run_state = true;
 }
 
 void AppSequencer::stop() {
   nts1_note_off(prev_note);
-  timer_stop(TIM_SEQ_ID);
+  auto tim = Timer { TIM_SEQ };
+  tim.disable();
   run_state = false;
 }
 

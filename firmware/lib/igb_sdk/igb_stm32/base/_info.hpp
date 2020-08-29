@@ -29,6 +29,7 @@ struct TimInfo {
   const PeriphType      periph_type;
   const TimCategory     category;
   const TIM_TypeDef*    p_tim;
+  const IRQn_Type       irqn;
   const PeriphBusInfo   bus;
 };
 #endif
