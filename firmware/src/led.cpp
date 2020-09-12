@@ -5,16 +5,16 @@
 
 using namespace igb_stm32;
 
-const auto led_a_pin = GpioPin::newPin(GpioPinType::pc8);
-const auto led_b_pin = GpioPin::newPin(GpioPinType::pc9);
-const auto led_c_pin = GpioPin::newPin(GpioPinType::pc10);
-const auto led_d_pin = GpioPin::newPin(GpioPinType::pc11);
-const auto led_1_pin = GpioPin::newPin(GpioPinType::pc12);
-const auto led_2_pin = GpioPin::newPin(GpioPinType::pc13);
-const auto led_3_pin = GpioPin::newPin(GpioPinType::pc14);
-const auto led_4_pin = GpioPin::newPin(GpioPinType::pc15);
-const auto led_run_pin = GpioPin::newPin(GpioPinType::pc0);
-const auto led_mode_pin = GpioPin::newPin(GpioPinType::pa12);
+auto led_a_pin = GpioPin::newPin(GpioPinType::pc8);
+auto led_b_pin = GpioPin::newPin(GpioPinType::pc9);
+auto led_c_pin = GpioPin::newPin(GpioPinType::pc10);
+auto led_d_pin = GpioPin::newPin(GpioPinType::pc11);
+auto led_1_pin = GpioPin::newPin(GpioPinType::pc12);
+auto led_2_pin = GpioPin::newPin(GpioPinType::pc13);
+auto led_3_pin = GpioPin::newPin(GpioPinType::pc14);
+auto led_4_pin = GpioPin::newPin(GpioPinType::pc15);
+auto led_run_pin = GpioPin::newPin(GpioPinType::pc0);
+auto led_mode_pin = GpioPin::newPin(GpioPinType::pa12);
 
 __IO uint32_t led_bits = 0;
 
@@ -31,11 +31,11 @@ void led_setup() {
   led_mode_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
 }
 
-const GpioPin led_row_pins[] = {
+GpioPin led_row_pins[] = {
   led_a_pin, led_b_pin, led_c_pin, led_d_pin
 };
 
-const GpioPin led_col_pins[] = {
+GpioPin led_col_pins[] = {
   led_1_pin, led_2_pin, led_3_pin, led_4_pin
 };
 

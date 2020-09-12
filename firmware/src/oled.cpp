@@ -26,10 +26,10 @@ void oled_set_cursor(uint8_t x, uint8_t y);
 void oled_draw_pixel(uint8_t x, uint8_t y, uint8_t fg);
 void oled_update_screen();
 
-const GpioPin oled_cs_pin = GpioPin::newPin(GpioPinType::pb9);
-const GpioPin oled_dc_pin = GpioPin::newPin(GpioPinType::pb5);
-const GpioPin oled_reset_pin = GpioPin::newPin(GpioPinType::pb8);
-const Spi oled_spi = Spi::newSpi(SpiType::spi1);
+auto oled_cs_pin = GpioPin::newPin(GpioPinType::pb9);
+auto oled_dc_pin = GpioPin::newPin(GpioPinType::pb5);
+auto oled_reset_pin = GpioPin::newPin(GpioPinType::pb8);
+auto oled_spi = Spi::newSpi(SpiType::spi1);
 
 void oled_gpio_setup() {
   RccCtrl::enablePeriphBus(STM32_PERIPH_INFO.gpio[as<uint8_t>(GpioType::gpiob)].bus);

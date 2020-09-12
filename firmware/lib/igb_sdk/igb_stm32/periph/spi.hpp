@@ -5,6 +5,7 @@
 #include <igb_util/cast.hpp>
 #include <igb_stm32/periph/gpio.hpp>
 #include <igb_stm32/periph/rcc.hpp>
+#include <igb_util/macro.hpp>
 
 using igb_util::as;
 
@@ -119,51 +120,51 @@ enum class SpiDmaParityType : uint32_t {
 struct Spi {
   SPI_TypeDef* p_spi;
 
-  inline void enable() {
+  IGB_FAST_INLINE void enable() {
     p_spi->CR1 |= SPI_CR1_SPE;
   }
 
-  inline void disable() {
+  IGB_FAST_INLINE void disable() {
     p_spi->CR1 &= ~SPI_CR1_SPE;
   }
 
-  inline void setMode(SpiMode mode) {
+  IGB_FAST_INLINE void setMode(SpiMode mode) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_MSTR | SPI_CR1_SSI, as<uint32_t>(mode));
   }
 
-  inline void setStandard(SpiStandard standard) {
+  IGB_FAST_INLINE void setStandard(SpiStandard standard) {
     MODIFY_REG(p_spi->CR2, SPI_CR2_FRF, as<uint32_t>(standard));
   }
 
-  inline void setClockPhase(SpiClockPhase phase) {
+  IGB_FAST_INLINE void setClockPhase(SpiClockPhase phase) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_CPHA, as<uint32_t>(phase));
   }
 
-  inline void setClockPolarity(SpiClockPolarity polarity) {
+  IGB_FAST_INLINE void setClockPolarity(SpiClockPolarity polarity) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_CPOL, as<uint32_t>(polarity));
   }
 
-  inline void setBaudratePrescaler(SpiBaudratePrescaler prescaler) {
+  IGB_FAST_INLINE void setBaudratePrescaler(SpiBaudratePrescaler prescaler) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_BR, as<uint32_t>(prescaler));
   }
 
-  inline void setTransBitOrder(SpiBitOrder order) {
+  IGB_FAST_INLINE void setTransBitOrder(SpiBitOrder order) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_LSBFIRST, as<uint32_t>(order));
   }
 
-  inline void setTransDir(SpiTransDir dir) {
+  IGB_FAST_INLINE void setTransDir(SpiTransDir dir) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_RXONLY | SPI_CR1_BIDIMODE | SPI_CR1_BIDIOE, as<uint32_t>(dir));
   }
 
-  inline void setDataWidth(SpiDataWidth data_width) {
+  IGB_FAST_INLINE void setDataWidth(SpiDataWidth data_width) {
     MODIFY_REG(p_spi->CR2, SPI_CR2_DS, as<uint32_t>(data_width));
   }
 
-  inline void setRxFifoThreshold(SpiFifoThreshold threshold) {
+  IGB_FAST_INLINE void setRxFifoThreshold(SpiFifoThreshold threshold) {
     MODIFY_REG(p_spi->CR2, SPI_CR2_FRXTH, as<uint32_t>(threshold));
   }
 
-  inline void setCrc(bool enable) {
+  IGB_FAST_INLINE void setCrc(bool enable) {
     if (enable) {
       p_spi->CR1 |= SPI_CR1_CRCEN;
     } else {
@@ -171,32 +172,32 @@ struct Spi {
     }
   }
 
-  inline void setCrcWidth(SpiCrcWidth width) {
+  IGB_FAST_INLINE void setCrcWidth(SpiCrcWidth width) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_CRCL, as<uint32_t>(width));
   }
 
-  inline void setCrcNext() {
+  IGB_FAST_INLINE void setCrcNext() {
     p_spi->CR1 |= SPI_CR1_CRCNEXT;
   }
 
-  inline void setCrcPolynomial(uint32_t poly) {
+  IGB_FAST_INLINE void setCrcPolynomial(uint32_t poly) {
     p_spi->CRCPR = (uint16_t)poly;
   }
 
-  inline uint32_t getRxCrc() {
+  IGB_FAST_INLINE uint32_t getRxCrc() {
     return (uint32_t)(p_spi->RXCRCR);
   }
 
-  inline uint32_t getTxCrc() {
+  IGB_FAST_INLINE uint32_t getTxCrc() {
     return (uint32_t)(p_spi->TXCRCR);
   }
 
-  inline void setNssMode(SpiNssMode mode) {
+  IGB_FAST_INLINE void setNssMode(SpiNssMode mode) {
     MODIFY_REG(p_spi->CR1, SPI_CR1_SSM,  as<uint32_t>(mode));
     MODIFY_REG(p_spi->CR2, SPI_CR2_SSOE, ((uint32_t)(as<uint32_t>(mode) >> 16U)));
   }
 
-  inline void setNssPulseMng(bool enable) {
+  IGB_FAST_INLINE void setNssPulseMng(bool enable) {
     if (enable) {
       p_spi->CR2 |= SPI_CR2_NSSP;
     } else {
@@ -204,31 +205,31 @@ struct Spi {
     }
   }
 
-  inline bool isState(SpiState state) {
+  IGB_FAST_INLINE bool isState(SpiState state) {
     return !!(p_spi->SR & as<uint32_t>(state));
   }
   
-  inline void clearState(SpiState state) {
+  IGB_FAST_INLINE void clearState(SpiState state) {
     CLEAR_BIT(p_spi->SR, as<uint32_t>(state));
   }
 
-  inline void enableInterrupt(SpiInterruptType type) {
+  IGB_FAST_INLINE void enableInterrupt(SpiInterruptType type) {
     p_spi->CR2 |= as<uint32_t>(type);
   }
 
-  inline void disableInterrupt(SpiInterruptType type) {
+  IGB_FAST_INLINE void disableInterrupt(SpiInterruptType type) {
     p_spi->CR2 &= ~(as<uint32_t>(type));
   }
 
-  inline void enableDmaReq(SpiDmaReqTarget type) {
+  IGB_FAST_INLINE void enableDmaReq(SpiDmaReqTarget type) {
     p_spi->CR2 |= as<uint32_t>(type);
   }
 
-  inline void disableDmaReq(SpiDmaReqTarget type) {
+  IGB_FAST_INLINE void disableDmaReq(SpiDmaReqTarget type) {
     p_spi->CR2 &= ~(as<uint32_t>(type));
   }
 
-  inline void setDmaParity(SpiDmaParityTarget target, SpiDmaParityType type) {
+  IGB_FAST_INLINE void setDmaParity(SpiDmaParityTarget target, SpiDmaParityType type) {
     switch (target) {
       case SpiDmaParityTarget::TX:
         MODIFY_REG(p_spi->CR2, SPI_CR2_LDMATX, (as<uint32_t>(type) << SPI_CR2_LDMATX_Pos));
@@ -239,19 +240,19 @@ struct Spi {
     }
   }
 
-  inline uint32_t getRegAddr() {
+  IGB_FAST_INLINE uint32_t getRegAddr() {
     return (uint32_t) &(p_spi->DR);
   }
 
-  inline uint8_t receiveU8() {
+  IGB_FAST_INLINE uint8_t receiveU8() {
     return (uint8_t)(p_spi->DR);
   }
 
-  inline uint16_t receiveU16() {
+  IGB_FAST_INLINE uint16_t receiveU16() {
     return (uint16_t)(p_spi->DR);
   }
 
-  inline void sendU8(uint8_t data) {
+  IGB_FAST_INLINE void sendU8(uint8_t data) {
 #if defined (__GNUC__)
     __IO uint8_t *spidr = ((__IO uint8_t *)&p_spi->DR);
     *spidr = data;
@@ -260,7 +261,7 @@ struct Spi {
 #endif /* __GNUC__ */
   }
 
-  inline void sendU16(uint16_t data) {
+  IGB_FAST_INLINE void sendU16(uint16_t data) {
 #if defined (__GNUC__)
   __IO uint16_t *spidr = ((__IO uint16_t *)&p_spi->DR);
   *spidr = data;
@@ -269,7 +270,7 @@ struct Spi {
 #endif /* __GNUC__ */
   }
 
-  inline uint8_t transferU8sync(uint8_t data) {
+  IGB_FAST_INLINE uint8_t transferU8sync(uint8_t data) {
     while (isState(SpiState::BUSY));
     while (!isState(SpiState::TX_BUF_EMPTY));
     sendU8(data);
@@ -277,13 +278,13 @@ struct Spi {
     return receiveU8();
   }
 
-  static Spi newSpi(const SpiType spi_type) {
+  static IGB_FAST_INLINE Spi newSpi(const SpiType spi_type) {
     return Spi {
       .p_spi = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)].p_spi
     };
   }
 
-  static inline void prepareGpio(SpiType spi_type, GpioPinType pin_type) {
+  static IGB_FAST_INLINE void prepareGpio(SpiType spi_type, GpioPinType pin_type) {
     auto periph_type = as_periph_type(spi_type);
     if (!periph_type) { return; }
 
@@ -304,7 +305,7 @@ struct Spi {
     pin.setAlternateFunc(result.value());
   }
 
-  static inline void prepareSpiMaster(SpiType spi_type, GpioPinType mosi_pin, GpioPinType miso_pin, GpioPinType sck_pin, SpiBaudratePrescaler prescaler) {
+  static IGB_FAST_INLINE void prepareSpiMaster(SpiType spi_type, GpioPinType mosi_pin, GpioPinType miso_pin, GpioPinType sck_pin, SpiBaudratePrescaler prescaler) {
     const auto& spi_info = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)];
     RccCtrl::enablePeriphBus(spi_info.bus);
     prepareGpio(spi_type, mosi_pin);

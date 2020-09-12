@@ -21,8 +21,8 @@ using namespace igb_stm32;
 #define FRAM_CMD_WRITE 0x02
 
 
-const Spi ram_spi = Spi::newSpi(SpiType::spi1);
-const GpioPin ram_cs_pin = GpioPin::newPin(GpioPinType::pb2);
+auto ram_spi = Spi::newSpi(SpiType::spi1);
+auto ram_cs_pin = GpioPin::newPin(GpioPinType::pb2);
 
 volatile RamAccessState ram_access_state = RAM_ACCESS_STATE_NONE;
 
