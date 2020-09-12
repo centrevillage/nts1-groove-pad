@@ -12,6 +12,10 @@
 #include "debug.h"
 #include "screen.h"
 
+#include <igb_stm32/periph/spi.hpp>
+
+using namespace igb_stm32;
+
 //#define SCLK_PIN PA5 // PA5
 //#define MISO_PIN PA6 // PA6
 //#define MOSI_PIN PA7 // PA7
@@ -153,7 +157,9 @@ void oled_send_data(uint8_t* buffer, size_t buff_size) {
 }
 
 void oled_setup() {
-  spi_simple_setup(0, PIN_A7, PIN_A6, PIN_A5, SystemCoreClock / 2);
+  //spi_simple_setup(0, PIN_A7, PIN_A6, PIN_A5, SystemCoreClock / 2);
+  Spi::prepareSpiMaster(SpiType::spi1, GpioPinType::pa7, GpioPinType::pa6, GpioPinType::pa5, SpiBaudratePrescaler::DIV2);
+
   oled_gpio_setup();
   oled_init();
 }

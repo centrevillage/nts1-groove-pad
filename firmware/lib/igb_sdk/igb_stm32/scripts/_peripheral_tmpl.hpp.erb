@@ -4,10 +4,11 @@
 
 #include <igb_stm32/base.hpp>
 #include <array>
+#include <optional>
 
-<% @parsed.keys.each do |group_name| %>
+<% @svd_parser.parsed.keys.each do |group_name| %>
 #define STM32_PERIPHGRP_<%= group_name.upcase %>_EXISTS 1
-<% @parsed[group_name].keys.each do |periph_name| %>
+<% @svd_parser.parsed[group_name].keys.each do |periph_name| %>
 #define STM32_PERIPH_<%= periph_name.upcase %>_EXISTS 1
 <% end %>
 <% end %>
@@ -25,7 +26,7 @@ enum class PeriphGroupType : uint16_t {
 enum class PeriphType : uint16_t {
 <% first = true %>
 <% @cpp_structs.each do |group_name, structs| %>
-<%  next if !structs || structs.empty? %>
+<%#<%  next if !structs || structs.empty? +|%>
 <%  structs.each do |struct| %>
   <%= struct[:periph].downcase %><%= (first = false) or ' = 0' if first %>,
 <%  end %>
@@ -42,6 +43,37 @@ enum class <%= group_name.capitalize %>Type : uint8_t {
 <%  end %>
 };
 <% end %>
+
+enum class GpioPinType : uint8_t {
+<% @cpp_structs[:GPIO].each do |struct| %>
+<%  (0..15).each do |id| %>
+  p<%= struct[:periph][-1].downcase %><%= id %> = (<%= struct[:periph][-1].ord - 'A'.ord %> << 4) | <%= id %>,
+<%  end %>
+<% end %>
+};
+
+static inline GpioType extract_gpio_type(GpioPinType pin_type) {
+  switch (pin_type) {
+<% @cpp_structs[:GPIO].each do |struct| %>
+<%  (0..15).each do |id| %>
+    case GpioPinType::p<%= struct[:periph][-1].downcase %><%= id %>:
+<%  end %>
+      return GpioType::<%= struct[:periph].downcase %>;
+      [[fallthrough]];
+<% end %>
+  }
+}
+
+static inline uint8_t extract_pin_idx(GpioPinType pin_type) {
+  switch (pin_type) {
+<% @cpp_structs[:GPIO].each do |struct| %>
+<%  (0..15).each do |id| %>
+    case GpioPinType::p<%= struct[:periph][-1].downcase %><%= id %>:
+      return <%= id %>;
+<%  end %>
+<% end %>
+  }
+}
 
 enum class BusType : uint8_t {
 <% @bus_names.each_with_index do |bus_name, i| %>
@@ -93,6 +125,87 @@ const struct PeriphInfo {
 <%  end %>
 <% end %>
 } STM32_PERIPH_INFO;
+
+<% if false %>
+const struct PeriphGpioAfInfo {
+<% @af_info_structs.each do |group_name, group| %>
+  <% next if group.values.empty? || group.values.first.values.empty? %>
+  const std::array<std::array<std::array<GpioAfInfo, <%= group.first.last.first.last.size %>>, <%= group.first.last.size %>>, <%= group.size %>> <%= group_name.downcase %> = {
+<% group.each do |periph_name, periph| %>
+    {
+<% periph.each do |func_name, funcs| %>
+      {
+<% funcs.each do |data| %>
+        GpioAfInfo {
+<% data[:attrs].each do |param_name, param| %>
+          .<%= param_name %> = <%= param[:value] %>,
+<% end %>
+        },
+<% end %>
+      },
+<% end %>
+    },
+<% end %>
+  };
+<% end %>
+
+} STM32_PERIPH_GPIO_AF_INFO;
+<% end %>
+
+enum class GpioAf : uint8_t {
+  af0 = 0,
+  af1,
+  af2,
+  af3,
+  af4,
+  af5,
+  af6,
+  af7,
+};
+
+static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinType gpio_pin) {
+  switch (gpio_pin) {
+<% @df_parser.parsed[:gpio].each do |port_name, port| %>
+<%  port.each do |pin, signals| %>
+<%    next if signals.empty? || !signals.any?{|sig| sig[:af]}%>
+    case GpioPinType::p<%= port_name %><%= pin %>:
+      switch (periph_type) {
+<%    signals.select {|sig| sig[:af]}.uniq {|sig| "#{sig[:driver]}#{sig[:instance]}" }.each do |sig| %>
+<%      periph_name = "#{sig[:driver]}#{sig[:instance]}" %>
+<%      next unless @periph_names.include?(periph_name.upcase) %>
+        case PeriphType::<%= periph_name %>:
+          return GpioAf::af<%= sig[:af] %>;
+<%    end %>
+        default:
+          break;
+      }
+      break;
+<%  end %>
+<% end %>
+    default:
+      break;
+  }
+  return std::nullopt;
+}
+
+template<typename T>
+static inline std::optional<PeriphType> as_periph_type(T type) {
+  return std::nullopt;
+}
+
+<% @cpp_structs.each do |group_name, structs| %>
+<%  next if !structs || structs.empty? %>
+<%  next if schema.dig(group_name.to_sym, :singleton) %>
+template<>
+inline std::optional<PeriphType> as_periph_type(<%= group_name.capitalize %>Type type) {
+  switch (type) {
+<%  structs.each do |struct| %>
+    case <%= group_name.capitalize %>Type::<%= struct[:periph].downcase %>:
+      return PeriphType::<%= struct[:periph].downcase %>;
+<%  end %>
+  }
+}
+<% end %>
 
 }
 

@@ -55,7 +55,7 @@ module NameConfig
     stm32f407xx: :STM32F407,
     stm32f417xx: :STM32F407, # 対応するファイルがないが、とりあえず
     stm32f427xx: :STM32F427,
-    stm32f437xx: :STM32F407, # 対応するファイルがないが、とりあえず
+    stm32f437xx: :STM32F427, # 対応するファイルがないが、とりあえず
     stm32f429xx: :STM32F429,
     stm32f439xx: :STM32F427,
     stm32f401xc: :STM32F401,
@@ -72,7 +72,7 @@ module NameConfig
     stm32f412vx: :STM32F412,
     stm32f412zx: :STM32F412,
     stm32f413xx: :STM32F413,
-    stm32f423xx: :STM32F423, # 対応するファイルがないが、とりあえず
+    stm32f423xx: :STM32F413, # 対応するファイルがないが、とりあえず
     stm32f756xx: :STM32F7x6,
     stm32f746xx: :STM32F7x6,
     stm32f745xx: :STM32F745,
@@ -99,21 +99,136 @@ module NameConfig
     stm32g474xx: :STM32G474xx,
     stm32g483xx: :STM32G483xx,
     stm32g484xx: :STM32G484xx,
-    stm32gbk1cb: :STM32GBK1CBT6,
+    #stm32gbk1cb: :STM32GBK1CBT6,
     stm32h743xx: :STM32H743x,
     stm32h753xx: :STM32H753x,
     stm32h750xx: :STM32H750x,
     stm32h742xx: :STM32H742x,
-    stm32h745xx: :STM32H7x5_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
-    stm32h755xx: :STM32H7x5_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
-    stm32h747xx: :STM32H7x7_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
-    stm32h757xx: :STM32H7x7_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
+    #stm32h745xx: :STM32H7x5_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
+    #stm32h755xx: :STM32H7x5_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
+    #stm32h747xx: :STM32H7x7_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
+    #stm32h757xx: :STM32H7x7_CM7, # 本来は、二つのMCUそれぞれを定義しないとだめだが、とりあえず
     stm32h7a3xx: :STM32H7A3x,
     stm32h7a3xxq: :STM32H7A3x,
     stm32h7b3xx: :STM32H7B3x,
     stm32h7b3xxq: :STM32H7B3x,
     stm32h7b0xx: :STM32H7B3x, # 対応するファイルがないが、とりあえず
     stm32h7b0xxq: :STM32H7B3x, # 対応するファイルがないが、とりあえず
+  }.freeze
+
+  MCU_TO_DF_MAPPING = {
+    stm32f030x6: :"stm32f0-30",
+    stm32f030x8: :"stm32f0-30",
+    stm32f031x6: :"stm32f0-31",
+    stm32f038xx: :"stm32f0-38",
+    stm32f042x6: :"stm32f0-42",
+    stm32f048xx: :"stm32f0-48",
+    stm32f070x6: :"stm32f0-70",
+    stm32f051x8: :"stm32f0-51",
+    stm32f058xx: :"stm32f0-58",
+    stm32f071xb: :"stm32f0-71",
+    stm32f072xb: :"stm32f0-72",
+    stm32f078xx: :"stm32f0-78",
+    stm32f070xb: :"stm32f0-70",
+    stm32f091xc: :"stm32f0-91",
+    stm32f098xx: :"stm32f0-98",
+    stm32f030xc: :"stm32f0-30",
+    stm32f100xb: :"stm32f1-00-8_b",
+    stm32f100xe: :"stm32f1-00-c_d_e",
+    stm32f101x6: :"stm32f1-01_02-4_6",
+    stm32f101xb: :"stm32f1-01_02-8_b",
+    stm32f101xe: :"stm32f1-01-c_d_e",
+    stm32f101xg: :"stm32f1-01-f_g",
+    stm32f102x6: :"stm32f1-01_02-4_6",
+    stm32f102xb: :"stm32f1-01_02-8_b",
+    stm32f103x6: :"stm32f1-03-4_6",
+    stm32f103xb: :"stm32f1-03-8_b",
+    stm32f103xe: :"stm32f1-03-c_d_e",
+    stm32f103xg: :"stm32f1-03-f_g",
+    stm32f105xc: :"stm32f1-05_07",
+    stm32f107xc: :"stm32f1-05_07",
+    stm32f205xx: :"stm32f2-05",
+    stm32f215xx: :"stm32f2-07_15_17",
+    stm32f207xx: :"stm32f2-07_15_17",
+    stm32f217xx: :"stm32f2-07_15_17",
+    stm32f301x8: :"stm32f3-01",
+    stm32f302x8: :"stm32f3-02-6_8",
+    stm32f318xx: :"stm32f3-18_28",
+    stm32f302xc: :"stm32f3-02-b_c_d_e",
+    stm32f303xc: :"stm32f3-03-b_c_d_e",
+    stm32f358xx: :"stm32f3-58_98",
+    stm32f303x8: :"stm32f3-03-6_8",
+    stm32f334x8: :"stm32f3-34",
+    stm32f328xx: :"stm32f3-18_28",
+    stm32f302xe: :"stm32f3-02-b_c_d_e",
+    stm32f303xe: :"stm32f3-03-b_c_d_e",
+    stm32f398xx: :"stm32f3-58_98",
+    stm32f373xc: :"stm32f3-73_78",
+    stm32f378xx: :"stm32f3-73_78",
+    stm32f405xx: :"stm32f4-05_07_15_17",
+    stm32f415xx: :"stm32f4-05_07_15_17",
+    stm32f407xx: :"stm32f4-05_07_15_17",
+    stm32f417xx: :"stm32f4-05_07_15_17",
+    stm32f427xx: :"stm32f4-27_29_37_39",
+    stm32f437xx: :"stm32f4-27_29_37_39",
+    stm32f429xx: :"stm32f4-27_29_37_39",
+    stm32f439xx: :"stm32f4-27_29_37_39",
+    stm32f401xc: :"stm32f4-01_11",
+    stm32f401xe: :"stm32f4-01_11",
+    stm32f410tx: :"stm32f4-10",
+    stm32f410cx: :"stm32f4-10",
+    stm32f410rx: :"stm32f4-10",
+    stm32f411xe: :"stm32f4-01_11",
+    stm32f446xx: :"stm32f4-46",
+    stm32f469xx: :"stm32f4-69_79",
+    stm32f479xx: :"stm32f4-69_79",
+    stm32f412cx: :"stm32f4-12",
+    stm32f412rx: :"stm32f4-12",
+    stm32f412vx: :"stm32f4-12",
+    stm32f412zx: :"stm32f4-12",
+    stm32f413xx: :"stm32f4-13_23",
+    stm32f423xx: :"stm32f4-13_23",
+    stm32f756xx: :"stm32f7-45_46_56",
+    stm32f746xx: :"stm32f7-45_46_56",
+    stm32f745xx: :"stm32f7-45_46_56",
+    stm32f767xx: :"stm32f7-65_67_68_69_77_78_79",
+    stm32f769xx: :"stm32f7-65_67_68_69_77_78_79",
+    stm32f777xx: :"stm32f7-65_67_68_69_77_78_79",
+    stm32f779xx: :"stm32f7-65_67_68_69_77_78_79",
+    stm32f722xx: :"stm32f7-22_23_32_33",
+    stm32f723xx: :"stm32f7-22_23_32_33",
+    stm32f732xx: :"stm32f7-22_23_32_33",
+    stm32f733xx: :"stm32f7-22_23_32_33",
+    stm32f730xx: :"stm32f7-30_50",
+    stm32f750xx: :"stm32f7-30_50",
+    stm32g071xx: :"stm32g0-71_81",
+    stm32g081xx: :"stm32g0-71_81",
+    stm32g070xx: :"stm32g0-70",
+    stm32g030xx: :"stm32g0-30",
+    stm32g031xx: :"stm32g0-31_41",
+    stm32g041xx: :"stm32g0-31_41",
+    stm32g431xx: :"stm32g4-31_41",
+    stm32g441xx: :"stm32g4-31_41",
+    stm32g471xx: :"stm32g4-71_91_a1",
+    stm32g473xx: :"stm32g4-73_83",
+    stm32g474xx: :"stm32g4-74_84",
+    stm32g483xx: :"stm32g4-73_83",
+    stm32g484xx: :"stm32g4-74_84",
+    #stm32gbk1cb: :"stm32g4-74_84", # 対応するものがないが、とりあえず
+    stm32h743xx: :"stm32h7-43_53",
+    stm32h753xx: :"stm32h7-43_53",
+    stm32h750xx: :"stm32h7-50",
+    stm32h742xx: :"stm32h7-42",
+    #stm32h745xx: :"stm32h7-45_55",
+    #stm32h755xx: :"stm32h7-45_55",
+    #stm32h747xx: :"stm32h7-47_57",
+    #stm32h757xx: :"stm32h7-47_57",
+    stm32h7a3xx: :"stm32h7-a3",
+    stm32h7a3xxq: :"stm32h7-a3",
+    stm32h7b3xx: :"stm32h7-b3",
+    stm32h7b3xxq: :"stm32h7-b3",
+    stm32h7b0xx: :"stm32h7-b0",
+    stm32h7b0xxq: :"stm32h7-b0",
   }.freeze
 
   AVAILABLE_MCU = MCU_TO_SVD_MAPPING.keys.freeze
@@ -124,5 +239,9 @@ module NameConfig
 
   def self.mcu_to_svd(mcu_name)
     MCU_TO_SVD_MAPPING[mcu_name.to_sym]
+  end
+
+  def self.mcu_to_df(mcu_name)
+    MCU_TO_DF_MAPPING[mcu_name.to_sym]
   end
 end

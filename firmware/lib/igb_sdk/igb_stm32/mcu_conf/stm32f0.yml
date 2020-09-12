@@ -1,0 +1,30 @@
+mcu:
+  stm32f072x:
+    gpio_af:
+      SPI:
+        SPI1:
+          MOSI:
+            PA7: AF0
+            PB5: AF0
+          MISO:
+            PA6: AF0
+            PB4: AF0
+          SCK:
+            PA5: AF0
+            PB3: AF0
+          NSS:
+            PA4: AF0
+            PA15: AF0
+        SPI2:
+          MOSI:
+            PB15: AF0
+            PC3: AF1
+          MISO:
+            PB14: AF0
+            PC2: AF1
+          SCK:
+            PB10: AF5
+            PB13: AF0
+          NSS:
+            PB9: AF5
+            PB12: AF0

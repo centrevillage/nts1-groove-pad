@@ -3,6 +3,12 @@ struct PeriphBusInfo {
   const uint32_t  periph_bit;
 };
 
+struct GpioAfInfo {
+  const GPIO_TypeDef* p_gpio;
+  const uint16_t      pin_bit;
+  const uint8_t       af_idx;
+};
+
 #ifdef STM32_PERIPHGRP_RCC_EXISTS
 struct RccInfo {
   const PeriphType   periph_type;

@@ -2,6 +2,9 @@
 #define IGB_STM32_PERIPH_GPIO_H
 
 #include <igb_stm32/base.hpp>
+#include <igb_util/cast.hpp>
+
+using igb_util::as;
 
 namespace igb_stm32 {
 
@@ -47,6 +50,17 @@ struct GpioPort {
 
   void setSpeedMode(uint32_t pin_bit, GpioSpeedMode mode) {
     MODIFY_REG(p_gpio->OSPEEDR, ((pin_bit * pin_bit) * GPIO_OSPEEDR_OSPEEDR0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
+  }
+
+  void setAlternateFunc(uint32_t pin_bit, GpioAf af) {
+    uint32_t lsb = pin_bit & 0x00FF;
+    uint32_t msb = (pin_bit >> 8) & 0x00FF;
+    if (lsb) {
+      MODIFY_REG(p_gpio->AFR[0], ((((lsb * lsb) * lsb) * lsb) * GPIO_AFRL_AFSEL0), ((((lsb * lsb) * lsb) * lsb) * as<uint32_t>(af)));
+    }
+    if (msb) {
+      MODIFY_REG(p_gpio->AFR[1], ((((msb * msb) * msb) * msb) * GPIO_AFRH_AFSEL8), ((((msb * msb) * msb) * msb) * as<uint32_t>(af)));
+    }
   }
 
   void lock(uint32_t pin_bit) {
@@ -100,6 +114,10 @@ struct GpioPin {
 
   void setSpeedMode(GpioSpeedMode mode) {
     port.setSpeedMode(pin_bit, mode);
+  }
+
+  void setAlternateFunc(GpioAf af) {
+    port.setAlternateFunc(pin_bit, af);
   }
 
   void lock() {

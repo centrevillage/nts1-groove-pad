@@ -4,11 +4,12 @@
 #include <type_traits>
 
 namespace igb_util {
-  template <typename T> T as(auto&& value) {
+  template <typename T> static inline T as(auto&& value) {
     return static_cast<T>(value);
   }
 
-  template <typename T> auto enum_cast(const T& v) {
+  // TODO: コンパイルエラーになるので要修正
+  template <typename T> static inline auto enum_cast(const T& v) {
     return std::underlying_type<T>::type(v);
   }
 }

@@ -236,7 +236,31 @@ module CppStructSchema
       #HDMI_CEC: {}
     }.freeze
 
+  GPIO_AF_SCHEMA = {
+    SPI: {
+      name: 'GpioAfInfo',
+      attrs: {
+        p_gpio: {
+          value: nil,
+          type: 'GPIO_TypeDef*',
+        },
+        pin_bit: {
+          value: nil,
+          type: 'uint16_t',
+        },
+        af_idx: {
+          value: nil,
+          type: 'uint8_t',
+        }
+      },
+    },
+  }.freeze
+
   def self.create(group_name)
     Marshal.load(Marshal.dump(SCHEMA[group_name.to_sym]))
+  end
+
+  def self.create_gpio_af(group_name)
+    Marshal.load(Marshal.dump(GPIO_AF_SCHEMA[group_name.to_sym]))
   end
 end

@@ -16,12 +16,10 @@ class SVDParser
 
     # ペリフェラルをグループごとにざっくり分割
     @parsed = {}
-
     @periph_to_group = {}
-
-    @cpp_structs = {}
-    @bus_names = Set.new
   end
+
+  attr_reader :parsed, :periph_to_group
 
   def debug(text)
     puts text
@@ -36,9 +34,6 @@ class SVDParser
       end
 
       #pp @parsed
-
-      gen_structs
-      update_structs_for_bus_clock
 
       #@cpp_structs.delete_if { |group_name, structs| !structs || structs.empty? }
 
@@ -59,7 +54,7 @@ class SVDParser
 
     peripheral_name = fix_ambiguous_peripheral_name(peripheral_name)
 
-    debug "[#{group_name}] #{peripheral_name}"
+    #debug "[#{group_name}] #{peripheral_name}"
     
     group_name = group_name.to_sym
     peripheral_name = peripheral_name.to_sym
@@ -139,12 +134,114 @@ class SVDParser
       }
     )]
   end
+end
+
+class DeviceFileParser
+  def initialize(filename)
+    @filename = filename
+    @parsed = {}
+    @parsed[:gpio_af] ||= {}
+  end
+
+  attr_reader :parsed
+
+  def parse
+    open(@filename) do |file|
+      @doc = REXML::Document.new(file)
+      REXML::XPath.match(@doc, "/modm/device/driver/gpio").each do |gpio_pin|
+        scan_gpio_pin(gpio_pin)
+      end
+    end
+  end
+
+  # TODO: refactoring
+  def scan_gpio_pin(gpio_pin)
+    port_str = gpio_pin.attribute('port').to_s
+    pin = gpio_pin.attribute('pin').to_s.to_i
+
+    @parsed[:gpio] ||= {}
+    parsed_signals = []
+
+    gpio_pin.elements.select {|elem| elem.name == 'signal'}.each do |signal|
+      parsed_signal = Hash[*(signal.attributes.flat_map {|name, value| [name.to_sym,  value]})]
+      parsed_signals << parsed_signal
+
+      if (af = signal.attribute('af').to_s) and (driver = signal.attribute('driver').to_s.upcase.to_sym)
+        periph_name = "#{driver}#{signal.attribute('instance')}".to_sym
+        @parsed[:gpio_af][driver] ||= {}
+        @parsed[:gpio_af][driver][periph_name] ||= {}
+        @parsed[:gpio_af][driver][periph_name][signal.attribute('name').to_s.to_sym] = {
+          af: af.to_i,
+          port: "GPIO#{port_str.upcase}",
+          pin: pin
+        }
+      end
+    end
+
+    @parsed[:gpio][port_str.to_sym] ||= {}
+    @parsed[:gpio][port_str.to_sym][pin.to_i] = parsed_signals
+  end
+end
+
+class CppSrcGenerator
+  def initialize(mcu)
+    @mcu = mcu
+    @cpp_structs = {}
+    @periph_names = Set.new
+    @af_info_structs = {}
+    @bus_names = Set.new
+  end
+
+  attr_reader :mcu
+
+  def process
+    svd_file_name = Pathname.new(__dir__).join('..', 'svd', "#{NameConfig.mcu_to_svd(mcu)}.svd")
+    @svd_parser = SVDParser.new(svd_file_name)
+    @svd_parser.parse
+
+    device_file_name = Pathname.new(__dir__).join('..', 'device_file', "#{NameConfig.mcu_to_df(mcu)}.xml")
+    @df_parser = DeviceFileParser.new(device_file_name)
+    @df_parser.parse
+
+    gen_structs
+    update_structs_for_bus_clock
+
+    gen_af_info_structs
+
+    gen_device_header_file
+    gen_mcu_header_file
+  end
+
+  def gen_device_header_file
+    file_symbol = mcu.to_s
+    include_guard_name = "IGB_STM32_BASE_MCU_DEVICE_#{file_symbol.upcase}_H"
+    header_file_name = "#{file_symbol}.hpp".downcase
+    schema = CppStructSchema::SCHEMA
+    open(Pathname.new(__dir__).join('..', 'base', 'mcu', 'device', header_file_name), 'w') do |hpp_file|
+      open(Pathname.new(__dir__).join('_peripheral_tmpl.hpp.erb')) do |erb_file|
+        erb = ERB.new(erb_file.read, trim_mode: "<>")
+        hpp_file.print erb.result(binding)
+      end
+    end
+  end
+
+  def gen_mcu_header_file
+    mcu_header_name = "#{mcu.to_s.downcase}.hpp"
+    device_file_name = "#{mcu.to_s.downcase}.hpp"
+    include_guard_name = "IGB_STM32_BASE_MCU_#{mcu.to_s.upcase}_H"
+    open(Pathname.new(__dir__).join('..', 'base', 'mcu', mcu_header_name), 'w') do |hpp_file|
+      open(Pathname.new(__dir__).join('_mcu_tmpl.hpp.erb')) do |erb_file|
+        erb = ERB.new(erb_file.read, trim_mode: "<>")
+        hpp_file.print erb.result(binding)
+      end
+    end
+  end
 
   def gen_structs
-    @parsed.each do |group_name, group|
+    @svd_parser.parsed.each do |group_name, group|
       @cpp_structs[group_name] ||= []
 
-      @parsed[group_name].keys.sort_by {|k|
+      @svd_parser.parsed[group_name].keys.sort_by {|k|
         if k.to_s =~ /\d+\z/
           k.to_s.gsub(/\D/, '').to_i
         else
@@ -158,10 +255,10 @@ class SVDParser
           struct[:attrs][:p_gpio][:value] = peripheral_name
         when :TIM
           struct[:attrs][:p_tim][:value] = peripheral_name
-          irqn = @parsed[group_name][peripheral_name][:interrupts].keys.first
+          irqn = @svd_parser.parsed[group_name][peripheral_name][:interrupts].keys.first
           irqn += 'n' if irqn[-1] != 'n'
           struct[:attrs][:irqn][:value] = irqn
-          description = @parsed[group_name][peripheral_name][:description]
+          description = @svd_parser.parsed[group_name][peripheral_name][:description]
           if description =~ /\AAdvanced/
             struct[:attrs][:category][:value] = 'TimCategory::ADVANCED'
           elsif description =~ /\AGeneral/
@@ -187,7 +284,26 @@ class SVDParser
         else
           next
         end
+        @periph_names << peripheral_name.to_s
         @cpp_structs[group_name] << struct
+      end
+    end
+  end
+
+  def gen_af_info_structs
+    @df_parser.parsed[:gpio_af].each do |group_name, group|
+      @af_info_structs[group_name] ||= {}
+      group.each do |periph_name, periph|
+        @af_info_structs[group_name][periph_name] ||= {}
+        if struct = CppStructSchema.create_gpio_af(group_name.to_sym)
+          periph.each do |func_name, data|
+            @af_info_structs[group_name][periph_name][func_name] ||= []
+            struct[:attrs][:p_gpio][:value] = data[:port]
+            struct[:attrs][:pin_bit][:value] = "1UL << #{data[:pin]}"
+            struct[:attrs][:af_idx][:value] = data[:af]
+            @af_info_structs[group_name][periph_name][func_name] << struct
+          end
+        end
       end
     end
   end
@@ -202,12 +318,12 @@ class SVDParser
 
   def update_structs_for_bus_clock
     %i(AHB APB1 APB2 APB3 APB4).each do |bus_name|
-      if enr = @parsed[:RCC][:RCC][:registers][:"#{bus_name}ENR"]
+      if enr = @svd_parser.parsed[:RCC][:RCC][:registers][:"#{bus_name}ENR"]
         @bus_names << bus_name
         enr[:fields].each do |field|
           bus_periph_name = field[:name][0..-3].to_sym
           if periph_name = BUSNAME_TO_PERIPHNAME[bus_periph_name] || bus_periph_name
-            if group_name = @periph_to_group[periph_name]
+            if group_name = @svd_parser.periph_to_group[periph_name]
               if periph_struct = @cpp_structs[group_name].find {|elem| elem[:periph].to_sym == periph_name }
                 periph_struct[:bus] = {
                   name: bus_name,
@@ -221,19 +337,12 @@ class SVDParser
     end
   end
 
-  def gen_mcu_header_file
-    file_symbol = Pathname.new(@filename).basename('.svd').to_s
-    include_guard_name = "IGB_STM32_DEVICE_SVD_#{file_symbol.upcase}_H"
-    header_file_name = "#{file_symbol}.hpp".downcase
-    schema = CppStructSchema::SCHEMA
-    open(Pathname.new(__dir__).join('..', 'base', 'svd', header_file_name), 'w') do |hpp_file|
-      open(Pathname.new(__dir__).join('_peripheral_tmpl.hpp.erb')) do |erb_file|
-        erb = ERB.new(erb_file.read, trim_mode: "<>")
-        hpp_file.print erb.result(binding)
-      end
+  def process_all
+    NameConfig.available_mcu.each do |mcu|
+      g = CppSrcGenerator.new(mcu)
+      g.process(mcu)
     end
   end
-
 end
 
 def get_periheral_names
@@ -242,7 +351,6 @@ def get_periheral_names
   # fetch group name (= peripheral name)
   Dir["#{__dir__}/../svd/*.svd"].each do |svd_file_name|
   #Dir["#{__dir__}/svd/STM32F072x.svd"].each do |svd_file_name|
-    puts "svd_file_name = #{svd_file_name}"
     open(svd_file_name) do |file|
       doc = REXML::Document.new(file)
       peripheral_names += REXML::XPath.match(doc, "/device/peripherals/peripheral").map {|peripheral|
@@ -253,31 +361,10 @@ def get_periheral_names
   peripheral_names
 end
 
-def process_all_svd
-  #Dir["#{__dir__}/svd/*.svd"].each do |svd_file_name|
-  Dir["#{__dir__}/../svd/STM32F072x.svd"].each do |svd_file_name|
-    parser = SVDParser.new(svd_file_name)
-    parser.parse
-    parser.gen_mcu_header_file
-  end
-
-#   NameConfig.available_mcu.each do |mcu|
-    mcu = :stm32f072xb
-    mcu_header_name = "#{mcu.to_s.downcase}.hpp"
-    svd_header_name = "#{NameConfig.mcu_to_svd(mcu).to_s.downcase}.hpp"
-    include_guard_name = "IGB_STM32_DEVICE_MCU_#{mcu.to_s.upcase}_H"
-    open(Pathname.new(__dir__).join('..', 'base', 'mcu', mcu_header_name), 'w') do |hpp_file|
-      open(Pathname.new(__dir__).join('_mcu_tmpl.hpp.erb')) do |erb_file|
-        erb = ERB.new(erb_file.read, trim_mode: "<>")
-        hpp_file.print erb.result(binding)
-      end
-    end
-#   end
-end
-
 if __FILE__ == $0
   #peripheral_names = get_periheral_names
   #puts "[peripheral names] #{peripheral_names}"
 
-  process_all_svd
+  generator = CppSrcGenerator.new(:stm32f072xb)
+  generator.process
 end
