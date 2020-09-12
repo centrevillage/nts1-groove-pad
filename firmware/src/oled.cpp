@@ -3,31 +3,15 @@
 #include "spi.h"
 #include "input.h"
 #include "screen_conf.h"
-#include "ssd1306_pinconfig.h"
-#include "stm32f0xx_ll_gpio.h"
-#include "stm32f0xx_ll_spi.h"
-#include "stm32f0xx_hal_rcc.h"
 #include "draw.h"
 #include "text.h"
 #include "debug.h"
 #include "screen.h"
 
+#include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/spi.hpp>
 
 using namespace igb_stm32;
-
-//#define SCLK_PIN PA5 // PA5
-//#define MISO_PIN PA6 // PA6
-//#define MOSI_PIN PA7 // PA7
-//#define DC_PIN   PB5  // PB5
-//#define CS_PIN   PB9  // PB9
-//#define RST_PIN  PB8  // PB8
-
-#define OLED_MOSI  MOSI_PIN
-#define OLED_CLK   SCLK_PIN
-#define OLED_DC    DC_PIN
-#define OLED_CS    CS_PIN
-#define OLED_RESET RST_PIN
 
 static uint8_t oled_buffer[SCREEN_WIDTH * SCREEN_HEIGHT / 8];
 static uint8_t oled_cursor_x = 0;
@@ -43,19 +27,17 @@ void oled_set_cursor(uint8_t x, uint8_t y);
 void oled_draw_pixel(uint8_t x, uint8_t y, uint8_t fg);
 void oled_update_screen();
 
+const GpioPin oled_cs_pin = GpioPin::newPin(GpioPinType::pb9);
+const GpioPin oled_dc_pin = GpioPin::newPin(GpioPinType::pb5);
+const GpioPin oled_reset_pin = GpioPin::newPin(GpioPinType::pb8);
+const Spi oled_spi = Spi::newSpi(SpiType::spi1);
+
 void oled_gpio_setup() {
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  LL_GPIO_InitTypeDef gpio;
-  gpio.Mode = LL_GPIO_MODE_OUTPUT;
-  gpio.Pull = LL_GPIO_PULL_NO;
-  gpio.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpio.Pin = LL_GPIO_PIN_5;
-  LL_GPIO_Init(GPIOB, &gpio);
-  gpio.Pin = LL_GPIO_PIN_8;
-  LL_GPIO_Init(GPIOB, &gpio);
-  gpio.Pin = LL_GPIO_PIN_9;
-  LL_GPIO_Init(GPIOB, &gpio);
+  RccCtrl::enablePeriphBus(STM32_PERIPH_INFO.gpio[as<uint8_t>(GpioType::gpiob)].bus);
+
+  oled_cs_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  oled_dc_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  oled_reset_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
 }
 
 void oled_init() {
@@ -98,12 +80,12 @@ void oled_init() {
 }
 
 void oled_reset() {
-  LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin);
-  LL_GPIO_SetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
+  oled_cs_pin.high();
+  oled_reset_pin.high();
   delay_msec(1);
-  LL_GPIO_ResetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
+  oled_reset_pin.low();
   delay_msec(10);
-  LL_GPIO_SetOutputPin(SSD1306_Reset_Port, SSD1306_Reset_Pin);
+  oled_reset_pin.high();
   delay_msec(10);
 }
 
@@ -138,26 +120,24 @@ void oled_update_screen() {
 }
 
 void oled_send_command(uint8_t byte) {
-  LL_GPIO_ResetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // select OLED
-  LL_GPIO_ResetOutputPin(SSD1306_DC_Port, SSD1306_DC_Pin); // command
-  spi_transmit(0, byte);
-  LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // un-select OLED
+  oled_cs_pin.low(); // select OLED
+  oled_dc_pin.low(); // command
+  oled_spi.transferU8sync(byte);
+  oled_cs_pin.high(); // un-select OLED
 }
 
 void oled_send_data(uint8_t* buffer, size_t buff_size) {
-  LL_GPIO_ResetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // select OLED
-  LL_GPIO_SetOutputPin(SSD1306_DC_Port, SSD1306_DC_Pin); // data
-  // NOTE: なぜか先頭2byte分が常に欠けてしまうのでダミーで0を送信
-  spi_transmit(0, 0);
-  spi_transmit(0, 0);
+  oled_cs_pin.low(); // select OLED
+  oled_dc_pin.high(); // data
+  oled_spi.transferU8sync(0);
+  oled_spi.transferU8sync(0);
   for (size_t i = 0; i < buff_size; ++i) {
-    spi_transmit(0, buffer[i]);
+    oled_spi.transferU8sync(buffer[i]);
   }
-  LL_GPIO_SetOutputPin(SSD1306_CS_Port, SSD1306_CS_Pin); // un-select OLED
+  oled_cs_pin.high(); // un-select OLED
 }
 
 void oled_setup() {
-  //spi_simple_setup(0, PIN_A7, PIN_A6, PIN_A5, SystemCoreClock / 2);
   Spi::prepareSpiMaster(SpiType::spi1, GpioPinType::pa7, GpioPinType::pa6, GpioPinType::pa5, SpiBaudratePrescaler::DIV2);
 
   oled_gpio_setup();

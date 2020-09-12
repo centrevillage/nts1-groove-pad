@@ -277,6 +277,12 @@ struct Spi {
     return receiveU8();
   }
 
+  static Spi newSpi(const SpiType spi_type) {
+    return Spi {
+      .p_spi = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)].p_spi
+    };
+  }
+
   static inline void prepareGpio(SpiType spi_type, GpioPinType pin_type) {
     auto periph_type = as_periph_type(spi_type);
     if (!periph_type) { return; }
@@ -321,6 +327,7 @@ struct Spi {
     spi.setNssPulseMng(true);
     spi.enable();
   }
+
 };
 
 }

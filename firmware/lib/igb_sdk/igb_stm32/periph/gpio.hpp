@@ -74,8 +74,16 @@ struct GpioPort {
     p_gpio->BSRR = bits;
   }
 
+  void high(uint32_t bits) {
+    on(bits);
+  }
+
   void off(uint32_t bits) {
     p_gpio->BRR = bits;
+  }
+
+  void low(uint32_t bits) {
+    off(bits);
   }
 
   uint32_t read() {
@@ -128,8 +136,16 @@ struct GpioPin {
     port.on(pin_bit);
   }
 
+  void high() {
+    on();
+  }
+
   void off() {
     port.off(pin_bit);
+  }
+
+  void low() {
+    off();
   }
 
   void write(bool flag) {
@@ -167,6 +183,15 @@ struct GpioPin {
     return {
       .port = port_,
       .pin_bit = ((uint32_t)1 << pin_idx)
+    };
+  }
+
+  static GpioPin newPin(const GpioPinType pin_type) {
+    GpioType gpio_type = extract_gpio_type(pin_type);
+    uint8_t pin_idx = extract_pin_idx(pin_type);
+    return GpioPin {
+      .port = { .p_gpio = STM32_PERIPH_INFO.gpio[as<uint8_t>(gpio_type)].p_gpio },
+      .pin_bit = 1UL << pin_idx
     };
   }
 };
