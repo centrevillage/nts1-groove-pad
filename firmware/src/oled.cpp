@@ -1,6 +1,5 @@
 #include "systick_timer.h"
 #include "oled.h"
-#include "spi.h"
 #include "input.h"
 #include "screen_conf.h"
 #include "draw.h"

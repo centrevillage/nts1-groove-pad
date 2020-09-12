@@ -5,7 +5,6 @@
 #include "app_seq.h"
 #include "input.h"
 #include "systick_timer.h"
-#include "timer.h"
 #include "debug.h"
 #include "text.h"
 #include "nts1_defs.h"
@@ -24,9 +23,6 @@ extern "C" {
 #endif
   void setup();
   void loop();
-//  TIMER_EVENT_HANDLER(TIM_COMMON_ID);
-//  TIMER_EVENT_HANDLER(TIM_SPI_ID);
-//  TIMER_EVENT_HANDLER(TIM_SEQ_ID);
 
   void TIM_COMMON_HANDLER();
   void TIM_SPI_HANDLER();
@@ -69,36 +65,6 @@ void TIM_SEQ_HANDLER() {
     tim.clearState(TimState::UPDATE);
   }
 }
-
-//TIMER_EVENT_HANDLER(TIM_COMMON_ID) {
-//  if (timer_is_update(TIM_COMMON_ID)) {
-//    touch_process();
-//    led_process();
-//    input_process();
-
-//    timer_clear_update_flag(TIM_COMMON_ID);
-//  }
-//}
-
-//TIMER_EVENT_HANDLER(TIM_SPI_ID) {
-//  if (timer_is_update(TIM_SPI_ID)) {
-//    if (preset_event_is_empty() && !preset_is_processing()) {
-//      oled_process();
-//    } else {
-//      preset_process();
-//      ram_process();
-//    }
-//    // nts1_req_sys_version();
-//    timer_clear_update_flag(TIM_SPI_ID);
-//  }
-//}
-
-//TIMER_EVENT_HANDLER(TIM_SEQ_ID) {
-//  if (timer_is_update(TIM_SEQ_ID)) {
-//    seq.receiveClock();
-//    timer_clear_update_flag(TIM_SEQ_ID);
-//  }
-//}
 
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_ll_system.h"
@@ -174,12 +140,6 @@ void setup() {
 
   auto seq_tim = Timer::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
   seq_tim.setCount(0);
-
-  //timer_simple_setup(TIM_COMMON_ID, 255, 100, 2);
-  //timer_start(TIM_COMMON_ID);
-  //timer_simple_setup(TIM_SPI_ID, 255, 0xFFF, 5);
-  //timer_start(TIM_SPI_ID);
-  //timer_simple_setup(TIM_SEQ_ID, 7000, 5000, 0);
 
   //char buf[9];
   //text_0x_from_uint32(buf, SystemCoreClock);

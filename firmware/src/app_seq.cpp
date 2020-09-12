@@ -1,5 +1,4 @@
 #include "app_seq.h"
-#include "timer.h"
 #include "state.h"
 #include "preset.h"
 #include "nts1_iface.h"

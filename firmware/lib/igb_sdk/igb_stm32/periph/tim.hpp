@@ -169,12 +169,13 @@ enum class TimDmaBurstLen : uint32_t {
   L18 = (TIM_DCR_DBL_4 |  TIM_DCR_DBL_0),
 };
 
-enum class TimRemapInput : uint32_t { 
-  TO_GPIO = TIM14_OR_RMP_MASK,
-  TO_RTC_CLK = (TIM14_OR_TI1_RMP_0  | TIM14_OR_RMP_MASK),
-  TO_HSE = (TIM14_OR_TI1_RMP_1  | TIM14_OR_RMP_MASK),
-  TO_MCO = (TIM14_OR_TI1_RMP_0  | TIM14_OR_TI1_RMP_1  | TIM14_OR_RMP_MASK),
-};
+// TODO: デバイス依存の記述になっているので一旦機能削除
+//enum class TimRemapInput : uint32_t { 
+//  TO_GPIO = TIM14_OR_RMP_MASK,
+//  TO_RTC_CLK = (TIM14_OR_TI1_RMP_0  | TIM14_OR_RMP_MASK),
+//  TO_HSE = (TIM14_OR_TI1_RMP_1  | TIM14_OR_RMP_MASK),
+//  TO_MCO = (TIM14_OR_TI1_RMP_0  | TIM14_OR_TI1_RMP_1  | TIM14_OR_RMP_MASK),
+//};
 
 struct Timer {
   TIM_TypeDef* p_tim;
@@ -308,9 +309,9 @@ struct Timer {
     MODIFY_REG(p_tim->DCR, (TIM_DCR_DBL | TIM_DCR_DBA), (as<uint32_t>(addr) | as<uint32_t>(len)));
   }
 
-  void setRemap(TimRemapInput remap) {
-    MODIFY_REG(p_tim->OR, (as<uint32_t>(remap) >> 16U), (as<uint32_t>(remap) & 0x0000FFFFU));
-  }
+//  void setRemap(TimRemapInput remap) {
+//    MODIFY_REG(p_tim->OR, (as<uint32_t>(remap) >> 16U), (as<uint32_t>(remap) & 0x0000FFFFU));
+//  }
 
   void enable() {
     p_tim->CR1 |= TIM_CR1_CEN;

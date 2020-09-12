@@ -1,6 +1,8 @@
 #include "ram.h"
-#include "spi.h"
-#include "stm32_pinconfig.h"
+
+#include <igb_stm32/periph/gpio.hpp>
+#include <igb_stm32/periph/spi.hpp>
+using namespace igb_stm32;
 
 // TODO: configuration
 #define SPI_RAM_IDX 0
@@ -18,6 +20,9 @@
 //0000 0010 Write Memory Data
 #define FRAM_CMD_WRITE 0x02
 
+
+const Spi ram_spi = Spi::newSpi(SpiType::spi1);
+const GpioPin ram_cs_pin = GpioPin::newPin(GpioPinType::pb2);
 
 volatile RamAccessState ram_access_state = RAM_ACCESS_STATE_NONE;
 
@@ -53,15 +58,15 @@ void ram_write_request(uint8_t* buf, uint32_t buf_size, uint32_t write_address, 
 }
 
 inline void ram_write_byte(uint8_t byte) {
-  spi_transmit(SPI_RAM_IDX, byte);
+  ram_spi.transferU8sync(byte);
 }
 
 inline uint8_t ram_read_byte() {
-  return spi_transmit(SPI_RAM_IDX, 0);
+  return ram_spi.transferU8sync(0);
 }
 
 void ram_process_read() {
-  gpio_write(SPI_RAM_CS_PIN, 0);
+  ram_cs_pin.low();
   ram_write_byte(FRAM_CMD_READ);
   ram_write_byte((ram_address >> 16) & 0xFF);
   ram_write_byte((ram_address >> 8) & 0xFF);
@@ -70,7 +75,7 @@ void ram_process_read() {
     ram_target_buf[ram_buf_index++] = ram_read_byte();
     ram_address++;
   }
-  gpio_write(SPI_RAM_CS_PIN, 1);
+  ram_cs_pin.high();
   if (ram_buf_index >= ram_buf_size) {
     ram_access_state = RAM_ACCESS_STATE_NONE;
     if (ram_callback) {
@@ -80,11 +85,11 @@ void ram_process_read() {
 }
 
 void ram_process_write() {
-  gpio_write(SPI_RAM_CS_PIN, 0);
+  ram_cs_pin.low();
   ram_write_byte(FRAM_CMD_WREN); // FRAMの書き込みを有効化
-  gpio_write(SPI_RAM_CS_PIN, 1);
+  ram_cs_pin.high();
 
-  gpio_write(SPI_RAM_CS_PIN, 0);
+  ram_cs_pin.low();
   ram_write_byte(FRAM_CMD_WRITE);
   ram_write_byte((ram_address >> 16) & 0xFF);
   ram_write_byte((ram_address >> 8) & 0xFF);
@@ -94,7 +99,7 @@ void ram_process_write() {
     ram_write_byte(ram_target_buf[ram_buf_index++]);
     ram_address++;
   }
-  gpio_write(SPI_RAM_CS_PIN, 1);
+  ram_cs_pin.high();
   if (ram_buf_index >= ram_buf_size) {
     ram_access_state = RAM_ACCESS_STATE_NONE;
     if (ram_callback) {
