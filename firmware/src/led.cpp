@@ -1,55 +1,55 @@
 #include "main.h"
-#include "stm32f0xx_ll_gpio.h"
 #include "led.h"
 
-#define GPIO_LED_PORT GPIOC
-#define GPIO_LED_A LL_GPIO_PIN_8
-#define GPIO_LED_B LL_GPIO_PIN_9
-#define GPIO_LED_C LL_GPIO_PIN_10
-#define GPIO_LED_D LL_GPIO_PIN_11
-#define GPIO_LED_1 LL_GPIO_PIN_12
-#define GPIO_LED_2 LL_GPIO_PIN_13
-#define GPIO_LED_3 LL_GPIO_PIN_14
-#define GPIO_LED_4 LL_GPIO_PIN_15
-#define GPIO_LED_RUN LL_GPIO_PIN_0
+#include <igb_stm32/periph/gpio.hpp>
 
-#define GPIO_LED_MODE LL_GPIO_PIN_12
+using namespace igb_stm32;
+
+const auto led_a_pin = GpioPin::newPin(GpioPinType::pc8);
+const auto led_b_pin = GpioPin::newPin(GpioPinType::pc9);
+const auto led_c_pin = GpioPin::newPin(GpioPinType::pc10);
+const auto led_d_pin = GpioPin::newPin(GpioPinType::pc11);
+const auto led_1_pin = GpioPin::newPin(GpioPinType::pc12);
+const auto led_2_pin = GpioPin::newPin(GpioPinType::pc13);
+const auto led_3_pin = GpioPin::newPin(GpioPinType::pc14);
+const auto led_4_pin = GpioPin::newPin(GpioPinType::pc15);
+const auto led_run_pin = GpioPin::newPin(GpioPinType::pc0);
+const auto led_mode_pin = GpioPin::newPin(GpioPinType::pa12);
 
 __IO uint32_t led_bits = 0;
 
 void led_setup() {
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  GPIO_InitStruct.Pin = GPIO_LED_RUN | GPIO_LED_A | GPIO_LED_B | GPIO_LED_C | GPIO_LED_D | GPIO_LED_1 | GPIO_LED_2 | GPIO_LED_3 | GPIO_LED_4;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  LL_GPIO_Init(GPIO_LED_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = GPIO_LED_MODE;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  led_a_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_b_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_c_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_d_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_1_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_2_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_3_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_4_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_run_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  led_mode_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
 }
 
-static const uint8_t led_row_pins[] = {
-  PIN_C8, PIN_C9, PIN_C10, PIN_C11
+const GpioPin led_row_pins[] = {
+  led_a_pin, led_b_pin, led_c_pin, led_d_pin
 };
 
-static const uint8_t led_col_pins[] = {
-  PIN_C12, PIN_C13, PIN_C14, PIN_C15
+const GpioPin led_col_pins[] = {
+  led_1_pin, led_2_pin, led_3_pin, led_4_pin
 };
 
 void led_process() {
   static uint8_t led_matrix_idx = 0;
-  gpio_write(led_row_pins[(led_matrix_idx+3)%4], 0);
+  led_row_pins[(led_matrix_idx+3)%4].low();
 
-  gpio_write(PIN_A12, !!(led_bits & (1UL<<16)));//MODE
-  gpio_write(PIN_C0, !!(led_bits & (1UL<<17)));//RUN
+  led_mode_pin.write(!!(led_bits & (1UL<<16)));
+  led_run_pin.write(!!(led_bits & (1UL<<17)));
 
   for (uint8_t i=0;i<4;++i) {
-    gpio_write(led_col_pins[i], !(led_bits & (1UL << (led_matrix_idx*4+i))));
+    led_col_pins[i].write(!(led_bits & (1UL << (led_matrix_idx*4+i))));
   }
-  gpio_write(led_row_pins[led_matrix_idx], 1);
+  led_row_pins[led_matrix_idx].high();
 
   led_matrix_idx = (led_matrix_idx+1) % 4;
 }

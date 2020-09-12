@@ -36,23 +36,23 @@ enum class GpioOutputMode : uint32_t {
 struct GpioPort {
   GPIO_TypeDef* p_gpio;
 
-  void setMode(uint32_t pin_bit, GpioMode mode) {
+  inline void setMode(uint32_t pin_bit, GpioMode mode) {
     MODIFY_REG(p_gpio->MODER, ((pin_bit * pin_bit) * GPIO_MODER_MODER0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
-  void setOutputMode(uint32_t pin_bit, GpioOutputMode mode) {
+  inline void setOutputMode(uint32_t pin_bit, GpioOutputMode mode) {
     MODIFY_REG(p_gpio->OTYPER, pin_bit, (pin_bit * static_cast<uint32_t>(mode)));
   }
 
-  void setPullMode(uint32_t pin_bit, GpioPullMode mode) {
+  inline void setPullMode(uint32_t pin_bit, GpioPullMode mode) {
     MODIFY_REG(p_gpio->PUPDR, ((pin_bit * pin_bit) * GPIO_PUPDR_PUPDR0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
-  void setSpeedMode(uint32_t pin_bit, GpioSpeedMode mode) {
+  inline void setSpeedMode(uint32_t pin_bit, GpioSpeedMode mode) {
     MODIFY_REG(p_gpio->OSPEEDR, ((pin_bit * pin_bit) * GPIO_OSPEEDR_OSPEEDR0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
   }
 
-  void setAlternateFunc(uint32_t pin_bit, GpioAf af) {
+  inline void setAlternateFunc(uint32_t pin_bit, GpioAf af) {
     uint32_t lsb = pin_bit & 0x00FF;
     uint32_t msb = (pin_bit >> 8) & 0x00FF;
     if (lsb) {
@@ -63,42 +63,42 @@ struct GpioPort {
     }
   }
 
-  void lock(uint32_t pin_bit) {
+  inline void lock(uint32_t pin_bit) {
     WRITE_REG(p_gpio->LCKR, GPIO_LCKR_LCKK | pin_bit);
     WRITE_REG(p_gpio->LCKR, pin_bit);
     WRITE_REG(p_gpio->LCKR, GPIO_LCKR_LCKK | pin_bit);
     __IO uint32_t temp = READ_REG(p_gpio->LCKR);
   }
 
-  void on(uint32_t bits) {
+  inline void on(uint32_t bits) {
     p_gpio->BSRR = bits;
   }
 
-  void high(uint32_t bits) {
+  inline void high(uint32_t bits) {
     on(bits);
   }
 
-  void off(uint32_t bits) {
+  inline void off(uint32_t bits) {
     p_gpio->BRR = bits;
   }
 
-  void low(uint32_t bits) {
+  inline void low(uint32_t bits) {
     off(bits);
   }
 
-  uint32_t read() {
+  inline uint32_t read() {
     return p_gpio->IDR;
   }
 
-  uint32_t readOutput() {
+  inline uint32_t readOutput() {
     return p_gpio->ODR;
   }
 
-  void enable() {
+  inline void enable() {
     // TODO: clock の有効化
   }
 
-  void disable() {
+  inline void disable() {
     // TODO: clock の無効化
   }
 
@@ -108,47 +108,47 @@ struct GpioPin {
   GpioPort port;
   const uint32_t pin_bit = 0;
 
-  void setMode(GpioMode mode) {
+  inline void setMode(GpioMode mode) {
     port.setMode(pin_bit, mode);
   }
 
-  void setOutputMode(GpioOutputMode mode) {
+  inline void setOutputMode(GpioOutputMode mode) {
     port.setOutputMode(pin_bit, mode);
   }
 
-  void setPullMode(GpioPullMode mode) {
+  inline void setPullMode(GpioPullMode mode) {
     port.setPullMode(pin_bit, mode);
   }
 
-  void setSpeedMode(GpioSpeedMode mode) {
+  inline void setSpeedMode(GpioSpeedMode mode) {
     port.setSpeedMode(pin_bit, mode);
   }
 
-  void setAlternateFunc(GpioAf af) {
+  inline void setAlternateFunc(GpioAf af) {
     port.setAlternateFunc(pin_bit, af);
   }
 
-  void lock() {
+  inline void lock() {
     port.lock(pin_bit);
   }
 
-  void on() {
+  inline void on() {
     port.on(pin_bit);
   }
 
-  void high() {
+  inline void high() {
     on();
   }
 
-  void off() {
+  inline void off() {
     port.off(pin_bit);
   }
 
-  void low() {
+  inline void low() {
     off();
   }
 
-  void write(bool flag) {
+  inline void write(bool flag) {
     if (flag) {
       on();
     } else {
@@ -156,21 +156,21 @@ struct GpioPin {
     }
   }
 
-  bool read() {
+  inline bool read() {
     return port.read() & pin_bit;
   }
 
-  bool readOutput() {
+  inline bool readOutput() {
     return port.readOutput() & (pin_bit);
   }
 
-  void initInput(GpioPullMode pull, GpioSpeedMode speed) {
+  inline void initInput(GpioPullMode pull, GpioSpeedMode speed) {
     setMode(GpioMode::INPUT);
     setPullMode(pull);
     setSpeedMode(speed);
   }
 
-  void initOutput(GpioOutputMode output_mode, GpioSpeedMode speed) {
+  inline void initOutput(GpioOutputMode output_mode, GpioSpeedMode speed) {
     setMode(GpioMode::OUTPUT);
     setOutputMode(output_mode);
     setPullMode(GpioPullMode::NO);
@@ -179,14 +179,14 @@ struct GpioPin {
 
   // TODO: pin_idx と pin_bit は扱いが混乱しそうな気もする。
   //       一方で、それぞれに専用型を割り当てると利用が面倒になりそうな懸念もある。
-  static GpioPin newPin(const GpioPort port_, uint8_t pin_idx) {
+  static inline GpioPin newPin(const GpioPort port_, uint8_t pin_idx) {
     return {
       .port = port_,
       .pin_bit = ((uint32_t)1 << pin_idx)
     };
   }
 
-  static GpioPin newPin(const GpioPinType pin_type) {
+  static inline GpioPin newPin(const GpioPinType pin_type) {
     GpioType gpio_type = extract_gpio_type(pin_type);
     uint8_t pin_idx = extract_pin_idx(pin_type);
     return GpioPin {

@@ -1,8 +1,11 @@
 #include "preset.h"
 #include "preset_event.h"
 #include "ram.h"
-#include "stm32f0xx_ll_gpio.h"
 #include "input.h"
+
+#include <igb_stm32/periph/gpio.hpp>
+
+using namespace igb_stm32;
 
 // アドレス範囲(256Kb= 0x00000-0x3FFFF)
 // プリセットを保持するアドレス
@@ -239,13 +242,8 @@ void preset_save_to_buf() {
 }
 
 static inline void preset_ram_gpio_init() {
-  LL_GPIO_InitTypeDef gpio;
-  gpio.Mode = LL_GPIO_MODE_OUTPUT;
-  gpio.Pull = LL_GPIO_PULL_NO;
-  gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpio.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpio.Pin = get_gpio_pin_bits(SPI_RAM_CS_PIN);
-  LL_GPIO_Init(get_gpio_typedef(SPI_RAM_CS_PIN), &gpio);
+  auto ram_pin = GpioPin::newPin(GpioPinType::pb2);
+  ram_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
 }
 
 void preset_setup() {
