@@ -35,7 +35,8 @@ enum class GpioOutputMode : uint32_t {
 };
 
 struct GpioPort {
-  GPIO_TypeDef* const p_gpio;
+  const GpioType type;
+  GPIO_TypeDef* const p_gpio = STM32_PERIPH_INFO.gpio[as<uint8_t>(type)].p_gpio;
 
   IGB_FAST_INLINE void setMode(uint32_t pin_bit, GpioMode mode) {
     MODIFY_REG(p_gpio->MODER, ((pin_bit * pin_bit) * GPIO_MODER_MODER0), ((pin_bit * pin_bit) * static_cast<uint32_t>(mode)));
@@ -96,7 +97,7 @@ struct GpioPort {
   }
 
   IGB_FAST_INLINE void enable() {
-    // TODO: clock の有効化
+    STM32_PERIPH_INFO.gpio[as<uint8_t>(type)].bus.enableBusClock();
   }
 
   IGB_FAST_INLINE void disable() {
@@ -178,20 +179,11 @@ struct GpioPin {
     setSpeedMode(speed);
   }
 
-  // TODO: pin_idx と pin_bit は扱いが混乱しそうな気もする。
-  //       一方で、それぞれに専用型を割り当てると利用が面倒になりそうな懸念もある。
-  static IGB_FAST_INLINE GpioPin newPin(const GpioPort port_, uint8_t pin_idx) {
-    return {
-      .port = port_,
-      .pin_bit = ((uint32_t)1 << pin_idx)
-    };
-  }
-
   static IGB_FAST_INLINE GpioPin newPin(const GpioPinType pin_type) {
     GpioType gpio_type = extract_gpio_type(pin_type);
     uint8_t pin_idx = extract_pin_idx(pin_type);
     return GpioPin {
-      .port = { .p_gpio = STM32_PERIPH_INFO.gpio[as<uint8_t>(gpio_type)].p_gpio },
+      .port = { gpio_type },
       .pin_bit = 1UL << pin_idx
     };
   }

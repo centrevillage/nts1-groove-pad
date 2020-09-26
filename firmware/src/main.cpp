@@ -13,6 +13,7 @@
 #include "preset_event.h"
 #include "ram.h"
 #include "app_seq.h"
+#include "app_touch.hpp"
 #include <igb_stm32/periph/tim.hpp>
 
 using namespace igb_stm32;
@@ -33,7 +34,7 @@ void TIM_COMMON_HANDLER() {
   auto tim = Timer { TIM_COMMON };
   if (tim.isState(TimState::UPDATE)) {
 
-    touch_process();
+    //touch_process();
     led_process();
     input_process();
 
@@ -124,8 +125,7 @@ void setup() {
 
   //gpio_write(PIN_A12, 1);
 
-
-  touch_setup();
+  //touch_setup();
 
   //delay_msec(1000);
   nts1_init();
@@ -141,14 +141,12 @@ void setup() {
   auto seq_tim = Timer::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
   seq_tim.setCount(0);
 
-  //char buf[9];
-  //text_0x_from_uint32(buf, SystemCoreClock);
-  //debug_text(buf, 8);
-
   //nts1_note_on(100, 100);
 
   debug_text("LOADING", 7); 
   screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
+
+  if (true) {
 
   nts1_defs_req_load();
   nts1_idle();
@@ -159,9 +157,11 @@ void setup() {
 
   preset_setup();
 
+  }
+
   screen_set_mode(SCREEN_MODE_EDIT);
   input_refresh();
-  input_touch_init();
+  //input_touch_init();
 }
 
 void loop() {

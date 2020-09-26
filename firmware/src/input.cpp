@@ -1,5 +1,5 @@
 #include "input.h"
-#include "touch.h"
+//#include "touch.h"
 #include "oled.h"
 #include "led.h"
 #include "nts1_iface.h"
@@ -12,6 +12,8 @@
 #include "app_seq.h"
 #include "app_button.hpp"
 #include "text.h"
+#include "app_touch.hpp"
+#include <algorithm>
 
 #define BTN_SEQ_IDX 16
 #define BTN_RUN_IDX  17
@@ -34,115 +36,291 @@ volatile InputState input_state;
 // 将来的には、volatile修飾以外の方法で同期を保証する様にすべき。
 AppButtons app_buttons;
 
-void input_osc_update_shift_shape(int16_t value) {
-  preset_state.osc.shift_shape = value;
-  nts1_param_change(k_param_id_osc_shift_shape, 0, value);
+AppTouch app_touch;
+
+// TODO: もっと宣言的な記述にしたいね・・・
+static inline void input_osc_update_shift_shape(int16_t value) {
+  preset_state.osc.shift_shape = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_osc_shift_shape, 0, preset_state.osc.shift_shape);
   // TODO: temporary save
 }
-
-void input_osc_update_shape(int16_t value) {
-  preset_state.osc.shape = value;
-  nts1_param_change(k_param_id_osc_shape, 0, value);
-  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_SHAPE, 0);
+static inline void input_osc_inc_shift_shape(int16_t inc_value) {
+  input_osc_update_shift_shape(preset_state.osc.shift_shape + inc_value);
 }
 
-void input_osc_update_param(uint8_t param_idx, int16_t value) {
+static inline void input_osc_update_shape(int16_t value) {
+  preset_state.osc.shape = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_osc_shape, 0, preset_state.osc.shape);
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_SHAPE, 0);
+}
+static inline void input_osc_inc_shape(int16_t inc_value) {
+  input_osc_update_shape(preset_state.osc.shape + inc_value);
+}
+
+static inline void input_osc_update_param(uint8_t param_idx, int16_t value) {
+  value = std::clamp<int16_t>(value, 0, 1023);
   preset_state.osc.custom_values[param_idx] = value;
   nts1_param_change(k_param_id_osc_edit, param_idx, value);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_CUSTOM_VALUES, param_idx);
 }
+static inline void input_osc_inc_param(uint8_t param_idx, int16_t inc_value) {
+  input_osc_update_param(param_idx, preset_state.osc.custom_values[param_idx] + inc_value);
+}
 
-void input_filter_update_cutoff(int16_t value) {
-  preset_state.filter.cutoff = value;
-  nts1_param_change(k_param_id_filt_cutoff, 0, value);
+static inline void input_filter_update_cutoff(int16_t value) {
+  preset_state.filter.cutoff = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_filt_cutoff, 0, preset_state.filter.cutoff);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_FILTER_CUTOFF, 0);
 }
+static inline void input_filter_inc_cutoff(int16_t inc_value) {
+  input_filter_update_cutoff(preset_state.filter.cutoff + inc_value);
+}
 
-void input_filter_update_peak(int16_t value) {
-  preset_state.filter.peak = value;
-  nts1_param_change(k_param_id_filt_peak, 0, value);
+static inline void input_filter_update_peak(int16_t value) {
+  preset_state.filter.peak = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_filt_peak, 0, preset_state.filter.peak);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_FILTER_PEAK, 0);
 }
+static inline void input_filter_inc_peak(int16_t inc_value) {
+  input_filter_update_peak(preset_state.filter.peak + inc_value);
+}
 
-void input_ampeg_update_attack(int16_t value) {
-  preset_state.ampeg.attack = value;
-  nts1_param_change(k_param_id_ampeg_attack, 0, value);
+static inline void input_ampeg_update_attack(int16_t value) {
+  preset_state.ampeg.attack = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_ampeg_attack, 0, preset_state.ampeg.attack);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_AMPEG_ATTACK, 0);
 }
-
-void input_ampeg_update_release(int16_t value) {
-  preset_state.ampeg.release = value;
-  nts1_param_change(k_param_id_ampeg_release, 0, value);
-  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_AMPEG_RELEASE, 0);
+static inline void input_ampeg_inc_attack(int16_t inc_value) {
+  input_ampeg_update_attack(preset_state.ampeg.attack + inc_value);
 }
 
-void input_modfx_update_time(int16_t value) {
+static inline void input_ampeg_update_release(int16_t value) {
+  preset_state.ampeg.release = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_ampeg_release, 0, preset_state.ampeg.release);
+  preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_AMPEG_RELEASE, 0);
+}
+static inline void input_ampeg_inc_release(int16_t inc_value) {
+  input_ampeg_update_release(preset_state.ampeg.release + inc_value);
+}
+
+static inline void input_modfx_update_time(int16_t value) {
   preset_state.modfx.time = value;
   nts1_param_change(k_param_id_mod_time, 0, value);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_MODFX_TIME, 0);
 }
+static inline void input_modfx_inc_time(int16_t inc_value) {
+  input_modfx_update_time(preset_state.modfx.time + inc_value);
+}
 
-void input_modfx_update_depth(int16_t value) {
-  preset_state.modfx.depth = value;
-  nts1_param_change(k_param_id_mod_depth, 0, value);
+static inline void input_modfx_update_depth(int16_t value) {
+  preset_state.modfx.depth = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_mod_depth, 0, preset_state.modfx.depth);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_MODFX_DEPTH, 0);
 }
+static inline void input_modfx_inc_depth(int16_t inc_value) {
+  input_modfx_update_depth(preset_state.modfx.depth + inc_value);
+}
 
-void input_delfx_update_time(int16_t value) {
-  preset_state.delfx.time = value;
-  nts1_param_change(k_param_id_del_time, 0, value);
+static inline void input_delfx_update_time(int16_t value) {
+  preset_state.delfx.time = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_del_time, 0, preset_state.delfx.time);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_DELFX_TIME, 0);
 }
+static inline void input_delfx_inc_time(int16_t inc_value) {
+  input_delfx_update_time(preset_state.delfx.time + inc_value);
+}
 
-void input_delfx_update_depth(int16_t value) {
-  preset_state.delfx.depth = value;
-  nts1_param_change(k_param_id_del_depth, 0, value);
+static inline void input_delfx_update_depth(int16_t value) {
+  preset_state.delfx.depth = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_del_depth, 0, preset_state.delfx.depth);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_DELFX_DEPTH, 0);
 }
+static inline void input_delfx_inc_depth(int16_t inc_value) {
+  input_delfx_update_depth(preset_state.delfx.depth + inc_value);
+}
 
-void input_revfx_update_time(int16_t value) {
-  preset_state.revfx.time = value;
-  nts1_param_change(k_param_id_rev_time, 0, value);
+static inline void input_revfx_update_time(int16_t value) {
+  preset_state.revfx.time = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_rev_time, 0, preset_state.revfx.time);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_REVFX_TIME, 0);
 }
+static inline void input_revfx_inc_time(int16_t inc_value) {
+  input_revfx_update_time(preset_state.revfx.time + inc_value);
+}
 
-void input_revfx_update_depth(int16_t value) {
-  preset_state.revfx.depth = value;
-  nts1_param_change(k_param_id_rev_depth, 0, value);
+static inline void input_revfx_update_depth(int16_t value) {
+  preset_state.revfx.depth = std::clamp<int16_t>(value, 0, 1023);
+  nts1_param_change(k_param_id_rev_depth, 0, preset_state.revfx.depth);
   preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_REVFX_DEPTH, 0);
 }
-
-void input_arp_update_pattern(int16_t value) {
-  preset_state.arp.index = value;
-  nts1_param_change(k_param_id_arp_pattern, 0, value);
-  // TODO: temporary save
+static inline void input_revfx_inc_depth(int16_t inc_value) {
+  input_revfx_update_depth(preset_state.revfx.depth + inc_value);
 }
 
-void input_arp_update_intervals(int16_t value) {
-  preset_state.arp.intervals = value;
-  nts1_param_change(k_param_id_arp_intervals, 0, value);
+static inline void input_arp_update_pattern(int16_t value) {
+  preset_state.arp.index = std::clamp<int16_t>(value, 0, arppat_defs_size);
+  nts1_param_change(k_param_id_arp_pattern, 0, preset_state.arp.index);
   // TODO: temporary save
 }
-
-void input_arp_update_length(int16_t value) {
-  preset_state.arp.length = value;
-  nts1_param_change(k_param_id_arp_length, 0, value);
-  // TODO: temporary save
+static inline void input_arp_inc_pattern(int16_t inc_value) {
+  input_arp_update_pattern(preset_state.arp.index + inc_value);
 }
 
-void input_arp_update_state(int16_t value) {
-  preset_state.arp.state = value;
-  nts1_param_change(k_param_id_arp_state, 0, value);
+static inline void input_arp_update_intervals(int16_t value) {
+  preset_state.arp.intervals = std::clamp<int16_t>(value, 0, arpint_defs_size);
+  nts1_param_change(k_param_id_arp_intervals, 0, preset_state.arp.intervals);
   // TODO: temporary save
 }
-
-void input_arp_update_tempo(int16_t value) {
-  preset_state.arp.tempo = value;
-  nts1_param_change(k_param_id_arp_tempo, 0, value);
-  // TODO: temporary save
+static inline void input_arp_inc_intervals(int16_t inc_value) {
+  input_arp_update_intervals(preset_state.arp.intervals + inc_value);
 }
 
-void input_update_pad_value(uint8_t is_right, int16_t value) {
+static inline void input_arp_update_length(int16_t value) {
+  preset_state.arp.length = std::clamp<int16_t>(value, 1, 16);
+  nts1_param_change(k_param_id_arp_length, 0, preset_state.arp.length);
+  // TODO: temporary save
+}
+static inline void input_arp_inc_length(int16_t inc_value) {
+  input_arp_update_length(preset_state.arp.length + inc_value);
+}
+
+static inline void input_arp_update_state(int16_t value) {
+  preset_state.arp.state = std::clamp<int16_t>(value, 0, 1);
+  nts1_param_change(k_param_id_arp_state, 0, preset_state.arp.state);
+  // TODO: temporary save
+}
+static inline void input_arp_inc_state(int16_t inc_value) {
+  input_arp_update_state(preset_state.arp.state + inc_value);
+}
+
+static inline void input_arp_update_tempo(int16_t value) {
+  preset_state.arp.tempo = std::clamp<int16_t>(value, 60, 120);
+  nts1_param_change(k_param_id_arp_tempo, 0, preset_state.arp.tempo);
+  // TODO: temporary save
+}
+static inline void input_arp_inc_tempo(int16_t inc_value) {
+  input_arp_update_tempo(preset_state.arp.tempo + inc_value);
+}
+
+static inline void input_update_pad_value_relative(AppTouchPadID id, int16_t inc_value) {
+  switch(input_state.mode) {
+    case INPUT_MODE_OSC:
+      if (id == AppTouchPadID::L) {
+        input_osc_inc_shift_shape(inc_value);
+      } else {
+        input_osc_inc_shape(inc_value);
+      }
+      break;
+    case INPUT_MODE_CUSTOM:
+      if (id == AppTouchPadID::L) {
+        input_osc_inc_param(input_state.current_page * 2, inc_value);
+      } else {
+        input_osc_inc_param(input_state.current_page * 2 + 1, inc_value);
+      }
+      break;
+    case INPUT_MODE_FILTER:
+      if (id == AppTouchPadID::L) {
+        input_filter_inc_peak(inc_value);
+      } else {
+        input_filter_inc_cutoff(inc_value);
+      }
+      break;
+    case INPUT_MODE_AMPEG:
+      if (id == AppTouchPadID::L) {
+        input_ampeg_inc_attack(inc_value);
+      } else {
+        input_ampeg_inc_release(inc_value);
+      }
+      break;
+    case INPUT_MODE_MODFX:
+      if (id == AppTouchPadID::L) {
+        input_modfx_inc_time(inc_value);
+      } else {
+        input_modfx_inc_depth(inc_value);
+      }
+      break;
+    case INPUT_MODE_DELFX:
+      if (id == AppTouchPadID::L) {
+        input_delfx_inc_time(inc_value);
+      } else {
+        input_delfx_inc_depth(inc_value);
+      }
+      break;
+    case INPUT_MODE_REVFX:
+      if (id == AppTouchPadID::L) {
+        input_revfx_inc_time(inc_value);
+      } else {
+        input_revfx_inc_depth(inc_value);
+      }
+      break;
+    case INPUT_MODE_ARP:
+      if (id == AppTouchPadID::L) {
+        if (input_state.current_page = 0) {
+          input_arp_inc_pattern(inc_value);
+        } else if (input_state.current_page = 1) {
+          input_arp_inc_length(inc_value);
+        } else {
+          input_arp_inc_tempo(inc_value);
+        }
+      } else {
+        if (input_state.current_page = 0) {
+          input_arp_inc_intervals(inc_value);
+        } else if (input_state.current_page = 1) {
+          input_arp_inc_state(inc_value);
+        }
+      }
+      break;
+    case INPUT_MODE_SAVE:
+      break;
+    case INPUT_MODE_LOAD:
+      break;
+    case INPUT_MODE_CLEAR:
+      break;
+    case INPUT_MODE_GLOBAL:
+      break;
+    case INPUT_MODE_SCALE:
+      break;
+    case INPUT_MODE_TRANS:
+      break;
+    case INPUT_MODE_STUTTER:
+      break;
+    case INPUT_MODE_LFO:
+      break;
+    case INPUT_MODE_SEQ_SELECT:
+      break;
+    case INPUT_MODE_SEQ_NOTE:
+      break;
+    case INPUT_MODE_SEQ_OSC:
+      break;
+    case INPUT_MODE_SEQ_CUSTOM:
+      break;
+    case INPUT_MODE_SEQ_FILTER:
+      break;
+    case INPUT_MODE_SEQ_AMPEG:
+      break;
+    case INPUT_MODE_SEQ_MODFX:
+      break;
+    case INPUT_MODE_SEQ_DELFX:
+      break;
+    case INPUT_MODE_SEQ_REVFX:
+      break;
+    case INPUT_MODE_SEQ_ARP:
+      break;
+    case INPUT_MODE_SEQ_SCALE:
+      break;
+    case INPUT_MODE_SEQ_TRANS:
+      break;
+    case INPUT_MODE_SEQ_STUTTER:
+      break;
+    case INPUT_MODE_SEQ_LFO:
+      break;
+    case INPUT_MODE_SIZE:
+      break;
+  }
+  input_refresh();
+};
+
+static inline void input_update_pad_value(uint8_t is_right, int16_t value) {
   switch(input_state.mode) {
     case INPUT_MODE_OSC:
       if (!is_right) {
@@ -334,30 +512,34 @@ void input_release_pad(uint8_t is_right) {
   }
 }
 
-void input_touch_handler(uint8_t touch_bits) {
-  input_state.touch_bits = touch_bits;
+//void input_touch_handler(uint8_t touch_bits) {
+//  input_state.touch_bits = touch_bits;
+//
+//  // L
+//  uint8_t state_bits = (touch_bits & 0b0111) | ((touch_bits & 0b01000000) >> 3);
+//  uint8_t is_changed = touch_util_process(state_bits, &(input_state.touch_states[0]));
+//  int16_t value = input_state.touch_states[0].value;
+//  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+//    input_update_pad_value(0, value);
+//  }
+//  if (value == TOUCH_NO_VALUE) {
+//    input_release_pad(0);
+//  }
+//
+//  // R
+//  state_bits = ((touch_bits >> 3) & 0b0111) | ((touch_bits & 0b10000000) >> 4);
+//  is_changed = touch_util_process(state_bits, &(input_state.touch_states[1]));
+//  value = input_state.touch_states[1].value;
+//  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
+//    input_update_pad_value(1, value);
+//  }
+//  if (value == TOUCH_NO_VALUE) {
+//    input_release_pad(1);
+//  }
+//}
 
-  // L
-  uint8_t state_bits = (touch_bits & 0b0111) | ((touch_bits & 0b01000000) >> 3);
-  uint8_t is_changed = touch_util_process(state_bits, &(input_state.touch_states[0]));
-  int16_t value = input_state.touch_states[0].value;
-  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-    input_update_pad_value(0, value);
-  }
-  if (value == TOUCH_NO_VALUE) {
-    input_release_pad(0);
-  }
-
-  // R
-  state_bits = ((touch_bits >> 3) & 0b0111) | ((touch_bits & 0b10000000) >> 4);
-  is_changed = touch_util_process(state_bits, &(input_state.touch_states[1]));
-  value = input_state.touch_states[1].value;
-  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-    input_update_pad_value(1, value);
-  }
-  if (value == TOUCH_NO_VALUE) {
-    input_release_pad(1);
-  }
+static inline void input_touch_handler(AppTouchPadID id, int16_t inc_value) {
+  input_update_pad_value_relative(id, inc_value);
 }
 
 void input_button_debug_handler(uint8_t button_idx, uint8_t on) {
@@ -430,117 +612,116 @@ void input_button_debug_handler(uint8_t button_idx, uint8_t on) {
   }
 }
 
-static inline void input_set_touch(uint8_t touch_state_idx, TouchType type, int16_t value, int16_t min, int16_t max, uint8_t steps) {
-  input_state.touch_states[touch_state_idx].touch_type = type;
-  input_state.touch_states[touch_state_idx].value = value;
-  input_state.touch_states[touch_state_idx].min_value = min;
-  input_state.touch_states[touch_state_idx].max_value = max;
-  input_state.touch_states[touch_state_idx].state_bits = 0;
-  input_state.touch_states[touch_state_idx].state_bits_history = 0;
-  input_state.touch_states[touch_state_idx].steps = steps;
-}
+//static inline void input_set_touch(uint8_t touch_state_idx, TouchType type, int16_t value, int16_t min, int16_t max, uint8_t steps) {
+//  input_state.touch_states[touch_state_idx].touch_type = type;
+//  input_state.touch_states[touch_state_idx].value = value;
+//  input_state.touch_states[touch_state_idx].min_value = min;
+//  input_state.touch_states[touch_state_idx].max_value = max;
+//  input_state.touch_states[touch_state_idx].state_bits = 0;
+//  input_state.touch_states[touch_state_idx].state_bits_history = 0;
+//  input_state.touch_states[touch_state_idx].steps = steps;
+//}
 
-void input_touch_init() {
-  switch(input_state.mode) {
-    case INPUT_MODE_OSC:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shift_shape, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shape, 0, 1023, 16);
-      break;
-    case INPUT_MODE_CUSTOM:
-      {
-        uint8_t left_idx = input_state.current_page*2;
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[left_idx],
-            osc_defs[preset_state.osc.index].params[left_idx].min,
-            osc_defs[preset_state.osc.index].params[left_idx].max,
-            2);
-        uint8_t right_idx = input_state.current_page*2+1;
-        input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[right_idx],
-            osc_defs[preset_state.osc.index].params[right_idx].min,
-            osc_defs[preset_state.osc.index].params[right_idx].max,
-            2);
-      }
-      break;
-    case INPUT_MODE_FILTER:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.filter.peak, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.filter.cutoff, 0, 1023, 16);
-      break;
-    case INPUT_MODE_AMPEG:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.attack, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.release, 0, 1023, 16);
-      break;
-    case INPUT_MODE_MODFX:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.time, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.depth, 0, 1023, 16);
-      break;
-    case INPUT_MODE_DELFX:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.time, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.depth, 0, 1023, 16);
-      break;
-    case INPUT_MODE_REVFX:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.time, 0, 1023, 16);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.depth, 0, 1023, 16);
-      break;
-    case INPUT_MODE_ARP:
-      if (input_state.current_page == 0) {
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.index, 0, arppat_defs_size, 1);
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.intervals, 0, arpint_defs_size, 1);
-      } else if (input_state.current_page == 1) {
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.length, 1, 16, 1); // TODO: 範囲正しい？
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.state, 0, 1, 1); // TODO: 範囲正しい？
-      } else {
-        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.tempo, 60, 120, 1); // TODO: 範囲見直し
-      }
-      break;
-    case INPUT_MODE_SAVE:
-      break;
-    case INPUT_MODE_LOAD:
-      break;
-    case INPUT_MODE_CLEAR:
-      break;
-    case INPUT_MODE_GLOBAL:
-      break;
-    case INPUT_MODE_SCALE:
-      break;
-    case INPUT_MODE_TRANS:
-      break;
-    case INPUT_MODE_STUTTER:
-      break;
-    case INPUT_MODE_LFO:
-      break;
-    case INPUT_MODE_SEQ_SELECT:
-      break;
-    case INPUT_MODE_SEQ_NOTE:
-      input_set_touch(0, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
-      input_set_touch(1, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
-      break;
-    case INPUT_MODE_SEQ_OSC:
-      break;
-    case INPUT_MODE_SEQ_CUSTOM:
-      break;
-    case INPUT_MODE_SEQ_FILTER:
-      break;
-    case INPUT_MODE_SEQ_AMPEG:
-      break;
-    case INPUT_MODE_SEQ_MODFX:
-      break;
-    case INPUT_MODE_SEQ_DELFX:
-      break;
-    case INPUT_MODE_SEQ_REVFX:
-      break;
-    case INPUT_MODE_SEQ_ARP:
-      break;
-    case INPUT_MODE_SEQ_SCALE:
-      break;
-    case INPUT_MODE_SEQ_TRANS:
-      break;
-    case INPUT_MODE_SEQ_STUTTER:
-      break;
-    case INPUT_MODE_SEQ_LFO:
-      break;
-    case INPUT_MODE_SIZE:
-      break;
-  }
-}
+//void input_touch_init() {
+//  switch(input_state.mode) {
+//    case INPUT_MODE_OSC:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shift_shape, 0, 1023, 16); input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shape, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_CUSTOM:
+//      {
+//        uint8_t left_idx = input_state.current_page*2;
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[left_idx],
+//            osc_defs[preset_state.osc.index].params[left_idx].min,
+//            osc_defs[preset_state.osc.index].params[left_idx].max,
+//            2);
+//        uint8_t right_idx = input_state.current_page*2+1;
+//        input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[right_idx],
+//            osc_defs[preset_state.osc.index].params[right_idx].min,
+//            osc_defs[preset_state.osc.index].params[right_idx].max,
+//            2);
+//      }
+//      break;
+//    case INPUT_MODE_FILTER:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.filter.peak, 0, 1023, 16);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.filter.cutoff, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_AMPEG:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.attack, 0, 1023, 16);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.release, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_MODFX:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.time, 0, 1023, 16);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.depth, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_DELFX:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.time, 0, 1023, 16);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.depth, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_REVFX:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.time, 0, 1023, 16);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.depth, 0, 1023, 16);
+//      break;
+//    case INPUT_MODE_ARP:
+//      if (input_state.current_page == 0) {
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.index, 0, arppat_defs_size, 1);
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.intervals, 0, arpint_defs_size, 1);
+//      } else if (input_state.current_page == 1) {
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.length, 1, 16, 1); // TODO: 範囲正しい？
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.state, 0, 1, 1); // TODO: 範囲正しい？
+//      } else {
+//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.tempo, 60, 120, 1); // TODO: 範囲見直し
+//      }
+//      break;
+//    case INPUT_MODE_SAVE:
+//      break;
+//    case INPUT_MODE_LOAD:
+//      break;
+//    case INPUT_MODE_CLEAR:
+//      break;
+//    case INPUT_MODE_GLOBAL:
+//      break;
+//    case INPUT_MODE_SCALE:
+//      break;
+//    case INPUT_MODE_TRANS:
+//      break;
+//    case INPUT_MODE_STUTTER:
+//      break;
+//    case INPUT_MODE_LFO:
+//      break;
+//    case INPUT_MODE_SEQ_SELECT:
+//      break;
+//    case INPUT_MODE_SEQ_NOTE:
+//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
+//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
+//      break;
+//    case INPUT_MODE_SEQ_OSC:
+//      break;
+//    case INPUT_MODE_SEQ_CUSTOM:
+//      break;
+//    case INPUT_MODE_SEQ_FILTER:
+//      break;
+//    case INPUT_MODE_SEQ_AMPEG:
+//      break;
+//    case INPUT_MODE_SEQ_MODFX:
+//      break;
+//    case INPUT_MODE_SEQ_DELFX:
+//      break;
+//    case INPUT_MODE_SEQ_REVFX:
+//      break;
+//    case INPUT_MODE_SEQ_ARP:
+//      break;
+//    case INPUT_MODE_SEQ_SCALE:
+//      break;
+//    case INPUT_MODE_SEQ_TRANS:
+//      break;
+//    case INPUT_MODE_SEQ_STUTTER:
+//      break;
+//    case INPUT_MODE_SEQ_LFO:
+//      break;
+//    case INPUT_MODE_SIZE:
+//      break;
+//  }
+//}
 
 static inline uint8_t input_button_is_seq_pressed() {
   return app_buttons.state_bits & (1<<BTN_SEQ_IDX);
@@ -560,7 +741,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_osc_type, 0, preset_state.osc.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -576,7 +757,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           // TODO: temporary save
           preset_state.osc.custom_value_selected_page = input_state.current_page;
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -591,7 +772,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_filt_type, 0, preset_state.filter.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -606,7 +787,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_ampeg_type, 0, preset_state.ampeg.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -621,7 +802,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_mod_type, 0, preset_state.modfx.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -636,7 +817,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_del_type, 0, preset_state.delfx.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -651,7 +832,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_rev_type, 0, preset_state.revfx.index);
           // TODO: temporary save
           input_refresh();
-          input_touch_init();
+          //input_touch_init();
         }
       }
       break;
@@ -665,7 +846,7 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
         }
         // TODO: temporary save
         input_refresh();
-        input_touch_init();
+        //input_touch_init();
       }
       break;
     case INPUT_MODE_SAVE:
@@ -993,25 +1174,33 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
       input_state.current_page = 0;
     }
     input_refresh();
-    input_touch_init();
+    //input_touch_init();
   }
 }
 
 void input_setup() {
-  touch_event_listen(input_touch_handler);
+  //touch_event_listen(input_touch_handler);
 
   app_buttons.init();
   app_buttons.on_change = [](AppBtnID id, bool on){
     input_button_handler(static_cast<uint8_t>(id), on);
   };
 
-  input_state.touch_bits = 0;
-  for (uint8_t i=0; i<9; ++i) {
-    input_state.touch_values[i] = 0;
-  }
+  app_touch.init();
+  app_touch.on_acquisition_end = [](uint8_t bits) {
+    input_state.touch_bits = bits;
+  };
+  app_touch.on_change = [](AppTouchPadID id, int16_t inc_value) {
+    input_touch_handler(id, inc_value);
+  };
 
- touch_value_init(&(input_state.touch_states[0]));
- touch_value_init(&(input_state.touch_states[1]));
+  //input_state.touch_bits = 0;
+  //for (uint8_t i=0; i<9; ++i) {
+  //  input_state.touch_values[i] = 0;
+  //}
+
+  //touch_value_init(&(input_state.touch_states[0]));
+  //touch_value_init(&(input_state.touch_states[1]));
 }
 
 void input_refresh() {
@@ -1196,4 +1385,5 @@ void input_refresh() {
 
 void input_process() {
   app_buttons.process();
+  app_touch.process();
 }

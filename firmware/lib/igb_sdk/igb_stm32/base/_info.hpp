@@ -1,6 +1,12 @@
 struct PeriphBusInfo {
   const BusType   bus_type;
   const uint32_t  periph_bit;
+
+  inline void enableBusClock() const {
+    auto p_enr = STM32_BUS_TO_ENR_ADDRESS[ static_cast<uint32_t>(bus_type) ];
+    (*p_enr) |= periph_bit;
+    __IO auto tmp = (*p_enr); // delay until clock enabled
+  }
 };
 
 struct GpioAfInfo {
@@ -76,6 +82,14 @@ struct DacInfo {
 struct AdcInfo {
   const PeriphType   periph_type;
   ADC_TypeDef* const p_adc;
+  const PeriphBusInfo bus;
+};
+#endif
+
+#ifdef STM32_PERIPHGRP_TSC_EXISTS
+struct TscInfo {
+  const PeriphType   periph_type;
+  TSC_TypeDef* const p_tsc;
   const PeriphBusInfo bus;
 };
 #endif

@@ -47,8 +47,8 @@ FORCE_INLINE uint32_t bit_count_in_32bit(uint32_t bits) {
   return bits & 0x3F;
 }
 
-#define extract_most_right1(bits) ((bits) & -(bits))
-#define reset_most_right1(bits) ((bits) & ((bits)-1))
-#define bit_is_set(n,bit) (n & (1<<(bit)))
+//#define extract_most_right1(bits) ((bits) & -(bits))
+//#define reset_most_right1(bits) ((bits) & ((bits)-1))
+//#define bit_is_set(n,bit) (n & (1<<(bit)))
 
 #endif /* __STM_UTIL_H */

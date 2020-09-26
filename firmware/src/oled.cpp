@@ -32,7 +32,8 @@ auto oled_reset_pin = GpioPin::newPin(GpioPinType::pb8);
 auto oled_spi = Spi::newSpi(SpiType::spi1);
 
 void oled_gpio_setup() {
-  RccCtrl::enablePeriphBus(STM32_PERIPH_INFO.gpio[as<uint8_t>(GpioType::gpiob)].bus);
+  GpioPort port_b { GpioType::gpiob };
+  port_b.enable();
 
   oled_cs_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
   oled_dc_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);

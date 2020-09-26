@@ -281,6 +281,8 @@ class CppSrcGenerator
           struct[:attrs][:p_adc][:value] = peripheral_name
         when :DAC
           struct[:attrs][:p_dac][:value] = peripheral_name
+        when :TSC
+          struct[:attrs][:p_tsc][:value] = peripheral_name
         else
           next
         end
@@ -313,7 +315,7 @@ class CppSrcGenerator
     IOPE: :GPIOE, IOPF: :GPIOF, IOPG: :GPIOG, IOPH: :GPIOH,
     IOPI: :GPIOI, IOPJ: :GPIOJ, IOPK: :GPIOK, IOPL: :GPIOL,
     IOPM: :GPIOM, IOPN: :GPION, IOPO: :GPIOO, IOPP: :GPIOP,
-    ADC:  :ADC1   
+    ADC:  :ADC1
   }
 
   def update_structs_for_bus_clock

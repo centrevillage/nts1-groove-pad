@@ -95,7 +95,7 @@ const std::array<__IO uint32_t*, <%= @bus_names.size %>> STM32_BUS_TO_RSTR_ADDRE
 
 #include <igb_stm32/base/_info.hpp>
 
-const struct PeriphInfo {
+constexpr struct PeriphInfo {
 <% @cpp_structs.each do |group_name, structs| %>
 <% next if !structs || structs.empty? %>
 <%  if schema.dig(group_name.to_sym, :singleton) %>

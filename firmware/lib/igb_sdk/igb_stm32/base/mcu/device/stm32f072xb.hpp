@@ -86,6 +86,7 @@ enum class PeriphGroupType : uint16_t {
   rcc,
   adc,
   usart,
+  tsc,
 };
 
 enum class PeriphType : uint16_t {
@@ -115,6 +116,7 @@ enum class PeriphType : uint16_t {
   usart2,
   usart3,
   usart4,
+  tsc,
 };
 
 enum class GpioType : uint8_t {
@@ -586,7 +588,7 @@ const std::array<__IO uint32_t*, 3> STM32_BUS_TO_RSTR_ADDRESS = {
 
 #include <igb_stm32/base/_info.hpp>
 
-const struct PeriphInfo {
+constexpr struct PeriphInfo {
   const std::array<GpioInfo, 6> gpio {
     GpioInfo {
       .periph_type = PeriphType::gpioa,
@@ -748,6 +750,11 @@ const struct PeriphInfo {
       .bus = PeriphBusInfo { BusType::apb1, (uint32_t)1 << 19},
     },
   };
+  const TscInfo tsc {
+    .periph_type = PeriphType::tsc,
+    .p_tsc = TSC,
+    .bus = PeriphBusInfo { BusType::ahb, (uint32_t)1 << 24},
+  };
 } STM32_PERIPH_INFO;
 
 
@@ -770,6 +777,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart4:
           return GpioAf::af4;
         default:
@@ -782,6 +791,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart4:
           return GpioAf::af4;
         case PeriphType::tim15:
@@ -798,6 +809,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -810,6 +823,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -820,6 +835,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::usart2:
           return GpioAf::af1;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::tim14:
           return GpioAf::af4;
         default:
@@ -832,6 +849,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -844,6 +863,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         case PeriphType::tim16:
@@ -860,6 +881,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::tim14:
           return GpioAf::af4;
         case PeriphType::tim17:
@@ -888,6 +911,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -900,6 +925,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -910,6 +937,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -920,6 +949,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -958,6 +989,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         default:
@@ -972,6 +1005,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         default:
@@ -980,6 +1015,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       break;
     case GpioPinType::pb2:
       switch (periph_type) {
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -990,6 +1027,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -1000,6 +1039,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::tim3:
           return GpioAf::af1;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::tim17:
           return GpioAf::af5;
         default:
@@ -1028,6 +1069,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim16:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -1040,6 +1083,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim17:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart4:
           return GpioAf::af4;
         default:
@@ -1052,6 +1097,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim16:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         default:
           break;
       }
@@ -1074,6 +1121,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         case PeriphType::spi2:
@@ -1088,6 +1137,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim2:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         default:
@@ -1100,6 +1151,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         case PeriphType::tim15:
@@ -1114,6 +1167,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af0;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         case PeriphType::i2c2:
@@ -1130,6 +1185,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
           return GpioAf::af1;
         case PeriphType::tim1:
           return GpioAf::af2;
+        case PeriphType::tsc:
+          return GpioAf::af3;
         case PeriphType::usart3:
           return GpioAf::af4;
         case PeriphType::i2c2:
@@ -1176,6 +1233,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       break;
     case GpioPinType::pc5:
       switch (periph_type) {
+        case PeriphType::tsc:
+          return GpioAf::af0;
         case PeriphType::usart3:
           return GpioAf::af1;
         default:
@@ -1350,18 +1409,24 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::usart3:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
       break;
     case GpioPinType::pd13:
       switch (periph_type) {
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
       break;
     case GpioPinType::pd14:
       switch (periph_type) {
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
@@ -1370,6 +1435,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::rcc:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
@@ -1394,6 +1461,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::tim3:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
@@ -1402,6 +1471,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::tim3:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
@@ -1410,6 +1481,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::tim3:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }
@@ -1418,6 +1491,8 @@ static inline std::optional<GpioAf> get_af_idx(PeriphType periph_type, GpioPinTy
       switch (periph_type) {
         case PeriphType::tim3:
           return GpioAf::af0;
+        case PeriphType::tsc:
+          return GpioAf::af1;
         default:
           break;
       }

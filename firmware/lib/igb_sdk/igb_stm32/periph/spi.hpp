@@ -292,12 +292,7 @@ struct Spi {
     if (!result) { return; }
 
     GpioType gpio_type = extract_gpio_type(pin_type);
-    GpioPin pin {
-      .port = {
-        .p_gpio = STM32_PERIPH_INFO.gpio[as<uint8_t>(gpio_type)].p_gpio
-      },
-      .pin_bit = 1UL << extract_pin_idx(pin_type)
-    };
+    GpioPin pin = GpioPin::newPin(pin_type);
     pin.setMode(GpioMode::ALTERNATE);
     pin.setPullMode(GpioPullMode::NO);
     pin.setSpeedMode(GpioSpeedMode::HIGH);
@@ -307,7 +302,7 @@ struct Spi {
 
   static IGB_FAST_INLINE void prepareSpiMaster(SpiType spi_type, GpioPinType mosi_pin, GpioPinType miso_pin, GpioPinType sck_pin, SpiBaudratePrescaler prescaler) {
     const auto& spi_info = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)];
-    RccCtrl::enablePeriphBus(spi_info.bus);
+    spi_info.bus.enableBusClock();
     prepareGpio(spi_type, mosi_pin);
     prepareGpio(spi_type, miso_pin);
     prepareGpio(spi_type, sck_pin);

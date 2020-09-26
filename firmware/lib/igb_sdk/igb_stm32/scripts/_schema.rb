@@ -92,6 +92,16 @@ module CppStructSchema
           },
         }
       },
+      TSC: {
+        name: 'TscInfo',
+        singleton: true,
+        attrs: {
+          p_tsc: {
+            value: nil,
+            type: 'TSC_TypeDef*'
+          }
+        }
+      },
       # 下記は未サポート
       #FLASH: {
       #  name: 'FLASHCtrl',

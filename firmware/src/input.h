@@ -2,7 +2,7 @@
 #define __N1GP_INPUT_H__
 
 #include "main.h"
-#include "touch_util.h"
+//#include "touch_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,10 +83,10 @@ static const char* input_mode_names[INPUT_MODE_SIZE] = {
 
 typedef struct {
   uint8_t touch_bits;
-  uint32_t touch_values[9];
+  //uint32_t touch_values[9];
   InputMode mode;
   uint8_t current_page;
-  TouchState touch_states[2];
+  //TouchState touch_states[2];
   uint16_t seq_selected_steps;
 } InputState;
 
@@ -94,7 +94,7 @@ extern volatile InputState input_state;
 
 void input_setup();
 void input_refresh();
-void input_touch_init();
+//void input_touch_init();
 void input_process();
 
 #ifdef __cplusplus

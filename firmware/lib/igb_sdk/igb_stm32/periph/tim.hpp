@@ -323,7 +323,7 @@ struct Timer {
   // TODO: コンパイル時の依存を減らすため、外部関数化＆外部ファイル化すべき？
   static Timer newIntervalTimer(TimType type, uint16_t prescale, uint32_t period, uint16_t priority) {
     const auto& info = STM32_PERIPH_INFO.tim[as<uint32_t>(type)];
-    RccCtrl::enablePeriphBus(info.bus);
+    info.bus.enableBusClock();
 
     NvicCtrl::setPriority(info.irqn, priority);
     NvicCtrl::enable(info.irqn);
