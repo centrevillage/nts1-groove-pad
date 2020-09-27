@@ -1,5 +1,4 @@
 #include "input.h"
-//#include "touch.h"
 #include "oled.h"
 #include "led.h"
 #include "nts1_iface.h"
@@ -512,32 +511,6 @@ void input_release_pad(uint8_t is_right) {
   }
 }
 
-//void input_touch_handler(uint8_t touch_bits) {
-//  input_state.touch_bits = touch_bits;
-//
-//  // L
-//  uint8_t state_bits = (touch_bits & 0b0111) | ((touch_bits & 0b01000000) >> 3);
-//  uint8_t is_changed = touch_util_process(state_bits, &(input_state.touch_states[0]));
-//  int16_t value = input_state.touch_states[0].value;
-//  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-//    input_update_pad_value(0, value);
-//  }
-//  if (value == TOUCH_NO_VALUE) {
-//    input_release_pad(0);
-//  }
-//
-//  // R
-//  state_bits = ((touch_bits >> 3) & 0b0111) | ((touch_bits & 0b10000000) >> 4);
-//  is_changed = touch_util_process(state_bits, &(input_state.touch_states[1]));
-//  value = input_state.touch_states[1].value;
-//  if (is_changed && value != TOUCH_NO_VALUE && value != TOUCH_HOLD_VALUE) {
-//    input_update_pad_value(1, value);
-//  }
-//  if (value == TOUCH_NO_VALUE) {
-//    input_release_pad(1);
-//  }
-//}
-
 static inline void input_touch_handler(AppTouchPadID id, int16_t inc_value) {
   input_update_pad_value_relative(id, inc_value);
 }
@@ -612,117 +585,6 @@ void input_button_debug_handler(uint8_t button_idx, uint8_t on) {
   }
 }
 
-//static inline void input_set_touch(uint8_t touch_state_idx, TouchType type, int16_t value, int16_t min, int16_t max, uint8_t steps) {
-//  input_state.touch_states[touch_state_idx].touch_type = type;
-//  input_state.touch_states[touch_state_idx].value = value;
-//  input_state.touch_states[touch_state_idx].min_value = min;
-//  input_state.touch_states[touch_state_idx].max_value = max;
-//  input_state.touch_states[touch_state_idx].state_bits = 0;
-//  input_state.touch_states[touch_state_idx].state_bits_history = 0;
-//  input_state.touch_states[touch_state_idx].steps = steps;
-//}
-
-//void input_touch_init() {
-//  switch(input_state.mode) {
-//    case INPUT_MODE_OSC:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shift_shape, 0, 1023, 16); input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.shape, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_CUSTOM:
-//      {
-//        uint8_t left_idx = input_state.current_page*2;
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[left_idx],
-//            osc_defs[preset_state.osc.index].params[left_idx].min,
-//            osc_defs[preset_state.osc.index].params[left_idx].max,
-//            2);
-//        uint8_t right_idx = input_state.current_page*2+1;
-//        input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.osc.custom_values[right_idx],
-//            osc_defs[preset_state.osc.index].params[right_idx].min,
-//            osc_defs[preset_state.osc.index].params[right_idx].max,
-//            2);
-//      }
-//      break;
-//    case INPUT_MODE_FILTER:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.filter.peak, 0, 1023, 16);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.filter.cutoff, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_AMPEG:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.attack, 0, 1023, 16);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.ampeg.release, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_MODFX:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.time, 0, 1023, 16);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.modfx.depth, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_DELFX:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.time, 0, 1023, 16);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.delfx.depth, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_REVFX:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.time, 0, 1023, 16);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE, preset_state.revfx.depth, 0, 1023, 16);
-//      break;
-//    case INPUT_MODE_ARP:
-//      if (input_state.current_page == 0) {
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.index, 0, arppat_defs_size, 1);
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.intervals, 0, arpint_defs_size, 1);
-//      } else if (input_state.current_page == 1) {
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.length, 1, 16, 1); // TODO: 範囲正しい？
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.state, 0, 1, 1); // TODO: 範囲正しい？
-//      } else {
-//        input_set_touch(0, TOUCH_TYPE_ROT_VALUE, preset_state.arp.tempo, 60, 120, 1); // TODO: 範囲見直し
-//      }
-//      break;
-//    case INPUT_MODE_SAVE:
-//      break;
-//    case INPUT_MODE_LOAD:
-//      break;
-//    case INPUT_MODE_CLEAR:
-//      break;
-//    case INPUT_MODE_GLOBAL:
-//      break;
-//    case INPUT_MODE_SCALE:
-//      break;
-//    case INPUT_MODE_TRANS:
-//      break;
-//    case INPUT_MODE_STUTTER:
-//      break;
-//    case INPUT_MODE_LFO:
-//      break;
-//    case INPUT_MODE_SEQ_SELECT:
-//      break;
-//    case INPUT_MODE_SEQ_NOTE:
-//      input_set_touch(0, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
-//      input_set_touch(1, TOUCH_TYPE_ROT_VALUE_RELATIVE, 0, -128, 127, 2);
-//      break;
-//    case INPUT_MODE_SEQ_OSC:
-//      break;
-//    case INPUT_MODE_SEQ_CUSTOM:
-//      break;
-//    case INPUT_MODE_SEQ_FILTER:
-//      break;
-//    case INPUT_MODE_SEQ_AMPEG:
-//      break;
-//    case INPUT_MODE_SEQ_MODFX:
-//      break;
-//    case INPUT_MODE_SEQ_DELFX:
-//      break;
-//    case INPUT_MODE_SEQ_REVFX:
-//      break;
-//    case INPUT_MODE_SEQ_ARP:
-//      break;
-//    case INPUT_MODE_SEQ_SCALE:
-//      break;
-//    case INPUT_MODE_SEQ_TRANS:
-//      break;
-//    case INPUT_MODE_SEQ_STUTTER:
-//      break;
-//    case INPUT_MODE_SEQ_LFO:
-//      break;
-//    case INPUT_MODE_SIZE:
-//      break;
-//  }
-//}
-
 static inline uint8_t input_button_is_seq_pressed() {
   return app_buttons.state_bits & (1<<BTN_SEQ_IDX);
 }
@@ -741,7 +603,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_osc_type, 0, preset_state.osc.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -757,7 +618,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           // TODO: temporary save
           preset_state.osc.custom_value_selected_page = input_state.current_page;
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -772,7 +632,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_filt_type, 0, preset_state.filter.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -787,7 +646,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_ampeg_type, 0, preset_state.ampeg.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -802,7 +660,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_mod_type, 0, preset_state.modfx.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -817,7 +674,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_del_type, 0, preset_state.delfx.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -832,7 +688,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
           nts1_param_change(k_param_id_rev_type, 0, preset_state.revfx.index);
           // TODO: temporary save
           input_refresh();
-          //input_touch_init();
         }
       }
       break;
@@ -846,7 +701,6 @@ static inline void input_edit_lr_button_handler(uint8_t is_right, uint8_t on) {
         }
         // TODO: temporary save
         input_refresh();
-        //input_touch_init();
       }
       break;
     case INPUT_MODE_SAVE:
@@ -1174,13 +1028,10 @@ void input_button_handler(uint8_t button_idx, uint8_t on) {
       input_state.current_page = 0;
     }
     input_refresh();
-    //input_touch_init();
   }
 }
 
 void input_setup() {
-  //touch_event_listen(input_touch_handler);
-
   app_buttons.init();
   app_buttons.on_change = [](AppBtnID id, bool on){
     input_button_handler(static_cast<uint8_t>(id), on);
@@ -1193,14 +1044,6 @@ void input_setup() {
   app_touch.on_change = [](AppTouchPadID id, int16_t inc_value) {
     input_touch_handler(id, inc_value);
   };
-
-  //input_state.touch_bits = 0;
-  //for (uint8_t i=0; i<9; ++i) {
-  //  input_state.touch_values[i] = 0;
-  //}
-
-  //touch_value_init(&(input_state.touch_states[0]));
-  //touch_value_init(&(input_state.touch_states[1]));
 }
 
 void input_refresh() {

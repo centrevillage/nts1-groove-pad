@@ -33,20 +33,6 @@ struct AppTouch {
     .steps_on_center = 1
   };
 
-  inline uint8_t l_bits_from(uint32_t bits) {
-    return (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i2))) << 2) | 
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i3))) << 1) |
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i4))) << 0) |
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g3i2))) << 3);
-  }
-
-  inline uint8_t r_bits_from(uint32_t bits) {
-    return (!!(bits & (1UL << as<uint8_t>(TscChannel::g1i2))) << 2) | 
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g1i3))) << 1) |
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g1i4))) << 0) |
-      (!!(bits & (1UL << as<uint8_t>(TscChannel::g3i3))) << 3);
-  }
-
   inline uint8_t touch_bits_from(uint32_t bits) {
     return (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i2))) << 2) | 
       (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i3))) << 1) |
@@ -77,10 +63,6 @@ struct AppTouch {
     );
 
     tsc.on_acquisition_end = [this](uint32_t bits) {
-//      char buf[9] = "ACQ     ";
-//      text_0x_from_uint32(buf, bits);
-//      debug_text(buf, 8); 
-
       l_pad.process();
       r_pad.process();
       auto l_val = l_pad.value();

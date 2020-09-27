@@ -1,5 +1,4 @@
 #include "main.h"
-#include "touch.h"
 #include "led.h"
 #include "oled.h"
 #include "app_seq.h"
@@ -34,7 +33,6 @@ void TIM_COMMON_HANDLER() {
   auto tim = Timer { TIM_COMMON };
   if (tim.isState(TimState::UPDATE)) {
 
-    //touch_process();
     led_process();
     input_process();
 
@@ -125,8 +123,6 @@ void setup() {
 
   //gpio_write(PIN_A12, 1);
 
-  //touch_setup();
-
   //delay_msec(1000);
   nts1_init();
 
@@ -161,7 +157,6 @@ void setup() {
 
   screen_set_mode(SCREEN_MODE_EDIT);
   input_refresh();
-  //input_touch_init();
 }
 
 void loop() {

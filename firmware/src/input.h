@@ -2,7 +2,6 @@
 #define __N1GP_INPUT_H__
 
 #include "main.h"
-//#include "touch_util.h"
 
 #ifdef __cplusplus
 extern "C" {
