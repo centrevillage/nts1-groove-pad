@@ -3,7 +3,7 @@
 
 #include <igb_stm32/periph/gpio.hpp>
 
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 auto led_a_pin = GpioPin::newPin(GpioPinType::pc8);
 auto led_b_pin = GpioPin::newPin(GpioPinType::pc9);

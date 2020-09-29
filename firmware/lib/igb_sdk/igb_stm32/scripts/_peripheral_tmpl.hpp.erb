@@ -13,7 +13,8 @@
 <% end %>
 <% end %>
 
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class PeriphGroupType : uint16_t {
 <% first = true %>
@@ -207,6 +208,7 @@ inline std::optional<PeriphType> as_periph_type(<%= group_name.capitalize %>Type
 }
 <% end %>
 
+}
 }
 
 #endif /* <%= include_guard_name %> */

@@ -4,7 +4,8 @@
 #include <igb_sdk/base.hpp>
 #include <array>
 
-namespace igb_sdk {
+namespace igb {
+namespace sdk {
 
 // チャタリングを防ぐために入力をバッファリング
 struct DefaultButtonBuffer {
@@ -105,6 +106,7 @@ struct ButtonMatrix {
 
 // TODO: ButtonSerial
 
-} // igb_sdk
+} // sdk
+} // igb
 
 #endif /* IGB_SDK_UI_BUTTON_H */

@@ -6,9 +6,8 @@
 #include <igb_stm32/periph/nvic.hpp>
 #include <igb_util/cast.hpp>
 
-using igb_util::as;
-
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class TimState : uint32_t {
   UPDATE    = TIM_SR_UIF,
@@ -344,6 +343,7 @@ struct Timer {
   }
 };
 
-} // namespace igb_stm32
+} // namespace stm32
+} // namespace igb
 
 #endif /* IGB_STM32_PERIPH_TIM_H */

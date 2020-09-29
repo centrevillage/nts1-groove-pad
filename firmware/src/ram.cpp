@@ -2,7 +2,7 @@
 
 #include <igb_stm32/periph/gpio.hpp>
 #include <igb_stm32/periph/spi.hpp>
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 // TODO: configuration
 #define SPI_RAM_IDX 0

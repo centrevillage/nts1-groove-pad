@@ -15,7 +15,7 @@
 #include "app_touch.hpp"
 #include <igb_stm32/periph/tim.hpp>
 
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 extern "C" {
 #ifndef USE_ARDUINO

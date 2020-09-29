@@ -7,8 +7,8 @@
 #include <tuple>
 
 // 危険は承知の上・・・
-using namespace igb_stm32;
-using namespace igb_sdk;
+using namespace igb::stm32;
+using namespace igb::sdk;
 
 enum class AppBtnID : uint8_t {
   OSC = 0, PARAM, FILTER, EG, MOD, DELAY, REVERB, ARP,

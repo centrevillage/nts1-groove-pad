@@ -5,7 +5,7 @@
 
 #include <igb_stm32/periph/tim.hpp>
 
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 AppSequencer seq;
 

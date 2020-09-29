@@ -3,7 +3,7 @@
 
 #include <igb_sdk/seq/clock.hpp>
 
-using namespace igb_sdk;
+using namespace igb::sdk;
 
 using AppSeqClock = SeqClock<ClockCounter>;
 

@@ -1,7 +1,7 @@
 #ifndef IGB_UTIL_CONTAINER_H
 #define IGB_UTIL_CONTAINER_H
 
-namespace igb_util {
+namespace igb {
 
 template<typename T, typename N>
 class BitStruct {

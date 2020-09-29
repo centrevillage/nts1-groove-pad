@@ -7,9 +7,8 @@
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_util/macro.hpp>
 
-using igb_util::as;
-
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class SpiMode : uint32_t {
   SLAVE  = 0,
@@ -326,6 +325,7 @@ struct Spi {
 
 };
 
+}
 }
 
 #endif /* IGB_STM32_PERIPH_SPI_H */

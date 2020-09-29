@@ -5,7 +5,8 @@
 #include <array>
 #include <functional>
 
-namespace igb_sdk {
+namespace igb {
+namespace sdk {
 
 struct SimpleSteps {
   uint16_t active_bits = 0;
@@ -67,6 +68,7 @@ struct Sequencer {
   }
 };
 
+}
 }
 
 #endif /* IGB_SDK_SEQ_SEQ_H */

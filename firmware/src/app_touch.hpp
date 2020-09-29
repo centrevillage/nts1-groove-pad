@@ -5,9 +5,11 @@
 #include "text.h"
 #include <igb_stm32/periph/tsc.hpp>
 #include <igb_sdk/ui/touch.hpp>
+#include <igb_util/cast.hpp>
 
-using namespace igb_stm32;
-using namespace igb_sdk;
+using namespace igb;
+using namespace igb::stm32;
+using namespace igb::sdk;
 
 enum class AppTouchPadID : uint8_t {
   L = 0,

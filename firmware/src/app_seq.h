@@ -6,7 +6,7 @@
 #include "state.h"
 #include "main.h"
 
-using namespace igb_sdk;
+using namespace igb::sdk;
 
 struct AppSequencer;
 extern AppSequencer seq;

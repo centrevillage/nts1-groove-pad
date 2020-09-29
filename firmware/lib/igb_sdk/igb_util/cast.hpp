@@ -3,7 +3,7 @@
 
 #include <type_traits>
 
-namespace igb_util {
+namespace igb {
   template <typename T> static inline T as(auto&& value) {
     return static_cast<T>(value);
   }

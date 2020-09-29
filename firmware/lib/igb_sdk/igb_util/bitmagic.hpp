@@ -3,7 +3,7 @@
 
 #include <igb_util/macro.hpp>
 
-namespace igb_util {
+namespace igb {
 
 static IGB_FAST_INLINE uint8_t bit_count_u8(uint8_t bits) {
   bits = bits - ((bits >> 1) & 0b01010101);

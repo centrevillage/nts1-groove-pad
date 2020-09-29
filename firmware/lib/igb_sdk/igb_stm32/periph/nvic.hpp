@@ -3,7 +3,8 @@
 
 #include <igb_stm32/base.hpp>
 
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 struct NvicCtrl {
 #ifdef NVIC_SetPriorityGrouping
@@ -119,6 +120,7 @@ struct NvicIrqn {
 #endif
 };
 
+}
 }
 
 #endif /* IGB_STM32_PERIPH_NVIC_H */

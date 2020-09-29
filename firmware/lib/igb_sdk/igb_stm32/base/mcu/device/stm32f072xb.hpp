@@ -75,7 +75,8 @@
 #define STM32_PERIPHGRP_CAN_EXISTS 1
 #define STM32_PERIPH_CAN_EXISTS 1
 
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class PeriphGroupType : uint16_t {
   gpio = 0,
@@ -1706,6 +1707,7 @@ inline std::optional<PeriphType> as_periph_type(UsartType type) {
   }
 }
 
+}
 }
 
 #endif /* IGB_STM32_BASE_MCU_DEVICE_STM32F072XB_H */

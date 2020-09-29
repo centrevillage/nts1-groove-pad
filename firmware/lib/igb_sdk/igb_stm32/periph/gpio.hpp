@@ -5,9 +5,8 @@
 #include <igb_util/cast.hpp>
 #include <igb_util/macro.hpp>
 
-using igb_util::as;
-
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 // TODO: MCU によって定義される値が違うかも？
 enum class GpioMode : uint32_t {
@@ -189,6 +188,7 @@ struct GpioPin {
   }
 };
 
-} // namespace igb_stm32
+} // namespace stm32
+} // namespace igb
 
 #endif /* IGB_STM32_PERIPH_GPIO_H */

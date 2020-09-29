@@ -5,7 +5,7 @@
 
 #include <igb_stm32/periph/gpio.hpp>
 
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 // アドレス範囲(256Kb= 0x00000-0x3FFFF)
 // プリセットを保持するアドレス

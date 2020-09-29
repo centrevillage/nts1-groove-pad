@@ -4,9 +4,8 @@
 #include <igb_stm32/base.hpp>
 #include <igb_util/cast.hpp>
 
-using igb_util::as;;
-
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class RccClockSrc {
   INTERNAL = 0,
@@ -21,6 +20,7 @@ struct RccCtrl {
   }
 };
 
+}
 }
 
 #endif /* IGB_STM32_PERIPH_RCC_H */

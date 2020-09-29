@@ -8,7 +8,8 @@
 #include <optional>
 #include <algorithm>
 
-namespace igb_sdk {
+namespace igb {
+namespace sdk {
 
 const int8_t TOUCH_NO_VALUE = -128;
 const int8_t TOUCH_HOLD_VALUE = -127;
@@ -199,6 +200,7 @@ using TouchRot3DialAbs = TouchClippedValue<TouchRot3Dial, TOUCH_CH_TYPE, VALUE_T
 template<typename TOUCH_CH_TYPE, typename VALUE_TYPE = int16_t>
 using TouchRot3DialWithCenterAbs = TouchClippedValue<TouchRot3DialWithCenter, TOUCH_CH_TYPE, VALUE_TYPE>;
 
+}
 }
 
 #endif /* IGB_SDK_UI_TOUCH_H */

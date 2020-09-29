@@ -5,7 +5,9 @@
 #include <array>
 #include <functional>
 
-namespace igb_sdk {
+namespace igb {
+namespace sdk {
+
 // 同期用のカウンター
 //
 // 同期のトリガーとなる信号は、Trigger In, MIDI Clock等、それぞれ異なる速さ(Step per Clock)を持っている。
@@ -134,6 +136,7 @@ struct Seq2Clock {
   }
 };
 
+}
 }
 
 #endif /* IGB_SDK_SEQ_CLOCK_H */

@@ -9,7 +9,8 @@
 #include <igb_util/container.hpp>
 #include <igb_util/bitmagic.hpp>
 
-namespace igb_stm32 {
+namespace igb {
+namespace stm32 {
 
 enum class TscAcquisitionMode : uint8_t {
   normal       = 0,
@@ -98,8 +99,8 @@ enum class TscChannel : uint8_t {
   g8i4,
 };
 
-using TscGroupBit = igb_util::BitStruct<TscGroup, uint32_t>;
-using TscChannelBit = igb_util::BitStruct<TscChannel, uint32_t>;
+using TscGroupBit = BitStruct<TscGroup, uint32_t>;
+using TscChannelBit = BitStruct<TscChannel, uint32_t>;
 
 struct TscCtrl {
   //constexpr static TSC_TypeDef* const p_tsc = STM32_PERIPH_INFO.tsc.p_tsc;
@@ -489,6 +490,7 @@ struct Tsc {
   }
 };
 
+}
 }
 
 #endif /* IGB_STM32_PERIPH_TSC_H */

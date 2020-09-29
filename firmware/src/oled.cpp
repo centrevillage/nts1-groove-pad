@@ -10,7 +10,7 @@
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/spi.hpp>
 
-using namespace igb_stm32;
+using namespace igb::stm32;
 
 static uint8_t oled_buffer[SCREEN_WIDTH * SCREEN_HEIGHT / 8];
 static uint8_t oled_cursor_x = 0;
