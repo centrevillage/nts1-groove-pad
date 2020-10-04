@@ -165,6 +165,14 @@ struct GpioPin {
     return port.readOutput() & (pin_bit);
   }
 
+  IGB_FAST_INLINE void enable() {
+    port.enable();
+  }
+
+  IGB_FAST_INLINE void disable() {
+    // TODO: clock の無効化
+  }
+
   IGB_FAST_INLINE void initInput(GpioPullMode pull, GpioSpeedMode speed) {
     setMode(GpioMode::INPUT);
     setPullMode(pull);

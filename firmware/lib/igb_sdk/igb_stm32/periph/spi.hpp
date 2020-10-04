@@ -117,6 +117,7 @@ enum class SpiDmaParityType : uint32_t {
 };
 
 struct Spi {
+  const SpiType type;
   SPI_TypeDef* p_spi;
 
   IGB_FAST_INLINE void enable() {
@@ -279,12 +280,13 @@ struct Spi {
 
   static IGB_FAST_INLINE Spi newSpi(const SpiType spi_type) {
     return Spi {
+      .type = spi_type,
       .p_spi = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)].p_spi
     };
   }
 
-  static IGB_FAST_INLINE void prepareGpio(SpiType spi_type, GpioPinType pin_type) {
-    auto periph_type = as_periph_type(spi_type);
+  IGB_FAST_INLINE void prepareGpio(GpioPinType pin_type) {
+    auto periph_type = as_periph_type(type);
     if (!periph_type) { return; }
 
     auto result = get_af_idx(periph_type.value(), pin_type);
@@ -299,28 +301,27 @@ struct Spi {
     pin.setAlternateFunc(result.value());
   }
 
-  static IGB_FAST_INLINE void prepareSpiMaster(SpiType spi_type, GpioPinType mosi_pin, GpioPinType miso_pin, GpioPinType sck_pin, SpiBaudratePrescaler prescaler) {
-    const auto& spi_info = STM32_PERIPH_INFO.spi[as<uint8_t>(spi_type)];
+  IGB_FAST_INLINE void prepareSpiMaster(GpioPinType mosi_pin, GpioPinType miso_pin, GpioPinType sck_pin, SpiBaudratePrescaler prescaler) {
+    const auto& spi_info = STM32_PERIPH_INFO.spi[as<uint8_t>(type)];
     spi_info.bus.enableBusClock();
-    prepareGpio(spi_type, mosi_pin);
-    prepareGpio(spi_type, miso_pin);
-    prepareGpio(spi_type, sck_pin);
+    prepareGpio(mosi_pin);
+    prepareGpio(miso_pin);
+    prepareGpio(sck_pin);
 
-    Spi spi { .p_spi = spi_info.p_spi };
-    spi.setTransDir(SpiTransDir::FULL_DUPLEX);
-    spi.setMode(SpiMode::MASTER);
-    spi.setDataWidth(SpiDataWidth::_8BIT);
-    spi.setClockPolarity(SpiClockPolarity::LOW);
-    spi.setClockPhase(SpiClockPhase::ONE_EDGE);
-    spi.setNssMode(SpiNssMode::SOFT);
-    spi.setBaudratePrescaler(prescaler);
-    spi.setTransBitOrder(SpiBitOrder::MSB_FIRST);
-    spi.setCrc(false);
-    spi.setCrcPolynomial(7);
-    spi.setStandard(SpiStandard::MOTOROLA);
-    spi.setRxFifoThreshold(SpiFifoThreshold::QUARTER);
-    spi.setNssPulseMng(true);
-    spi.enable();
+    setTransDir(SpiTransDir::FULL_DUPLEX);
+    setMode(SpiMode::MASTER);
+    setDataWidth(SpiDataWidth::_8BIT);
+    setClockPolarity(SpiClockPolarity::LOW);
+    setClockPhase(SpiClockPhase::ONE_EDGE);
+    setNssMode(SpiNssMode::SOFT);
+    setBaudratePrescaler(prescaler);
+    setTransBitOrder(SpiBitOrder::MSB_FIRST);
+    setCrc(false);
+    setCrcPolynomial(7);
+    setStandard(SpiStandard::MOTOROLA);
+    setRxFifoThreshold(SpiFifoThreshold::QUARTER);
+    setNssPulseMng(true);
+    enable();
   }
 
 };

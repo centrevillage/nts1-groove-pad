@@ -138,7 +138,7 @@ void oled_send_data(uint8_t* buffer, size_t buff_size) {
 }
 
 void oled_setup() {
-  Spi::prepareSpiMaster(SpiType::spi1, GpioPinType::pa7, GpioPinType::pa6, GpioPinType::pa5, SpiBaudratePrescaler::DIV2);
+  oled_spi.prepareSpiMaster(GpioPinType::pa7, GpioPinType::pa6, GpioPinType::pa5, SpiBaudratePrescaler::DIV2);
 
   oled_gpio_setup();
   oled_init();

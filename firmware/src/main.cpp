@@ -14,6 +14,9 @@
 #include "app_seq.h"
 #include "app_touch.hpp"
 #include <igb_stm32/periph/tim.hpp>
+#include <igb_stm32/periph/flash.hpp>
+#include <igb_stm32/periph/rcc.hpp>
+#include <igb_stm32/periph/gpio.hpp>
 
 using namespace igb::stm32;
 
@@ -65,46 +68,34 @@ void TIM_SEQ_HANDLER() {
   }
 }
 
-#include "stm32f0xx_hal.h"
-#include "stm32f0xx_ll_system.h"
-#include "stm32f0xx_ll_rcc.h"
-#include "stm32f0xx_ll_gpio.h"
-#include "stm32f0xx_ll_bus.h"
-#include "stm32f0xx_ll_utils.h"
-
 void system_clock_config() {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
+  FlashCtrl::setLatency(FlashLatency::one);
 
-  LL_RCC_HSE_Enable();
+  RccCtrl::enableHSE();
 
    /* Wait till HSE is ready */
-  while(LL_RCC_HSE_IsReady() != 1);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLL_MUL_6, LL_RCC_PREDIV_DIV_1);
-  LL_RCC_PLL_Enable();
+  while (!RccCtrl::isReadyHSE())
+  RccCtrl::configPllSystemClockDomain(RccPllClockSrc::external, RccPllMul::mul6, RccPllDiv::div1);
+  RccCtrl::enablePLL();
 
    /* Wait till PLL is ready */
-  while(LL_RCC_PLL_IsReady() != 1);
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+  while(!RccCtrl::isReadyPLL());
+  RccCtrl::setPrescalerAHB(RccClockPrescalerAHB::div1);
+  RccCtrl::setPrescalerAPB1(RccClockPrescalerAPB1::div1);
+  RccCtrl::setSystemClockSrc(RccClockSrc::pll);
 
    /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL);
-  LL_SetSystemCoreClock(48000000);
-
-   /* Update the time base */
-  if (HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK) {
-    //Error_Handler();  
-  }
+  while(RccCtrl::getSystemClockSrcStatus() != RccClockSrcStatus::pll);
+  SystemCoreClock = 48000000;
 }
 
 void reset_gpio() {
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
-  LL_GPIO_DeInit(GPIOA);
-  LL_GPIO_DeInit(GPIOB);
-  LL_GPIO_DeInit(GPIOC);
+  auto gpioa = GpioPort { GpioType::gpioa };
+  auto gpiob = GpioPort { GpioType::gpiob };
+  auto gpioc = GpioPort { GpioType::gpioc };
+  gpioa.enable();
+  gpiob.enable();
+  gpioc.enable();
 }
 
 void setup() {
@@ -142,8 +133,6 @@ void setup() {
   debug_text("LOADING", 7); 
   screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
 
-  if (true) {
-
   nts1_defs_req_load();
   nts1_idle();
   while (!nts1_defs_is_complete_loading()) {
@@ -152,8 +141,6 @@ void setup() {
   }
 
   preset_setup();
-
-  }
 
   screen_set_mode(SCREEN_MODE_EDIT);
   input_refresh();
