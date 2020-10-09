@@ -54,6 +54,14 @@ void led_process() {
   led_matrix_idx = (led_matrix_idx+1) % 4;
 }
 
+void led_set_run(uint8_t on) {
+  led_set(17, on);
+}
+
+void led_set_mode(uint8_t on) {
+  led_set(16, on);
+}
+
 void led_set(uint8_t index, uint8_t on) {
   if (on) {
     led_bits |= (1UL<<index);

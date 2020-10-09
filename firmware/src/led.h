@@ -10,6 +10,8 @@ extern "C" {
 void led_setup();
 void led_process();
 void led_set(uint8_t index, uint8_t on);
+void led_set_run(uint8_t on);
+void led_set_mode(uint8_t on);
 void led_clear();
 
 #ifdef __cplusplus

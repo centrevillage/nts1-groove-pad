@@ -2,7 +2,7 @@
 #include "led.h"
 #include "oled.h"
 #include "app_seq.h"
-#include "input.h"
+//#include "input.h"
 #include "systick_timer.h"
 #include "debug.h"
 #include "text.h"
@@ -13,6 +13,7 @@
 #include "ram.h"
 #include "app_seq.h"
 #include "app_touch.hpp"
+#include "app_input.hpp"
 #include <igb_stm32/periph/tim.hpp>
 #include <igb_stm32/periph/flash.hpp>
 #include <igb_stm32/periph/rcc.hpp>
@@ -37,7 +38,8 @@ void TIM_COMMON_HANDLER() {
   if (tim.isState(TimState::UPDATE)) {
 
     led_process();
-    input_process();
+    app_input.process();
+    //input_process();
 
     tim.clearState(TimState::UPDATE);
   }
@@ -108,7 +110,8 @@ void setup() {
 
   led_setup();
   oled_setup();
-  input_setup();
+  //input_setup();
+  app_input.init();
   screen_setup();
   seq.init();
 
@@ -143,7 +146,8 @@ void setup() {
   preset_setup();
 
   screen_set_mode(SCREEN_MODE_EDIT);
-  input_refresh();
+  //input_refresh();
+  app_input.refresh();
 }
 
 void loop() {

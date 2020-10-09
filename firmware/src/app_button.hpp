@@ -23,16 +23,16 @@ struct AppButtons {
   //using namespace igb_stm32;
   //using namespace igb_sdk;
 
-  const GpioPort port_a { GpioType::gpioa };
-  const GpioPort port_b { GpioType::gpiob };
-  const GpioPort port_c { GpioType::gpioc };
+  GpioPort port_a { GpioType::gpioa };
+  GpioPort port_b { GpioType::gpiob };
+  GpioPort port_c { GpioType::gpioc };
 
-  volatile ButtonSingle<GpioPin> seq_btn { GpioPin::newPin(GpioPinType::pa11) };
-  volatile ButtonSingle<GpioPin> run_btn { GpioPin::newPin(GpioPinType::pc1) };
-  volatile ButtonSingle<GpioPin> l_btn   { GpioPin::newPin(GpioPinType::pa8) };
-  volatile ButtonSingle<GpioPin> r_btn   { GpioPin::newPin(GpioPinType::pa15) };
+  ButtonSingle<GpioPin> seq_btn { GpioPin::newPin(GpioPinType::pa11) };
+  ButtonSingle<GpioPin> run_btn { GpioPin::newPin(GpioPinType::pc1) };
+  ButtonSingle<GpioPin> l_btn   { GpioPin::newPin(GpioPinType::pa8) };
+  ButtonSingle<GpioPin> r_btn   { GpioPin::newPin(GpioPinType::pa15) };
 
-  volatile ButtonMatrix<GpioPin, 4, GpioPin, 4> btn_matrix {
+  ButtonMatrix<GpioPin, 4, GpioPin, 4> btn_matrix {
     .in_pins = {
       GpioPin::newPin(GpioPinType::pa4),
       GpioPin::newPin(GpioPinType::pc4),
@@ -47,7 +47,7 @@ struct AppButtons {
     }
   };
 
-  volatile uint32_t state_bits = 0;
+  uint32_t state_bits = 0;
   std::function<void(AppBtnID, bool)> on_change;
 
   void init() {

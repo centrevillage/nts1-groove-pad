@@ -319,131 +319,6 @@ static inline void input_update_pad_value_relative(AppTouchPadID id, int16_t inc
   input_refresh();
 };
 
-static inline void input_update_pad_value(uint8_t is_right, int16_t value) {
-  switch(input_state.mode) {
-    case INPUT_MODE_OSC:
-      if (!is_right) {
-        input_osc_update_shift_shape(value);
-      } else {
-        input_osc_update_shape(value);
-      }
-      break;
-    case INPUT_MODE_CUSTOM:
-      if (!is_right) {
-        input_osc_update_param(input_state.current_page * 2, value);
-      } else {
-        input_osc_update_param(input_state.current_page * 2 + 1, value);
-      }
-      break;
-    case INPUT_MODE_FILTER:
-      if (!is_right) {
-        input_filter_update_peak(value);
-      } else {
-        input_filter_update_cutoff(value);
-      }
-      break;
-    case INPUT_MODE_AMPEG:
-      if (!is_right) {
-        input_ampeg_update_attack(value);
-      } else {
-        input_ampeg_update_release(value);
-      }
-      break;
-    case INPUT_MODE_MODFX:
-      if (!is_right) {
-        input_modfx_update_time(value);
-      } else {
-        input_modfx_update_depth(value);
-      }
-      break;
-    case INPUT_MODE_DELFX:
-      if (!is_right) {
-        input_delfx_update_time(value);
-      } else {
-        input_delfx_update_depth(value);
-      }
-      break;
-    case INPUT_MODE_REVFX:
-      if (!is_right) {
-        input_revfx_update_time(value);
-      } else {
-        input_revfx_update_depth(value);
-      }
-      break;
-    case INPUT_MODE_ARP:
-      if (!is_right) {
-        if (input_state.current_page = 0) {
-          input_arp_update_pattern(value);
-        } else if (input_state.current_page = 1) {
-          input_arp_update_length(value);
-        } else {
-          input_arp_update_tempo(value);
-        }
-      } else {
-        if (input_state.current_page = 0) {
-          input_arp_update_intervals(value);
-        } else if (input_state.current_page = 1) {
-          input_arp_update_state(value);
-        }
-      }
-      break;
-    case INPUT_MODE_SAVE:
-      break;
-    case INPUT_MODE_LOAD:
-      break;
-    case INPUT_MODE_CLEAR:
-      break;
-    case INPUT_MODE_GLOBAL:
-      break;
-    case INPUT_MODE_SCALE:
-      break;
-    case INPUT_MODE_TRANS:
-      break;
-    case INPUT_MODE_STUTTER:
-      break;
-    case INPUT_MODE_LFO:
-      break;
-    case INPUT_MODE_SEQ_SELECT:
-      break;
-    case INPUT_MODE_SEQ_NOTE:
-      if (is_right) {
-        for (uint8_t i = 0; i < SEQ_STEP_SIZE; ++i) {
-          if (input_state.seq_selected_steps & ((uint16_t)1<<i)) {
-            seq_state.steps[i].note = (uint8_t)clipping_int16((int16_t)seq_state.steps[i].note + value, 0, 127);
-          }
-        }
-      }
-      break;
-    case INPUT_MODE_SEQ_OSC:
-      break;
-    case INPUT_MODE_SEQ_CUSTOM:
-      break;
-    case INPUT_MODE_SEQ_FILTER:
-      break;
-    case INPUT_MODE_SEQ_AMPEG:
-      break;
-    case INPUT_MODE_SEQ_MODFX:
-      break;
-    case INPUT_MODE_SEQ_DELFX:
-      break;
-    case INPUT_MODE_SEQ_REVFX:
-      break;
-    case INPUT_MODE_SEQ_ARP:
-      break;
-    case INPUT_MODE_SEQ_SCALE:
-      break;
-    case INPUT_MODE_SEQ_TRANS:
-      break;
-    case INPUT_MODE_SEQ_STUTTER:
-      break;
-    case INPUT_MODE_SEQ_LFO:
-      break;
-    case INPUT_MODE_SIZE:
-      break;
-  }
-  input_refresh();
-}
-
 void input_release_pad(uint8_t is_right) {
   switch(input_state.mode) {
     case INPUT_MODE_OSC:
@@ -801,8 +676,10 @@ FORCE_INLINE void input_back_to_edit_mode() {
 FORCE_INLINE void input_toggle_run_state() {
   if (seq.run_state) {
     seq.stop();
+    led_set_run(0);
   } else {
     seq.start();
+    led_set_run(1);
   }
 }
 
