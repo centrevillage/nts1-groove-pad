@@ -165,13 +165,13 @@ struct AppButtons {
     if (state_bits != new_bits) {
       if (on_change) {
         uint32_t diff_bits = state_bits ^ new_bits;
+        state_bits = new_bits;
         for (uint8_t i = 0; i < static_cast<uint8_t>(AppBtnID::SIZE); ++i) {
           if (diff_bits & ((uint32_t)1 << i)) {
             on_change(static_cast<AppBtnID>(i), !!(new_bits & ((uint32_t)1 << i)));
           }
         }
       }
-      state_bits = new_bits;
     }
   }
 };

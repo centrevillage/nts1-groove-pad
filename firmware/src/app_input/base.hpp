@@ -397,6 +397,7 @@ struct AppInputNullImpl {
   inline void init() {
   }
   inline bool button(AppBtnID id, bool on) {
+    return false;
   }
   inline void incValueL(int16_t inc_value) {
   }

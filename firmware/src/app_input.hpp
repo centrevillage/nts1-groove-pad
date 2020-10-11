@@ -12,30 +12,27 @@
 #include <app_input/revfx.hpp>
 #include <app_input/arp.hpp>
 #include <app_input/seq_select.hpp>
-
-// TODO:
-struct AppInputSave : AppInputNullImpl { };
-struct AppInputLoad : AppInputNullImpl { };
-struct AppInputClear : AppInputNullImpl { };
-struct AppInputGlobal : AppInputNullImpl { };
-struct AppInputScale : AppInputNullImpl { };
-struct AppInputTrans : AppInputNullImpl { };
-struct AppInputStutter : AppInputNullImpl { };
-struct AppInputLfo : AppInputNullImpl { };
-
-struct AppInputSeqNote : AppInputNullImpl { };
-struct AppInputSeqOsc : AppInputNullImpl { };
-struct AppInputSeqCustom : AppInputNullImpl { };
-struct AppInputSeqFilter : AppInputNullImpl { };
-struct AppInputSeqAmpeg : AppInputNullImpl { };
-struct AppInputSeqModfx : AppInputNullImpl { };
-struct AppInputSeqDelfx : AppInputNullImpl { };
-struct AppInputSeqRevfx : AppInputNullImpl { };
-struct AppInputSeqArp : AppInputNullImpl { };
-struct AppInputSeqScale : AppInputNullImpl { };
-struct AppInputSeqTrans : AppInputNullImpl { };
-struct AppInputSeqStutter : AppInputNullImpl { };
-struct AppInputSeqLfo : AppInputNullImpl { };
+#include <app_input/save.hpp>
+#include <app_input/load.hpp>
+#include <app_input/clear.hpp>
+#include <app_input/global.hpp>
+#include <app_input/scale.hpp>
+#include <app_input/trans.hpp>
+#include <app_input/stutter.hpp>
+#include <app_input/lfo.hpp>
+#include <app_input/seq_note.hpp>
+#include <app_input/seq_osc.hpp>
+#include <app_input/seq_custom.hpp>
+#include <app_input/seq_filter.hpp>
+#include <app_input/seq_ampeg.hpp>
+#include <app_input/seq_modfx.hpp>
+#include <app_input/seq_delfx.hpp>
+#include <app_input/seq_revfx.hpp>
+#include <app_input/seq_arp.hpp>
+#include <app_input/seq_scale.hpp>
+#include <app_input/seq_trans.hpp>
+#include <app_input/seq_stutter.hpp>
+#include <app_input/seq_lfo.hpp>
 
 struct AppInputModeState {
   std::variant<
@@ -230,12 +227,12 @@ struct AppInput {
     touch.process();
   }
 
-  inline bool isSeqPressed(uint32_t state_bits) {
-    return state_bits & (1<<static_cast<uint32_t>(AppBtnID::SEQ));
+  inline bool isSeqPressed() {
+    return buttons.state_bits & (1UL<<static_cast<uint32_t>(AppBtnID::SEQ));
   }
 
   inline void backToEditMode() {
-    refresh();
+    changeMode(AppInputMode::osc);
   }
 
   void refresh() {
@@ -255,10 +252,10 @@ struct AppInput {
       return;
     }
     if (app_input_is_seq_mode(current_mode)) {
-      if (id == AppBtnID::SEQ) {
+      if (!on && id == AppBtnID::SEQ) {
         backToEditMode();
       }
-    } else if (isSeqPressed(buttons.state_bits)) {
+    } else if (isSeqPressed()) {
       next_mode = AppInputMode::seq_note;
       switch(id) {
         case AppBtnID::OSC:
@@ -325,7 +322,9 @@ struct AppInput {
           break;
         case AppBtnID::SEQ:
           if (on) {
-            changeMode(AppInputMode::seq_select);
+            if (!app_input_is_seq_mode(current_mode)) {
+              changeMode(AppInputMode::seq_select);
+            }
           }
           break;
         case AppBtnID::RUN:
@@ -423,6 +422,8 @@ struct AppInput {
           if (!on) {
             if (app_input_is_seq_mode(next_mode)) {
               changeMode(next_mode);
+            } else {
+              backToEditMode();
             }
           }
           break;
