@@ -218,6 +218,7 @@ struct AppInput {
     touch.init();
     touch.on_acquisition_end = [this](uint8_t bits) {
       touch_bits = bits;
+      refresh();
     };
     touch.on_change = [this](AppTouchPadID id, int16_t inc_value) {
       state.touchOnChange(id, inc_value);

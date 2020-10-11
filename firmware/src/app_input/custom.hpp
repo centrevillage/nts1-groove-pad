@@ -5,9 +5,11 @@
 
 struct AppInputCustom {
   uint8_t current_page = 0;
+  uint8_t last_page = 0;
 
   inline void init() {
     current_page = 0;
+    last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
   }
 
   inline void _incValue(uint8_t param_idx, int16_t value) {
@@ -29,7 +31,6 @@ struct AppInputCustom {
     switch(id) {
       case AppBtnID::L:
         if (osc_defs[preset_state.osc.index].param_count > 2) {
-          uint8_t last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
           if (on) {
             current_page = (current_page+last_page) % (last_page+1);
             preset_state.osc.custom_value_selected_page = current_page;
@@ -37,7 +38,6 @@ struct AppInputCustom {
         }
         return true;
       case AppBtnID::R:
-        uint8_t last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
         if (on) {
           current_page = (current_page+1) % (last_page+1);
           preset_state.osc.custom_value_selected_page = current_page;
@@ -46,6 +46,7 @@ struct AppInputCustom {
       default:
         break;
     }
+    return false;
   }
   inline void refresh() {
     screen_edit_set_title("Custom", 16);

@@ -57,6 +57,7 @@ struct AppInputArp {
       default:
         break;
     }
+    return false;
   }
   inline void refresh() {
     screen_edit_set_title("ARP", 16);

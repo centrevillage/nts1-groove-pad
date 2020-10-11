@@ -11,6 +11,7 @@ struct AppInputSeqSelect {
   inline void incValueR(int16_t inc_value) {
   }
   inline bool button(AppBtnID id, bool on) {
+    return false;
   }
   inline void refresh() {
     screen_edit_set_title("SEQ:Select", 16);

@@ -63,6 +63,14 @@ struct AppTouch {
       TscPinConf { TscChannel::g3i2, GpioPinType::pb0, TscIoType::input },
       TscPinConf { TscChannel::g3i3, GpioPinType::pb1, TscIoType::input }
     );
+    tsc.setThreshold(TscChannel::g1i2, 1000);
+    tsc.setThreshold(TscChannel::g1i3, 1000);
+    tsc.setThreshold(TscChannel::g1i4, 1000);
+    tsc.setThreshold(TscChannel::g5i2, 1000);
+    tsc.setThreshold(TscChannel::g5i3, 1000);
+    tsc.setThreshold(TscChannel::g5i4, 1000);
+    tsc.setThreshold(TscChannel::g3i2, 1000);
+    tsc.setThreshold(TscChannel::g3i3, 1000);
 
     tsc.on_acquisition_end = [this](uint32_t bits) {
       l_pad.process();
