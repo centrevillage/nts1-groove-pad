@@ -3,6 +3,7 @@
 #include "draw.h"
 #include "text.h"
 #include "preset.h"
+#include <app_input.hpp>
 
 volatile ScreenMode _screen_mode = SCREEN_MODE_INPUT_DEBUG;
 volatile ScreenMode _screen_mode_default = SCREEN_MODE_INPUT_DEBUG;
@@ -45,19 +46,19 @@ void screen_set_dirty() {
 
 void _screen_status_draw_pad(uint8_t* buffer, uint8_t force_update) {
   static uint8_t prev_touch_bits = 0;
-  if (force_update || prev_touch_bits != input_state.touch_bits) {
+  if (force_update || prev_touch_bits != app_input.touch_bits) {
     // clear
     for (uint8_t i = 0; i < 8; ++i) {
       buffer[i] = 0;
       buffer[(SCREEN_WIDTH-8)+i] = 0;
     }
     for (uint8_t pad_idx = 0; pad_idx < 8; ++pad_idx) {
-      if (input_state.touch_bits & (1<<pad_idx)) {
+      if (app_input.touch_bits & (1<<pad_idx)) {
         draw_touch_pad_small(buffer, pad_idx);
       }
     }
   }
-  prev_touch_bits = input_state.touch_bits;
+  prev_touch_bits = app_input.touch_bits;
 }
 
 void screen_draw_edit(uint8_t* buffer) {
@@ -116,9 +117,9 @@ void screen_draw_seq_note(uint8_t* buffer) {
 
 void screen_draw_input_debug(uint8_t* buffer) {
   draw_fill_bg(buffer);
-  if (input_state.touch_bits) {
+  if (app_input.touch_bits) {
     for (uint8_t i=0;i<8;++i) {
-      if (input_state.touch_bits & (1<<i)) {
+      if (app_input.touch_bits & (1<<i)) {
         draw_touch_pad(buffer, (DrawPadType)i);
       }
     }
