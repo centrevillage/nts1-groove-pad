@@ -24,14 +24,14 @@ struct AppTouch {
   TouchRot3DialWithCenter<Tsc::Channel> l_pad {
     .channels = {tsc.newChannel(TscChannel::g5i4), tsc.newChannel(TscChannel::g5i3), tsc.newChannel(TscChannel::g5i2)},
     .center_channel = tsc.newChannel(TscChannel::g3i2),
-    .steps = 4,
+    .steps = 16,
     .steps_on_center = 1
   };
 
   TouchRot3DialWithCenter<Tsc::Channel> r_pad {
     .channels = {tsc.newChannel(TscChannel::g1i4), tsc.newChannel(TscChannel::g1i3), tsc.newChannel(TscChannel::g1i2)},
     .center_channel = tsc.newChannel(TscChannel::g3i3),
-    .steps = 4,
+    .steps = 16,
     .steps_on_center = 1
   };
 

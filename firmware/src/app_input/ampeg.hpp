@@ -23,6 +23,7 @@ using AppInputValueAmpegType =
   >;
 struct AppInputAmpeg : AppInputIncTouchImpl<AppInputValueAmpegAttack, AppInputValueAmpegRelease>, AppInputLrButtonImpl<AppInputValueAmpegType, Nts1DefsSizeID::ampeg_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("AmpEG", 16);

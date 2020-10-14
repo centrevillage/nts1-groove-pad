@@ -7,6 +7,7 @@ struct AppInputArp {
   uint8_t current_page = 0;
 
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
     current_page = 0;
   }
 

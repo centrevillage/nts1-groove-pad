@@ -12,7 +12,7 @@ using AppInputValueOscShiftShape =
 using AppInputValueOscShape =
   AppInputValueWithNts1AndSave<
     AppInputValue<int16_t, AppInputParamID::osc_shape, 0, 1023>,
-    k_param_id_osc_shift_shape, 0, // NTS1 params
+    k_param_id_osc_shape, 0, // NTS1 params
     PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_SHAPE // preset save
   >;
 using AppInputValueOscType =
@@ -23,6 +23,7 @@ using AppInputValueOscType =
   >;
 struct AppInputOsc : AppInputIncTouchImpl<AppInputValueOscShiftShape, AppInputValueOscShape>, AppInputLrButtonImpl<AppInputValueOscType, Nts1DefsSizeID::osc_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("OSC", 16);

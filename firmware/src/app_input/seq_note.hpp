@@ -5,6 +5,7 @@
 
 struct AppInputSeqNote {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_SEQ_NOTE);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

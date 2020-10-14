@@ -5,6 +5,7 @@
 
 struct AppInputScale {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

@@ -23,6 +23,7 @@ using AppInputValueModfxType =
   >;
 struct AppInputModfx : AppInputIncTouchImpl<AppInputValueModfxTime, AppInputValueModfxDepth>, AppInputLrButtonImpl<AppInputValueModfxType, Nts1DefsSizeID::modfx_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("ModFX", 16);

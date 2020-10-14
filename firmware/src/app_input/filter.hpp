@@ -23,6 +23,7 @@ using AppInputValueFilterType =
   >;
 struct AppInputFilter : AppInputIncTouchImpl<AppInputValueFilterPeak, AppInputValueFilterCutoff>, AppInputLrButtonImpl<AppInputValueFilterType, Nts1DefsSizeID::filter_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("Filter", 16);

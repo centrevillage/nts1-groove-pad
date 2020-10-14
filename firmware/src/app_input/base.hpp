@@ -334,6 +334,7 @@ struct AppInputValueWithNts1 {
 
   inline void inc(const value_type v) {
     base.inc(v);
+    nts1_param_change(nts1_main_id, nts1_sub_id, get());
   }
   inline void set(const value_type v) {
     base.set(v);
@@ -351,6 +352,7 @@ struct AppInputValueWithSave {
 
   inline void inc(const value_type v) {
     base.inc(v);
+    preset_event_create(preset_event_command_id, preset_event_target_id, get());
   }
   inline void set(const value_type v) {
     base.set(v);
@@ -368,6 +370,8 @@ struct AppInputValueWithNts1AndSave {
 
   inline void inc(const value_type v) {
     base.inc(v);
+    nts1_param_change(nts1_main_id, nts1_sub_id, get());
+    preset_event_create(preset_event_command_id, preset_event_target_id, get());
   }
   inline void set(const value_type v) {
     base.set(v);

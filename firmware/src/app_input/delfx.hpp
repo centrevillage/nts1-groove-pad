@@ -23,6 +23,7 @@ using AppInputValueDelfxType =
   >;
 struct AppInputDelfx : AppInputIncTouchImpl<AppInputValueDelfxTime, AppInputValueDelfxDepth>, AppInputLrButtonImpl<AppInputValueDelfxType, Nts1DefsSizeID::delfx_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("DelFX", 16);

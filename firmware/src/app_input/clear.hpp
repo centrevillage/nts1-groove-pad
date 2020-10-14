@@ -5,6 +5,7 @@
 
 struct AppInputClear {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void incValueL(int16_t inc_value) {
   }

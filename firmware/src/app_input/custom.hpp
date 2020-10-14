@@ -8,12 +8,15 @@ struct AppInputCustom {
   uint8_t last_page = 0;
 
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
     current_page = 0;
     last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
   }
 
-  inline void _incValue(uint8_t param_idx, int16_t value) {
-    value = std::clamp<int16_t>(value, 0, 1023);
+  inline void _incValue(uint8_t param_idx, int16_t inc_value) {
+    volatile const OscDef& osc_def = osc_defs[preset_state.osc.index & 0x0F];
+    volatile const ParamDef& param_def = osc_def.params[std::clamp<uint8_t>(param_idx, (uint8_t)0, (uint8_t)osc_def.param_count)];
+    int16_t value = std::clamp<int16_t>(preset_state.osc.custom_values[param_idx] + inc_value, param_def.min, param_def.max);
     preset_state.osc.custom_values[param_idx] = value;
     nts1_param_change(k_param_id_osc_edit, param_idx, value);
     preset_event_create(PST_EVT_REALTIME_TMP_SAVE, PST_EVT_TARGET_OSC_CUSTOM_VALUES, param_idx);

@@ -22,6 +22,8 @@ volatile uint8_t _screen_edit_param_name_text_size[2] = {0, 0};
 volatile char _screen_edit_param_value_text[2][8];
 volatile uint8_t _screen_edit_param_value_text_size[2] = {0, 0};
 
+volatile uint8_t _screen_seq_step_values[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 void screen_setup() {
   _screen_mode = SCREEN_MODE_INPUT_DEBUG;
   _screen_mode_default = SCREEN_MODE_INPUT_DEBUG;
@@ -79,6 +81,37 @@ void screen_draw_edit(uint8_t* buffer) {
     draw_text_medium(buffer, _screen_edit_param_name_text[1], _screen_edit_param_name_text_size[1], 3, param_name_r_text_offset);
     draw_text_medium(buffer, _screen_edit_param_value_text[0], _screen_edit_param_value_text_size[0], 5, 0);
     draw_text_medium(buffer, _screen_edit_param_value_text[1], _screen_edit_param_value_text_size[1], 5, SCREEN_WIDTH/2);
+
+    _screen_is_dirty = 0;
+  }
+}
+
+void screen_draw_seq(uint8_t* buffer) {
+  if (_screen_is_dirty) {
+    draw_fill_bg(buffer);
+
+    uint8_t title_offset = (SCREEN_WIDTH - _screen_edit_title_text_size * 5) / 2;
+    draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
+
+    draw_text_small(buffer, _screen_edit_title_text, _screen_edit_title_text_size, 0, title_offset);
+
+    char str[3];
+    for (uint8_t i = 0; i < 8; ++i) {
+      text_12dec_from_note(str, seq_state.steps[i].note);
+      draw_text_medium(buffer, &(str[0]), 1, 2, i*16);
+      draw_text_medium(buffer, &(str[1]), 1, 2, (i*16)+7);
+      if (input_state.seq_selected_steps & ((uint16_t)1<<i)){
+        draw_invert(buffer, 2, 15, 2, i*16);
+      }
+    }
+    for (uint8_t i = 8; i < 16; ++i) {
+      text_12dec_from_note(str, seq_state.steps[i].note);
+      draw_text_medium(buffer, &(str[0]), 1, 5, (i-8)*16);
+      draw_text_medium(buffer, &(str[1]), 1, 5, ((i-8)*16)+7);
+      if (input_state.seq_selected_steps & ((uint16_t)1<<i)){
+        draw_invert(buffer, 2, 15, 5, i*16);
+      }
+    }
 
     _screen_is_dirty = 0;
   }

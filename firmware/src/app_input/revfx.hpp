@@ -23,6 +23,7 @@ using AppInputValueRevfxType =
   >;
 struct AppInputRevfx : AppInputIncTouchImpl<AppInputValueRevfxTime, AppInputValueRevfxDepth>, AppInputLrButtonImpl<AppInputValueRevfxType, Nts1DefsSizeID::revfx_defs_size> {
   inline void init() {
+    screen_set_mode(SCREEN_MODE_EDIT);
   }
   inline void refresh() {
     screen_edit_set_title("RevFX", 16);

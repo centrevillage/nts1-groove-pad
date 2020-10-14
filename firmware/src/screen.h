@@ -1,3 +1,6 @@
+/*
+ * レイアウト描画ユーティリティ
+ */
 #ifndef __N1GP_SCREEN_H__
 #define __N1GP_SCREEN_H__
 
