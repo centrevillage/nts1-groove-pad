@@ -5,7 +5,7 @@
 
 struct AppInputSeqNote {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_SEQ_NOTE);
+    app_screen.changeMode(AppScreenSeq {});
   }
   inline bool button(AppBtnID id, bool on) {
     return false;
@@ -15,7 +15,9 @@ struct AppInputSeqNote {
   inline void incValueR(int16_t inc_value) {
   }
   inline void refresh() {
-    screen_edit_set_title("SEQ:Note", 16);
+    if (!app_screen.isMode<AppScreenSeq>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenSeq>();
+    screen_mode.setTitle("SEQ:Note", 16);
   }
 };
 

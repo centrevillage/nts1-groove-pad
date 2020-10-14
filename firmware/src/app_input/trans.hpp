@@ -5,7 +5,7 @@
 
 struct AppInputTrans {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline bool button(AppBtnID id, bool on) {
     return false;
@@ -15,7 +15,9 @@ struct AppInputTrans {
   inline void incValueR(int16_t inc_value) {
   }
   inline void refresh() {
-    screen_edit_set_title("TRANSPOSE", 16);
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    screen_mode.setTitle("TRANSPOSE", 16);
   }
 };
 

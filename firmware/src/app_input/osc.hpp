@@ -1,7 +1,7 @@
 #ifndef N1GP_APP_INPUT_OSC_H
 #define N1GP_APP_INPUT_OSC_H
 
-#include <app_input/base.hpp>
+#include "app_input/base.hpp"
 
 using AppInputValueOscShiftShape =
   AppInputValueWithNts1AndSave<
@@ -23,15 +23,17 @@ using AppInputValueOscType =
   >;
 struct AppInputOsc : AppInputIncTouchImpl<AppInputValueOscShiftShape, AppInputValueOscShape>, AppInputLrButtonImpl<AppInputValueOscType, Nts1DefsSizeID::osc_defs_size> {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline void refresh() {
-    screen_edit_set_title("OSC", 16);
-    screen_edit_set_type(osc_defs[preset_state.osc.index].name, PARAM_NAME_LEN);
-    screen_edit_set_param_name(0, "ShiftSh", 7);
-    screen_edit_set_param_name(1, "Shape", 5);
-    screen_edit_set_param_value(0, preset_state.osc.shift_shape);
-    screen_edit_set_param_value(1, preset_state.osc.shape);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("OSC", 16);
+    screen_mode.setType(osc_defs[preset_state.osc.index].name, PARAM_NAME_LEN);
+    screen_mode.setParamName(0, "ShiftSh", 7);
+    screen_mode.setParamName(1, "Shape", 5);
+    screen_mode.setParamValue(0, preset_state.osc.shift_shape);
+    screen_mode.setParamValue(1, preset_state.osc.shape);
   };
 };
 

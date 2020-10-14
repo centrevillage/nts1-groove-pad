@@ -5,7 +5,8 @@
 #include "draw.h"
 #include "text.h"
 #include "debug.h"
-#include "screen.h"
+//#include "screen.h"
+#include "app_screen.hpp"
 
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/spi.hpp>
@@ -148,6 +149,7 @@ static char oled_text_buffer[32] = {0};
 static uint8_t oled_text_buffer_len = 0;
 
 void oled_process() {
-  screen_draw(oled_buffer);
+  app_screen.draw(oled_buffer);
+  //screen_draw(oled_buffer);
   oled_update_screen();
 }

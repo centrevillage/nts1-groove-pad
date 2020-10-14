@@ -23,15 +23,17 @@ using AppInputValueAmpegType =
   >;
 struct AppInputAmpeg : AppInputIncTouchImpl<AppInputValueAmpegAttack, AppInputValueAmpegRelease>, AppInputLrButtonImpl<AppInputValueAmpegType, Nts1DefsSizeID::ampeg_defs_size> {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline void refresh() {
-    screen_edit_set_title("AmpEG", 16);
-    screen_edit_set_type(ampeg_defs[preset_state.ampeg.index].name, PARAM_NAME_LEN);
-    screen_edit_set_param_name(0, "Attack", 6);
-    screen_edit_set_param_name(1, "Release", 7);
-    screen_edit_set_param_value(0, preset_state.ampeg.attack);
-    screen_edit_set_param_value(1, preset_state.ampeg.release);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("AmpEG", 16);
+    screen_mode.setType(ampeg_defs[preset_state.ampeg.index].name, PARAM_NAME_LEN);
+    screen_mode.setParamName(0, "Attack", 6);
+    screen_mode.setParamName(1, "Release", 7);
+    screen_mode.setParamValue(0, preset_state.ampeg.attack);
+    screen_mode.setParamValue(1, preset_state.ampeg.release);
   }
 };
 

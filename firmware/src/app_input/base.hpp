@@ -13,7 +13,7 @@
 #include "nts1_iface.h"
 #include "app_touch.hpp"
 #include "app_button.hpp"
-#include "screen.h"
+#include "app_screen.hpp"
 #include "state.h"
 #include "app_seq.h"
 #include "led.h"

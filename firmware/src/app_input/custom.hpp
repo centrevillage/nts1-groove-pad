@@ -8,7 +8,7 @@ struct AppInputCustom {
   uint8_t last_page = 0;
 
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
     current_page = 0;
     last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
   }
@@ -52,7 +52,9 @@ struct AppInputCustom {
     return false;
   }
   inline void refresh() {
-    screen_edit_set_title("Custom", 16);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("Custom", 16);
     if (osc_defs[preset_state.osc.index].param_count > 0) {
       char page_text[8] = {
         'P', 'a', 'g', 'e', ' ',
@@ -60,19 +62,19 @@ struct AppInputCustom {
         '/',
         (((osc_defs[preset_state.osc.index].param_count+1) / 2) % 10)+48
       };
-      screen_edit_set_type(page_text, 8);
+      screen_mode.setType(page_text, 8);
       char* param_name = osc_defs[preset_state.osc.index].params[current_page*2].name;
-      screen_edit_set_param_name(0, param_name, PARAM_NAME_LEN);
-      screen_edit_set_param_value(0, preset_state.osc.custom_values[current_page*2]);
+      screen_mode.setParamName(0, param_name, PARAM_NAME_LEN);
+      screen_mode.setParamValue(0, preset_state.osc.custom_values[current_page*2]);
 
       uint8_t is_last_page = current_page == (osc_defs[preset_state.osc.index].param_count / 2);
       if (!is_last_page || (osc_defs[preset_state.osc.index].param_count % 2) == 0) {
         char* param_name2 = osc_defs[preset_state.osc.index].params[current_page*2+1].name;
-        screen_edit_set_param_name(1, param_name2, PARAM_NAME_LEN);
-        screen_edit_set_param_value(1, preset_state.osc.custom_values[current_page*2+1]);
+        screen_mode.setParamName(1, param_name2, PARAM_NAME_LEN);
+        screen_mode.setParamValue(1, preset_state.osc.custom_values[current_page*2+1]);
       }
     } else {
-      screen_edit_set_type("No Param", PARAM_NAME_LEN);
+      screen_mode.setType("No Param", PARAM_NAME_LEN);
     }
   }
 };

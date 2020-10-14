@@ -5,6 +5,7 @@
 
 struct AppInputSeqSelect {
   inline void init() {
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline void incValueL(int16_t inc_value) {
   }
@@ -14,7 +15,9 @@ struct AppInputSeqSelect {
     return false;
   }
   inline void refresh() {
-    screen_edit_set_title("SEQ:Select", 16);
+	  if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("SEQ:Select", 16);
   }
 };
 

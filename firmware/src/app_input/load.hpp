@@ -5,7 +5,7 @@
 
 struct AppInputLoad {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline void incValueL(int16_t inc_value) {
   }
@@ -15,7 +15,9 @@ struct AppInputLoad {
     return false;
   }
   inline void refresh() {
-    screen_edit_set_title("LOAD", 16);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("LOAD", 16);
   }
 };
 

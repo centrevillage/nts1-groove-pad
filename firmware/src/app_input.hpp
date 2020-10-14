@@ -236,7 +236,7 @@ struct AppInput {
   }
 
   void refresh() {
-    screen_edit_clear();
+    app_screen.init();
     state.refresh();
   }
 

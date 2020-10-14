@@ -23,15 +23,17 @@ using AppInputValueFilterType =
   >;
 struct AppInputFilter : AppInputIncTouchImpl<AppInputValueFilterPeak, AppInputValueFilterCutoff>, AppInputLrButtonImpl<AppInputValueFilterType, Nts1DefsSizeID::filter_defs_size> {
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
   }
   inline void refresh() {
-    screen_edit_set_title("Filter", 16);
-    screen_edit_set_type(filter_defs[preset_state.filter.index].name, PARAM_NAME_LEN);
-    screen_edit_set_param_name(0, "Peak", 4);
-    screen_edit_set_param_name(1, "Cutoff", 6);
-    screen_edit_set_param_value(0, preset_state.filter.peak);
-    screen_edit_set_param_value(1, preset_state.filter.cutoff);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("Filter", 16);
+    screen_mode.setType(filter_defs[preset_state.filter.index].name, PARAM_NAME_LEN);
+    screen_mode.setParamName(0, "Peak", 4);
+    screen_mode.setParamName(1, "Cutoff", 6);
+    screen_mode.setParamValue(0, preset_state.filter.peak);
+    screen_mode.setParamValue(1, preset_state.filter.cutoff);
   }
 };
 

@@ -7,7 +7,7 @@ struct AppInputArp {
   uint8_t current_page = 0;
 
   inline void init() {
-    screen_set_mode(SCREEN_MODE_EDIT);
+    app_screen.changeMode(AppScreenEdit {});
     current_page = 0;
   }
 
@@ -61,27 +61,29 @@ struct AppInputArp {
     return false;
   }
   inline void refresh() {
-    screen_edit_set_title("ARP", 16);
+    if (!app_screen.isMode<AppScreenEdit>()) { return; }
+    auto& screen_mode = app_screen.getMode<AppScreenEdit>();
+    screen_mode.setTitle("ARP", 16);
     char page_text[8] = {
       'P', 'a', 'g', 'e', ' ',
       current_page+1+48,
       '/', '3'
     };
-    screen_edit_set_type(page_text, 8);
+    screen_mode.setType(page_text, 8);
     if (current_page == 0) {
-      screen_edit_set_param_name(0, "Type", 4);
-      screen_edit_set_param_name(1, "Interval", 8);
+      screen_mode.setParamName(0, "Type", 4);
+      screen_mode.setParamName(1, "Interval", 8);
       // TODO: defs からパラメータ名を拾ってくる
-      screen_edit_set_param_value_text(0, arppat_defs[preset_state.arp.index].name, PARAM_NAME_LEN);
-      screen_edit_set_param_value_text(1, arpint_defs[preset_state.arp.intervals].name, PARAM_NAME_LEN);
+      screen_mode.setParamValueText(0, arppat_defs[preset_state.arp.index].name, PARAM_NAME_LEN);
+      screen_mode.setParamValueText(1, arpint_defs[preset_state.arp.intervals].name, PARAM_NAME_LEN);
     } else if (current_page == 1) {
-      screen_edit_set_param_name(0, "Length", 6);
-      screen_edit_set_param_name(1, "State", 5);
-      screen_edit_set_param_value(0, preset_state.arp.length);
-      screen_edit_set_param_value(1, preset_state.arp.state);
+      screen_mode.setParamName(0, "Length", 6);
+      screen_mode.setParamName(1, "State", 5);
+      screen_mode.setParamValue(0, preset_state.arp.length);
+      screen_mode.setParamValue(1, preset_state.arp.state);
     } else {
-      screen_edit_set_param_name(0, "Tempo", 5);
-      screen_edit_set_param_value(0, preset_state.arp.tempo);
+      screen_mode.setParamName(0, "Tempo", 5);
+      screen_mode.setParamValue(0, preset_state.arp.tempo);
     }
   }
 };

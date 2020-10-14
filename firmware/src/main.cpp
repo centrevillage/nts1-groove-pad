@@ -7,7 +7,8 @@
 #include "debug.h"
 #include "text.h"
 #include "nts1_defs.h"
-#include "screen.h"
+//#include "screen.h"
+#include "app_screen.hpp"
 #include "preset.h"
 #include "preset_event.h"
 #include "ram.h"
@@ -112,7 +113,8 @@ void setup() {
   oled_setup();
   //input_setup();
   app_input.init();
-  screen_setup();
+  app_screen.init();
+  //screen_setup();
   seq.init();
 
   //gpio_write(PIN_A12, 1);
@@ -134,7 +136,8 @@ void setup() {
   //nts1_note_on(100, 100);
 
   debug_text("LOADING", 7); 
-  screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
+  app_screen.changeMode(AppScreenDebug {});
+  //screen_set_mode(SCREEN_MODE_INPUT_DEBUG);
 
   nts1_defs_req_load();
   nts1_idle();
@@ -145,7 +148,8 @@ void setup() {
 
   preset_setup();
 
-  screen_set_mode(SCREEN_MODE_EDIT);
+  app_screen.changeMode(AppScreenEdit {});
+  //screen_set_mode(SCREEN_MODE_EDIT);
   //input_refresh();
   app_input.refresh();
 }
