@@ -102,6 +102,23 @@ struct AppScreenEdit {
   void draw(uint8_t* buffer) {
     if (is_dirty) {
       draw_fill_bg(buffer);
+
+      uint8_t title_offset = (SCREEN_WIDTH - _title_text_size * 5) / 2;
+      draw_text_small(buffer, _title_text, _title_text_size, 0, title_offset);
+      //uint8_t page_text_offset = (SCREEN_WIDTH - _page_text_size * 5) / 2;
+      //draw_text_small(buffer, _page_text, _page_text_size, 7, page_text_offset);
+
+      uint8_t type_text_offset  = (SCREEN_WIDTH - _type_text_size * 8) / 2;
+      draw_text_medium(buffer, _type_text, _type_text_size, 1, type_text_offset);
+
+      uint8_t param_name_l_text_offset = ((SCREEN_WIDTH / 2) - (_param_name_text_size[0]*8))/2;
+      uint8_t param_name_r_text_offset = ((SCREEN_WIDTH / 2) - (_param_name_text_size[1]*8))/2 + SCREEN_WIDTH/2;
+      draw_text_medium(buffer, _param_name_text[0], _param_name_text_size[0], 3, param_name_l_text_offset);
+      draw_text_medium(buffer, _param_name_text[1], _param_name_text_size[1], 3, param_name_r_text_offset);
+      draw_text_medium(buffer, _param_value_text[0], _param_value_text_size[0], 5, 0);
+      draw_text_medium(buffer, _param_value_text[1], _param_value_text_size[1], 5, SCREEN_WIDTH/2);
+
+      is_dirty = false;
     }
   }
 };

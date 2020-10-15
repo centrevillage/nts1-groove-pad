@@ -19,13 +19,13 @@ struct AppScreenState {
   }
 
   void init() {
-    std::visit([=](auto& m) {
+    std::visit([](auto& m) {
       m.init();
     }, mode);
   }
 
   void draw(uint8_t* buffer) {
-    std::visit([=](auto& m) {
+    std::visit([buffer](auto& m) {
       m.draw(buffer);
     }, mode);
   }
@@ -35,7 +35,6 @@ struct AppScreen {
   AppScreenState state;
 
   void init() {
-    state.mode = AppScreenDebug {};
     state.init();
   };
 
