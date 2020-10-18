@@ -11,13 +11,26 @@ namespace sdk {
 struct SimpleSteps {
   uint16_t active_bits = 0;
 
-  void setTrig(uint8_t step_idx, bool active) {
+  inline void setTrig(uint8_t step_idx, bool active) {
     if (active) {
       active_bits |= (1<<step_idx);
     } else {
       active_bits &= ~(1<<step_idx);
     }
   }
+
+  inline bool getTrig(uint8_t step_idx) {
+    return active_bits & ((uint16_t)1 << step_idx);
+  }
+
+  void toggle(uint8_t step_idx) {
+    setTrig(step_idx, !getTrig(step_idx));
+  }
+};
+
+template<typename VALUE_TYPE, size_t VALUE_SIZE>
+struct ValueSteps : SimpleSteps {
+  std::array<std::array<VALUE_TYPE, VALUE_SIZE>, 16> values;
 };
 
 template<typename STEPS_TYPE>

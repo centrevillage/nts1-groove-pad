@@ -5,6 +5,8 @@
 #include "draw.h"
 #include "text.h"
 #include "screen_conf.h"
+#include "led.h"
+#include "app_seq.h"
 #include <variant>
 #include <functional>
 #include <optional>

@@ -6,6 +6,7 @@
 struct AppInputSeqModfx {
   inline void init() {
     app_screen.changeMode(AppScreenSeq {});
+    seq.changeTrack(AppTrackType::modfx);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

@@ -1,9 +1,9 @@
 #include "preset.h"
 #include "preset_event.h"
 #include "ram.h"
-#include "input.h"
 
 #include <igb_stm32/periph/gpio.hpp>
+#include "app_input.hpp"
 
 using namespace igb::stm32;
 
@@ -267,7 +267,7 @@ void preset_tmp_load_complate() {
     state_reset_preset(&preset_state);
     preset_event_create(PST_EVT_PRESET_TMP_SAVE, 0, 0);
   }
-  input_refresh();
+  app_input.refresh();
 }
 
 void preset_tmp_save_complate() {

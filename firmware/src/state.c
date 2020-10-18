@@ -87,7 +87,7 @@ void state_reset_global(GlobalState* global) {
 }
 
 void state_reset_seq(SeqState* seq) {
-  seq->active_steps = 0;
+  seq->active_steps = 0xFFFF;
   seq->length = 16;
   seq->direction = 0;
 

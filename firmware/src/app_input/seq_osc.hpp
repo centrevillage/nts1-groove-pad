@@ -6,6 +6,7 @@
 struct AppInputSeqOsc {
   inline void init() {
     app_screen.changeMode(AppScreenSeq {});
+    seq.changeTrack(AppTrackType::osc);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

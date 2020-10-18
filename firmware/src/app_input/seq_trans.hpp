@@ -6,6 +6,7 @@
 struct AppInputSeqTrans : AppInputNullImpl {
   inline void init() {
     app_screen.changeMode(AppScreenSeq {});
+    seq.changeTrack(AppTrackType::trans);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

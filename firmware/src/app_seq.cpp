@@ -2,6 +2,7 @@
 #include "state.h"
 #include "preset.h"
 #include "nts1_iface.h"
+#include "app_screen.hpp"
 
 #include <igb_stm32/periph/tim.hpp>
 

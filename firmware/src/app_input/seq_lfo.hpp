@@ -6,6 +6,7 @@
 struct AppInputSeqLfo {
   inline void init() {
     app_screen.changeMode(AppScreenSeq {});
+    seq.changeTrack(AppTrackType::lfo);
   }
   inline bool button(AppBtnID id, bool on) {
     return false;

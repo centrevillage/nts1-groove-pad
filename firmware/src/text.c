@@ -74,6 +74,10 @@ uint8_t text_from_uint32(char* result_text, uint32_t value) {
   return 10;
 }
 
+uint8_t text_from_note(char* result_text, uint8_t note) {
+  //TODO:
+}
+
 uint8_t text_12dec_from_note(char* result_text, uint8_t note) {
   result_text[0] = twlv_chars[(note / 12) % 12];
   result_text[1] = twlv_chars[note % 12];
