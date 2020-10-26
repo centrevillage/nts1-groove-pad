@@ -15,7 +15,8 @@ struct AppInputSeqNote {
     uint8_t idx = static_cast<uint8_t>(id);
     if (idx < 16) {
       if (!on) {
-        seq.toggleStepTrig(AppTrackType::note, idx);
+        auto& track = seq.getTrack(AppTrackType::note);
+        track.toggleActive(idx);
         seq.selected_steps = ((uint16_t)1 << idx);
         return true;
       }
@@ -34,7 +35,6 @@ struct AppInputSeqNote {
     if (!app_screen.isMode<AppScreenSeq>()) { return; }
     auto& screen_mode = app_screen.getMode<AppScreenSeq>();
     screen_mode.setTitle("SEQ:Note", 16);
-    // TODO: app_seq から設定
   }
 };
 

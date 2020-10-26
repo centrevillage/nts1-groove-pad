@@ -176,7 +176,7 @@ enum class TimDmaBurstLen : uint32_t {
 //  TO_MCO = (TIM14_OR_TI1_RMP_0  | TIM14_OR_TI1_RMP_1  | TIM14_OR_RMP_MASK),
 //};
 
-struct Timer {
+struct Tim {
   TIM_TypeDef* p_tim;
 
   void setPrescaler(uint32_t prescale) {
@@ -320,14 +320,14 @@ struct Timer {
   }
 
   // TODO: コンパイル時の依存を減らすため、外部関数化＆外部ファイル化すべき？
-  static Timer newIntervalTimer(TimType type, uint16_t prescale, uint32_t period, uint16_t priority) {
+  static Tim newIntervalTimer(TimType type, uint16_t prescale, uint32_t period, uint16_t priority) {
     const auto& info = STM32_PERIPH_INFO.tim[as<uint32_t>(type)];
     info.bus.enableBusClock();
 
     NvicCtrl::setPriority(info.irqn, priority);
     NvicCtrl::enable(info.irqn);
 
-    auto timer = Timer { info.p_tim };
+    auto timer = Tim { info.p_tim };
     timer.enableInterrupt(TimInterruptType::UPDATE);
     timer.setPrescaler(prescale);
     timer.setCounterMode(TimCounterMode::UP);

@@ -286,6 +286,102 @@ static inline int16_t app_input_get_param(AppInputParamID id) {
   return 0;
 }
 
+static inline void app_input_set_seq_step_l_value(AppTrackType track_type, uint8_t step_idx, int16_t value) {
+  // TODO:
+  switch (track_type) {
+    case AppTrackType::note:
+      break;
+    case AppTrackType::osc:
+      break;
+    case AppTrackType::custom:
+      break;
+    case AppTrackType::filter:
+      break;
+    case AppTrackType::ampeg:
+      break;
+    case AppTrackType::modfx:
+      break;
+    case AppTrackType::delfx:
+      break;
+    case AppTrackType::revfx:
+      break;
+    case AppTrackType::arp:
+      break;
+    case AppTrackType::scale:
+      break;
+    case AppTrackType::trans:
+      break;
+    case AppTrackType::stutter:
+      break;
+    case AppTrackType::lfo:
+      break;
+  }
+}
+
+static inline void app_input_set_seq_step_r_value(AppTrackType track_type, uint8_t step_idx, int16_t value) {
+  // TODO:
+  switch (track_type) {
+    case AppTrackType::note:
+      break;
+    case AppTrackType::osc:
+      break;
+    case AppTrackType::custom:
+      break;
+    case AppTrackType::filter:
+      break;
+    case AppTrackType::ampeg:
+      break;
+    case AppTrackType::modfx:
+      break;
+    case AppTrackType::delfx:
+      break;
+    case AppTrackType::revfx:
+      break;
+    case AppTrackType::arp:
+      break;
+    case AppTrackType::scale:
+      break;
+    case AppTrackType::trans:
+      break;
+    case AppTrackType::stutter:
+      break;
+    case AppTrackType::lfo:
+      break;
+  }
+}
+
+static inline void app_input_set_seq_step_type_value(AppTrackType track_type, uint8_t step_idx, uint8_t value) {
+  // TODO:
+  switch (track_type) {
+    case AppTrackType::note:
+      break;
+    case AppTrackType::osc:
+      break;
+    case AppTrackType::custom:
+      break;
+    case AppTrackType::filter:
+      break;
+    case AppTrackType::ampeg:
+      break;
+    case AppTrackType::modfx:
+      break;
+    case AppTrackType::delfx:
+      break;
+    case AppTrackType::revfx:
+      break;
+    case AppTrackType::arp:
+      break;
+    case AppTrackType::scale:
+      break;
+    case AppTrackType::trans:
+      break;
+    case AppTrackType::stutter:
+      break;
+    case AppTrackType::lfo:
+      break;
+  }
+}
+
 static inline bool app_input_is_seq_mode(AppInputMode mode) {
   bool result = false;
   switch (mode) {

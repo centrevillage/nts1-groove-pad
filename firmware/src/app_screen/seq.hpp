@@ -13,7 +13,8 @@ struct AppScreenSeq {
 
   void refreshLed() {
     for (uint8_t i = 0; i < 16; ++i) {
-      if (seq.getStepTrig(seq.current_track_type, i)) {
+      auto& track = seq.currentTrack();
+      if (track.values[i].active) {
         led_set(i, 1);
       } else {
         led_set(i, 0);
@@ -85,7 +86,7 @@ struct AppScreenSeq {
         draw_text_medium(buffer, &(str[0]), 1, 5, (i-8)*16);
         draw_text_medium(buffer, &(str[1]), 1, 5, ((i-8)*16)+7);
         if (seq.selected_steps & ((uint16_t)1<<i)){
-          draw_invert(buffer, 2, 15, 5, i*16);
+          draw_invert(buffer, 2, 15, 4, i*16);
         }
       }
 

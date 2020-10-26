@@ -33,7 +33,7 @@ extern "C" {
 }
 
 void TIM_COMMON_HANDLER() {
-  auto tim = Timer { TIM_COMMON };
+  auto tim = Tim { TIM_COMMON };
   if (tim.isState(TimState::UPDATE)) {
 
     led_process();
@@ -45,7 +45,7 @@ void TIM_COMMON_HANDLER() {
 }
 
 void TIM_SPI_HANDLER() {
-  auto tim = Timer { TIM_SPI };
+  auto tim = Tim { TIM_SPI };
   if (tim.isState(TimState::UPDATE)) {
 
     if (preset_event_is_empty() && !preset_is_processing()) {
@@ -60,7 +60,7 @@ void TIM_SPI_HANDLER() {
 }
 
 void TIM_SEQ_HANDLER() {
-  auto tim = Timer { TIM_SEQ };
+  auto tim = Tim { TIM_SEQ };
   if (tim.isState(TimState::UPDATE)) {
 
     seq.receiveClock();
@@ -120,15 +120,15 @@ void setup() {
   //delay_msec(1000);
   nts1_init();
 
-  auto common_tim = Timer::newIntervalTimer(TIM_COMMON_TYPE, 255, 100, 2);
+  auto common_tim = Tim::newIntervalTimer(TIM_COMMON_TYPE, 255, 100, 2);
   common_tim.setCount(0);
   common_tim.enable();
 
-  auto spi_tim = Timer::newIntervalTimer(TIM_SPI_TYPE, 255, 0xFFF, 5);
+  auto spi_tim = Tim::newIntervalTimer(TIM_SPI_TYPE, 255, 0xFFF, 5);
   spi_tim.setCount(0);
   spi_tim.enable();
 
-  auto seq_tim = Timer::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
+  auto seq_tim = Tim::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
   seq_tim.setCount(0);
 
   //nts1_note_on(100, 100);

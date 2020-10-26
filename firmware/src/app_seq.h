@@ -28,14 +28,113 @@ enum class AppTrackType : uint8_t {
 };
 constexpr uint8_t APP_TRACK_SIZE = 13;
 
-struct AppSteps : SimpleSteps {
-  struct Value {
-    int16_t l_value = 0;
-    int16_t r_value = 0;
-    uint8_t page = 0;
-  };
+struct AppTrackValue {
+  bool active = true;
+  int16_t l_value = 0;
+  int16_t r_value = 0;
+  uint8_t page = 0;
 
-  std::array<Value, 16> values;
+  // serialize api
+  static const uint32_t serializedBufferSize() {
+    return 48;
+  }
+  void serialize(uint8_t* out_buffer, size_t size /* must be equal to serializedBufferSize */ ) {
+    if (size >= serializedBufferSize()) {
+      *(out_buffer++) = active ? 1 : 0;
+      *(out_buffer++) = (uint8_t)(l_value >> 8);
+      *(out_buffer++) = (uint8_t)l_value;
+      *(out_buffer++) = (uint8_t)(r_value >> 8);
+      *(out_buffer++) = (uint8_t)r_value;
+      *(out_buffer++) = page;
+    }
+  }
+  void deserialize(uint8_t* in_buffer, size_t size /* must be equal to serializedBufferSize */ ) {
+    if (size >= serializedBufferSize()) {
+      active = *(in_buffer++);
+      uint16_t tmp = (*(in_buffer++)) << 8;
+      tmp |= (*(in_buffer++));
+      l_value = tmp;
+      tmp = (*(in_buffer++)) << 8;
+      tmp |= (*(in_buffer++));
+      r_value = tmp;
+      page = *in_buffer++;
+    }
+  }
+};
+
+template<size_t STEP_SIZE>
+struct AppTrack {
+  uint16_t current_step = 0;
+  uint16_t _next_step = 0;
+  bool _is_set_next_step = false;
+  std::array<AppTrackValue, STEP_SIZE> values;
+  std::function<void(uint16_t)> on_step_change;
+
+  uint16_t _step_length = STEP_SIZE;
+  void setStepLength(uint16_t length) {
+    if (0 <= length && length < STEP_SIZE) {
+      _step_length = length;
+    }
+  }
+  uint16_t getStepLength() { return _step_length; }
+
+  void toggleActive(uint8_t step_idx) {
+    if (step_idx < STEP_SIZE) {
+      values[step_idx].active = !values[step_idx].active;
+    }
+  }
+
+  void receiveClock(auto current_count) {
+    if (_is_set_next_step) {
+      current_step = _next_step;
+      _is_set_next_step = false;
+    } else {
+      current_step = (current_step + 1) % _step_length;
+    }
+    if (on_step_change) {
+      on_step_change(current_step);
+    }
+  }
+
+  void start() {
+    // トラックがスタートイベントを受けた時の処理
+  }
+  void stop() {
+    // トラックがストップイベントを受けた時の処理
+  }
+  void jump(auto&& step) {
+    if (step < _step_length) {
+      _next_step = step;
+      _is_set_next_step = true;
+    }
+    // トラックがジャンプイベントを受けた時の処理
+  }
+  void reset() {
+    // トラックがリセットイベントを受けた時の処理
+    _next_step = 0;
+    _is_set_next_step = true;
+  }
+  void processEvent(auto&& eventId, auto&& value) {
+    // トラックがアプリ定義のイベントを受けた時の処理
+  }
+  // serialize api
+  static const uint32_t serializedBufferSize() {
+    return AppTrackValue::serializedBufferSize() * STEP_SIZE;
+  }
+  void serialize(uint8_t* out_buffer, size_t size /* must be equal to serializedBufferSize */ ) {
+    if (size >= serializedBufferSize()) {
+      for (uint8_t i = 0; i < STEP_SIZE; ++i) {
+        values[i].serialize(out_buffer + (i*AppTrackValue::serializedBufferSize()), AppTrackValue::serializedBufferSize());
+      }
+    }
+  }
+  void deserialize(uint8_t* in_buffer, size_t size /* must be equal to serializedBufferSize */ ) {
+    if (size >= serializedBufferSize()) {
+      for (uint8_t i = 0; i < STEP_SIZE; ++i) {
+        values[i].deserialize(in_buffer + (i*AppTrackValue::serializedBufferSize()), AppTrackValue::serializedBufferSize());
+      }
+    }
+  }
 };
 
 // アプリケーション依存のシーケンサー
@@ -44,8 +143,7 @@ struct AppSteps : SimpleSteps {
 // カスタムパラメータなど複数のパラメータを持つ場合は、
 // ページ番号と二つのパラメータをトラック値として保持する。
 // (1ステップに設定できる値はそこで設定しばページ番号のパラメータ二つのみ）
-struct AppSequencer {
-  Sequencer<SimpleTrack<AppSteps>, APP_TRACK_SIZE, AppSeqClock> base_seq;
+struct AppSequencer : SyncSequencer<AppTrack<16>, APP_TRACK_SIZE, AppSeqClock> {
   bool run_state = 0;
   AppTrackType current_track_type = AppTrackType::note;
   uint16_t selected_steps = 0;
@@ -56,35 +154,17 @@ struct AppSequencer {
   void start();
   void stop();
 
-  void setState(const SeqState& state);
-  void getState(SeqState& state);
+  auto& getTrack(AppTrackType track_type) {
+    return tracks[static_cast<size_t>(track_type)];
+  }
+
+  auto& currentTrack() {
+    return tracks[static_cast<size_t>(current_track_type)];
+  }
 
   inline void changeTrack(AppTrackType track_type) {
     current_track_type = track_type;
     selected_steps = 0;
-  }
-
-  inline uint16_t getCurrentStep(AppTrackType track_type) {
-    return base_seq.tracks[static_cast<uint8_t>(track_type)].current_step;
-  }
-
-  inline uint16_t getStepLength(AppTrackType track_type) {
-    return base_seq.tracks[static_cast<uint8_t>(track_type)].step_length;
-  }
-
-  inline int16_t getStepDirection(AppTrackType track_type) {
-    return base_seq.tracks[static_cast<uint8_t>(track_type)].step_direction;
-  }
-
-  inline bool getStepTrig(AppTrackType track_type, uint8_t step_idx) {
-    return base_seq.tracks[static_cast<uint8_t>(track_type)].steps.getTrig(step_idx);
-  }
-
-  inline void setStepTrig(AppTrackType track_type, uint8_t step_idx, bool active) {
-    base_seq.tracks[static_cast<uint8_t>(track_type)].steps.setTrig(step_idx, active);
-  }
-  inline void toggleStepTrig(AppTrackType track_type, uint8_t step_idx) {
-    base_seq.tracks[static_cast<uint8_t>(track_type)].steps.toggle(step_idx);
   }
 };
 
