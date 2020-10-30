@@ -1,7 +1,7 @@
 #include "nts1_iface.h"
 #include "nts1_defs.h"
 #include "state.h"
-#include "systick_timer.h"
+#include <igb_stm32/periph/systick.hpp>
 #include "debug.h"
 
 volatile OscDef osc_defs[OSC_DEFS_SIZE];
@@ -67,7 +67,8 @@ typedef enum {
   NTS1_DEF_LOAD_PHASE_COMPLETE
 } Nts1DefLoadPhase;
 
-volatile Nts1DefLoadPhase _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
+//volatile Nts1DefLoadPhase _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE;
+volatile uint8_t _nts1_defs_lphase = NTS1_DEF_LOAD_PHASE_COMPLETE; // for increment & decrement
 static volatile uint32_t _nts1_defs_load_bits = 0;
 volatile uint8_t _nts1_defs_osc_param_loading_idx = 0;
 volatile uint32_t _nts1_defs_phase_start_mmsec = 0;

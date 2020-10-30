@@ -1,4 +1,3 @@
-#include "systick_timer.h"
 #include "oled.h"
 #include "screen_conf.h"
 #include "draw.h"
@@ -6,6 +5,7 @@
 #include "debug.h"
 #include "app_screen.hpp"
 
+#include <igb_stm32/periph/systick.hpp>
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/spi.hpp>
 

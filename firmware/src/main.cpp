@@ -2,7 +2,6 @@
 #include "led.h"
 #include "oled.h"
 #include "app_seq.h"
-#include "systick_timer.h"
 #include "debug.h"
 #include "text.h"
 #include "nts1_defs.h"
@@ -17,6 +16,7 @@
 #include <igb_stm32/periph/flash.hpp>
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/gpio.hpp>
+#include <igb_stm32/periph/systick.hpp>
 
 using namespace igb::stm32;
 
@@ -104,7 +104,8 @@ void setup() {
   reset_gpio();
 
 #ifndef USE_ARDUINO
-  systick_timer_setup();
+  SystickCtrl::setTimerInterval(SystickTimerInterval::msec);
+  NvicCtrl::setPriority(SysTick_IRQn, 0x0);
 #endif
 
   led_setup();
