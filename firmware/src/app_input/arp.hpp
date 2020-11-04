@@ -11,6 +11,9 @@ struct AppInputArp {
     current_page = 0;
   }
 
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
+
   inline void incValueL(int16_t inc_value) {
     if (current_page = 0) {
       int16_t value = preset_state.arp.index + inc_value;

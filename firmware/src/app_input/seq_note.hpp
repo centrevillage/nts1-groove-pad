@@ -11,6 +11,8 @@ struct AppInputSeqNote {
     app_screen.changeMode(AppScreenSeq {});
     seq.changeTrack(AppTrackType::note);
   }
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
   inline bool button(AppBtnID id, bool on) {
     uint8_t idx = static_cast<uint8_t>(id);
     if (idx < 16) {

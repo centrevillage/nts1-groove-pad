@@ -7,6 +7,8 @@ struct AppInputSeqSelect {
   inline void init() {
     app_screen.changeMode(AppScreenEdit {});
   }
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
   inline void incValueL(int16_t inc_value) {
   }
   inline void incValueR(int16_t inc_value) {

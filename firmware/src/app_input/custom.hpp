@@ -12,6 +12,8 @@ struct AppInputCustom {
     current_page = 0;
     last_page = (osc_defs[preset_state.osc.index].param_count-1) / 2;
   }
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
 
   inline void _incValue(uint8_t param_idx, int16_t inc_value) {
     volatile const OscDef& osc_def = osc_defs[preset_state.osc.index & 0x0F];

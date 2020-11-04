@@ -8,6 +8,8 @@ struct AppInputSeqOsc {
     app_screen.changeMode(AppScreenSeq {});
     seq.changeTrack(AppTrackType::osc);
   }
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
   inline bool button(AppBtnID id, bool on) {
     return false;
   }

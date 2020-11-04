@@ -7,6 +7,8 @@ struct AppInputTrans {
   inline void init() {
     app_screen.changeMode(AppScreenEdit {});
   }
+  inline void touch(uint8_t touch_idx, bool on) {
+  }
   inline bool button(AppBtnID id, bool on) {
     return false;
   }

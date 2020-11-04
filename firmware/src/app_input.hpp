@@ -189,6 +189,17 @@ struct AppInputModeState {
     }, mode);
   }
 
+  void touchOnAcquisitionEnd(uint8_t bits, uint8_t prev_bits) {
+    uint8_t diff_bits = bits ^ prev_bits;
+    std::visit([=](auto& m) {
+      for (uint8_t i = 0; i < 8; ++i) {
+        if (diff_bits & (1 << i)) {
+          m.touch(i, !!(bits & (1 << i)));
+        }
+      }
+    }, mode);
+  }
+
   bool button(AppBtnID id, bool on) {
     return std::visit([=](auto& m) {
       return m.button(id, on);
@@ -214,7 +225,9 @@ struct AppInput {
 
     touch.init();
     touch.on_acquisition_end = [this](uint8_t bits) {
+      uint8_t prev_bits = touch_bits;
       touch_bits = bits;
+      state.touchOnAcquisitionEnd(touch_bits, prev_bits);
       refresh();
     };
     touch.on_change = [this](AppTouchPadID id, int16_t inc_value) {
