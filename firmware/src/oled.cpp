@@ -4,6 +4,7 @@
 #include "text.h"
 #include "debug.h"
 #include "app_screen.hpp"
+#include "app_input.hpp"
 
 #include <igb_stm32/periph/systick.hpp>
 #include <igb_stm32/periph/rcc.hpp>
@@ -148,6 +149,11 @@ static uint8_t oled_text_buffer_len = 0;
 
 void oled_process() {
   app_screen.draw(oled_buffer);
+  for (uint8_t i = 0; i < 8; ++i) {
+    if (app_input.touch_bits & (1 << i)) {
+      draw_touch_pad_small(oled_buffer, (DrawPadType)i);
+    }
+  }
   //screen_draw(oled_buffer);
   oled_update_screen();
 }
