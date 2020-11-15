@@ -130,7 +130,7 @@ void setup() {
   spi_tim.setCount(0);
   spi_tim.enable();
 
-  auto seq_tim = Tim::newIntervalTimer(TIM_SEQ_TYPE, 7000, 5000, 0);
+  auto seq_tim = Tim::newIntervalTimer(TIM_SEQ_TYPE, 7000, 1000, 0);
   seq_tim.setCount(0);
 
   //nts1_note_on(100, 100);
