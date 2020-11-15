@@ -144,7 +144,7 @@ struct AppTrack {
 // ページ番号と二つのパラメータをトラック値として保持する。
 // (1ステップに設定できる値はそこで設定しばページ番号のパラメータ二つのみ）
 struct AppSequencer : SyncSequencer<AppTrack<16>, APP_TRACK_SIZE, AppSeqClock> {
-  bool run_state = 0;
+  bool run_state = false;
   AppTrackType current_track_type = AppTrackType::note;
   uint16_t selected_steps = 0;
 

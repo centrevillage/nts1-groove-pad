@@ -3,8 +3,10 @@
 #include "preset.h"
 #include "nts1_iface.h"
 #include "app_screen.hpp"
+#include "app_soft_timer.hpp"
 
 #include <igb_stm32/periph/tim.hpp>
+#include <igb_stm32/periph/systick.hpp>
 
 using namespace igb::stm32;
 
@@ -18,9 +20,12 @@ void AppSequencer::init() {
     if (note_track.values[step_idx].active) {
       uint8_t note_no = note_track.values[step_idx].r_value;
       uint8_t velocity = note_track.values[step_idx].l_value;
+      uint8_t gate_len = note_track.values[step_idx].page;
+
       nts1_note_off(prev_note);
       nts1_note_on(note_no, velocity);
       // TODO: タイマーでlength に依存した時間ののちnote off
+      //app_soft_timer.oneshotCallback();
       prev_note = note_no;
     }
   };
@@ -37,6 +42,10 @@ void AppSequencer::init() {
 
 void AppSequencer::receiveClock() {
   clock.receive();
+  led_set_run(0);
+  app_soft_timer.oneshotCallback(50, current_msec(), []{
+    led_set_run(1);
+  });
 }
 
 void AppSequencer::start() {

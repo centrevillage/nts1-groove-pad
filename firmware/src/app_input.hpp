@@ -209,7 +209,6 @@ struct AppInputModeState {
 
 struct AppInput {
   AppButtons buttons;
-  AppTouch touch;
   uint8_t touch_bits = 0;
   AppInputMode current_mode = AppInputMode::osc;
   AppInputMode next_mode = AppInputMode::seq_note;
@@ -223,21 +222,21 @@ struct AppInput {
       button(id, on);
     };
 
-    touch.init();
-    touch.on_acquisition_end = [this](uint8_t bits) {
+    app_touch.init();
+    app_touch.on_acquisition_end = [this](uint8_t bits) {
       uint8_t prev_bits = touch_bits;
       touch_bits = bits;
       state.touchOnAcquisitionEnd(touch_bits, prev_bits);
       refresh();
     };
-    touch.on_change = [this](AppTouchPadID id, int16_t inc_value) {
+    app_touch.on_change = [this](AppTouchPadID id, int16_t inc_value) {
       state.touchOnChange(id, inc_value);
     };
   }
 
   void process() {
     buttons.process();
-    touch.process();
+    app_touch.process();
   }
 
   inline bool isSeqPressed() {
@@ -256,6 +255,7 @@ struct AppInput {
   void changeMode(AppInputMode mode) {
     current_mode = mode;
     state.change(mode);
+    app_touch.resetDefaultSteps();
     refresh();
   }
 
@@ -267,6 +267,14 @@ struct AppInput {
     if (app_input_is_seq_mode(current_mode)) {
       if (!on && id == AppBtnID::SEQ) {
         backToEditMode();
+      } else if (on && id == AppBtnID::RUN) {
+        if (seq.run_state) {
+          seq.stop();
+          led_set_run(0);
+        } else {
+          seq.start();
+          led_set_run(1);
+        }
       }
     } else if (isSeqPressed()) {
       next_mode = AppInputMode::seq_note;
@@ -441,12 +449,14 @@ struct AppInput {
           }
           break;
         case AppBtnID::RUN:
-          if (seq.run_state) {
-            seq.stop();
-            led_set_run(0);
-          } else {
-            seq.start();
-            led_set_run(1);
+          if (on) {
+            if (seq.run_state) {
+              seq.stop();
+              led_set_run(0);
+            } else {
+              seq.start();
+              led_set_run(1);
+            }
           }
           break;
         case AppBtnID::L:

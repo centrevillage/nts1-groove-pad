@@ -32,22 +32,6 @@ struct AppScreenSeq {
     is_dirty = true;
   }
 
-  void selectOneStep(uint8_t step_idx) {
-    seq.selected_steps = ((uint16_t)1 << step_idx);
-  }
-
-  void selectStep(uint8_t step_idx) {
-    seq.selected_steps |= ((uint16_t)1 << step_idx);
-  }
-
-  void unselectStep(uint8_t step_idx) {
-    seq.selected_steps &= ~((uint16_t)1 << step_idx);
-  }
-
-  void unselectAllSteps() {
-    seq.selected_steps = 0;
-  }
-
   void setTitle(const char* title_text, uint8_t len) {
     uint8_t i = 0;
     for (; i<16 && i<len && title_text[i]!=0; ++i) {

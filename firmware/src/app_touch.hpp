@@ -35,6 +35,20 @@ struct AppTouch {
     .steps_on_center = 1
   };
 
+  inline void resetDefaultSteps() {
+    l_pad.steps = 16;
+    r_pad.steps = 16;
+    l_pad.steps_on_center = 1;
+    r_pad.steps_on_center = 1;
+  }
+
+  inline void setSteps(int16_t l_steps, int16_t r_steps, int16_t l_steps_on_center=1, int16_t r_steps_on_center=1) {
+    l_pad.steps = l_steps;
+    r_pad.steps = r_steps;
+    l_pad.steps_on_center = l_steps_on_center;
+    r_pad.steps_on_center = r_steps_on_center;
+  }
+
   inline uint8_t touch_bits_from(uint32_t bits) {
     return (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i2))) << 2) | 
       (!!(bits & (1UL << as<uint8_t>(TscChannel::g5i3))) << 1) |
@@ -44,6 +58,14 @@ struct AppTouch {
       (!!(bits & (1UL << as<uint8_t>(TscChannel::g1i4))) << 3) |
       (!!(bits & (1UL << as<uint8_t>(TscChannel::g3i2))) << 6) |
       (!!(bits & (1UL << as<uint8_t>(TscChannel::g3i3))) << 7);
+  }
+
+  inline static bool is_left_bit(uint8_t bits) {
+    return bits & (0b01000111);
+  }
+
+  inline static bool is_right_bit(uint8_t bits) {
+    return bits & (0b10111000);
   }
 
   void init() {
@@ -93,5 +115,7 @@ struct AppTouch {
     tsc.process();
   }
 };
+
+extern AppTouch app_touch;
 
 #endif /* N1GP_APP_TOUCH_H */

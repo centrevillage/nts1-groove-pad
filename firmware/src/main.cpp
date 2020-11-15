@@ -12,6 +12,7 @@
 #include "app_seq.h"
 #include "app_touch.hpp"
 #include "app_input.hpp"
+#include "app_soft_timer.hpp"
 #include <igb_stm32/periph/tim.hpp>
 #include <igb_stm32/periph/flash.hpp>
 #include <igb_stm32/periph/rcc.hpp>
@@ -155,6 +156,7 @@ void setup() {
 
 void loop() {
   nts1_idle();
+  app_soft_timer.process(current_msec());
 }
 
 #ifndef USE_ARDUINO
