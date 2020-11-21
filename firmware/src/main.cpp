@@ -20,6 +20,7 @@
 #include <igb_stm32/periph/systick.hpp>
 
 using namespace igb::stm32;
+using namespace igb::sdk;
 
 extern "C" {
 #ifndef USE_ARDUINO
@@ -111,6 +112,7 @@ void setup() {
 
   led_setup();
   oled_setup();
+  ram_setup();
   //input_setup();
   app_input.init();
   app_screen.init();

@@ -1,6 +1,8 @@
 #ifndef IGB_SDK_DEVICE_OLED_SSD1306_H
 #define IGB_SDK_DEVICE_OLED_SSD1306_H
 
+#include <igb_sdk/base.hpp>
+
 namespace igb {
 namespace sdk {
 

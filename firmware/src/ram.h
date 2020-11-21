@@ -30,10 +30,13 @@ typedef enum {
 
 extern volatile RamAccessState ram_access_state;
 
+void ram_setup();
 void ram_read_request(uint8_t* buf, uint32_t buf_size, uint32_t read_address, void (*callback)(void));
 void ram_write_request(uint8_t* buf, uint32_t buf_size, uint32_t write_address, void (*callback)(void));
 
 void ram_process();
+
+uint8_t ram_is_processing();
 
 #ifdef __cplusplus
 }
