@@ -1,6 +1,8 @@
 #include "draw.h"
 #include "font.h"
 #include "screen_conf.h"
+#include <igb_sdk/font/bitmap/cvfont_5x8.h>
+#include <igb_sdk/font/bitmap/cvfont_8x16.h>
 
 void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_t page, uint16_t offset) {
   uint8_t pos = 0;
@@ -14,7 +16,7 @@ void draw_text_medium(uint8_t *buffer, const char* text, uint8_t length, uint16_
     if (c < 32 || c > 126) {
       return; // null or meta char
     }
-    const uint16_t* image = font_medium_image[c-32];
+    const uint16_t* image = cvfont_8_16[c-32];
     for (uint8_t x=0; x<8; ++x) {
       uint16_t bits = image[x];
       buffer[((page)*SCREEN_WIDTH)+(pos*8)+offset+x] = (uint8_t)bits;
@@ -36,7 +38,7 @@ void draw_text_small(uint8_t *buffer, const char* text, uint8_t length, uint16_t
     if (c < 32 || c > 126) {
       return; // null or meta char
     }
-    const uint8_t* image = font_small_image[c-32];
+    const uint8_t* image = cvfont_5_8[c-32];
     for (uint8_t x=0; x<5; ++x) {
       uint8_t bits = image[x];
       buffer[((page)*SCREEN_WIDTH)+(pos*5)+offset+x] = bits;
