@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "text.h"
+#include <igb_sdk/util/text.h>
 
 __IO char debug_text_buffer[256];
 

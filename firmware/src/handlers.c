@@ -1,6 +1,6 @@
 #include "handlers.h"
 #include "nts1_iface.h"
-#include "text.h"
+#include <igb_sdk/util/text.h>
 #include "debug.h"
 #include "nts1_defs.h"
 

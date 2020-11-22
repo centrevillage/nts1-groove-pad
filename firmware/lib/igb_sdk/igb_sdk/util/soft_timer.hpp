@@ -1,6 +1,7 @@
 #ifndef IGB_SDK_UTIL_SOFT_TIMER_H
 #define IGB_SDK_UTIL_SOFT_TIMER_H
 
+#include <igb_sdk/base.hpp>
 #include <array>
 #include <functional>
 

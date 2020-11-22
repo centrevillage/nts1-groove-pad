@@ -3,7 +3,6 @@
 #include "oled.h"
 #include "app_seq.h"
 #include "debug.h"
-#include "text.h"
 #include "nts1_defs.h"
 #include "app_screen.hpp"
 #include "preset.h"
@@ -18,6 +17,7 @@
 #include <igb_stm32/periph/rcc.hpp>
 #include <igb_stm32/periph/gpio.hpp>
 #include <igb_stm32/periph/systick.hpp>
+#include <igb_sdk/util/text.h>
 
 using namespace igb::stm32;
 using namespace igb::sdk;

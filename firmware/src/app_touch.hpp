@@ -2,7 +2,7 @@
 #define N1GP_APP_TOUCH_H
 
 #include "debug.h"
-#include "text.h"
+#include <igb_sdk/util/text.h>
 #include <igb_stm32/periph/tsc.hpp>
 #include <igb_sdk/ui/touch.hpp>
 #include <igb_util/cast.hpp>

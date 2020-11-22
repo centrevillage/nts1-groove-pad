@@ -1,7 +1,6 @@
 #include "oled.h"
 #include "screen_conf.h"
 #include "draw.h"
-#include "text.h"
 #include "debug.h"
 #include "app_screen.hpp"
 #include "app_input.hpp"
@@ -11,6 +10,7 @@
 #include <igb_stm32/periph/gpio.hpp>
 #include <igb_stm32/periph/spi.hpp>
 #include <igb_sdk/device/oled_ssd1306.hpp>
+#include <igb_sdk/util/text.h>
 
 using namespace igb::stm32;
 using namespace igb::sdk;

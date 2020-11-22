@@ -3,7 +3,7 @@
 
 #include "main.h"
 #include "draw.h"
-#include "text.h"
+#include <igb_sdk/util/text.h>
 #include "screen_conf.h"
 #include "led.h"
 #include "app_seq.h"
