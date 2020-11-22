@@ -2,6 +2,8 @@
 #define IGB_SDK_DEVICE_OLED_SSD1306_H
 
 #include <igb_sdk/base.hpp>
+#include <igb_sdk/font/bitmap/cvfont_5x8.h>
+#include <igb_sdk/font/bitmap/cvfont_8x16.h>
 
 namespace igb {
 namespace sdk {
@@ -138,6 +140,49 @@ struct OledSsd1306 {
       screen_buffer[x + (y / 8) * screen_width] |= 1 << (y % 8);
     } else {
       screen_buffer[x + (y / 8) * screen_width] &= ~(1 << (y % 8));
+    }
+  }
+
+  void drawTextMedium(const char* text, uint8_t length, uint16_t page, uint16_t offset) {
+    uint8_t pos = 0;
+    for (uint8_t i=0; i<length; ++i) {
+      char c = text[i];
+      if (c == '\n') {
+        page += 2;
+        pos = 0;
+        continue;
+      }
+      if (c < 32 || c > 126) {
+        return; // null or meta char
+      }
+      const uint16_t* image = cvfont_8_16[c-32];
+      for (uint8_t x=0; x<8; ++x) {
+        uint16_t bits = image[x];
+        screen_buffer[((page)*screen_width)+(pos*8)+offset+x] = (uint8_t)bits;
+        screen_buffer[((page+1)*screen_width)+(pos*8)+offset+x] = (uint8_t)(bits>>8);
+      }
+      ++pos;
+    }
+  }
+
+  void drawTextSmall(const char* text, uint8_t length, uint16_t page, uint16_t offset) {
+    uint8_t pos = 0;
+    for (uint8_t i=0; i<length; ++i) {
+      char c = text[i];
+      if (c == '\n') {
+        page += 1;
+        pos = 0;
+        continue;
+      }
+      if (c < 32 || c > 126) {
+        return; // null or meta char
+      }
+      const uint8_t* image = cvfont_5_8[c-32];
+      for (uint8_t x=0; x<5; ++x) {
+        uint8_t bits = image[x];
+        screen_buffer[((page)*screen_width)+(pos*5)+offset+x] = bits;
+      }
+      ++pos;
     }
   }
 };
