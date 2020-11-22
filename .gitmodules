@@ -1,0 +1,3 @@
+[submodule "firmware/lib/igb_sdk"]
+	path = firmware/lib/igb_sdk
+	url = git@github.com:centrevillage/igb_sdk.git
