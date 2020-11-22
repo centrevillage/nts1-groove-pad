@@ -3,9 +3,9 @@
 
 #include "main.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 /**
  * MEMO:
@@ -19,27 +19,16 @@ extern "C" {
  *
  */
 
-#define RAM_PROCESS_BLOCK 32
-#define SPI_RAM_CS_PIN PIN_B2 
-
-typedef enum { 
-  RAM_ACCESS_STATE_NONE=0,
-  RAM_ACCESS_STATE_WRITE,
-  RAM_ACCESS_STATE_READ,
-} RamAccessState;
-
-extern volatile RamAccessState ram_access_state;
-
 void ram_setup();
 void ram_read_request(uint8_t* buf, uint32_t buf_size, uint32_t read_address, void (*callback)(void));
 void ram_write_request(uint8_t* buf, uint32_t buf_size, uint32_t write_address, void (*callback)(void));
 
 void ram_process();
 
-uint8_t ram_is_processing();
+bool ram_is_processing();
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* __STM_RAM_H */

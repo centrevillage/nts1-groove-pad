@@ -78,11 +78,11 @@ void SysTick_Handler(void) {
 }
 
 static IGB_FAST_INLINE uint32_t current_msec() {
-  return SystickCtrl.getCurrentMilliSec();
+  return igb::stm32::SystickCtrl::getCurrentMilliSec();
 }
 
 static IGB_FAST_INLINE uint32_t current_usec() {
-  return SystickCtrl.getCurrentMicroSec();
+  return igb::stm32::SystickCtrl::getCurrentMicroSec();
 }
 
 #endif /* USE_ARDUINO */

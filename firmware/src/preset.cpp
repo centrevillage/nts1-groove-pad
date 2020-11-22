@@ -241,17 +241,17 @@ void preset_save_to_buf() {
   preset_data_buf[i++] = preset_state.rand._reserved;
 }
 
-//static inline void preset_ram_gpio_init() {
-//  auto ram_pin = GpioPin::newPin(GpioPinType::pb2);
-//  ram_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-//}
+static inline void preset_ram_gpio_init() {
+  auto ram_pin = GpioPin::newPin(GpioPinType::pb2);
+  ram_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+}
 
 void preset_setup() {
   state_reset_preset(&preset_state);
   state_reset_global(&global_state);
   state_reset_seq(&seq_state);
 
-  //preset_ram_gpio_init();
+  preset_ram_gpio_init();
 
   preset_event_create(PST_EVT_PRESET_TMP_LOAD, 0, 0);
 }
