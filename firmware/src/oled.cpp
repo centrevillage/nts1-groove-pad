@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "app_screen.hpp"
 #include "app_input.hpp"
+#include "app_spi.hpp"
 
 #include <igb_stm32/periph/systick.hpp>
 #include <igb_stm32/periph/rcc.hpp>
@@ -15,15 +16,15 @@
 using namespace igb::stm32;
 using namespace igb::sdk;
 
-OledSsd1306<GpioPin, Spi, 128, 64> ssd1306 = {
+OledSsd1306<AppSpi, GpioPin, 128, 64> ssd1306 = {
+  .spi = AppSpi(),
   .cs_pin = GpioPin::newPin(GpioPinType::pb9),
   .dc_pin = GpioPin::newPin(GpioPinType::pb5),
   .reset_pin = GpioPin::newPin(GpioPinType::pb8),
-  .spi = Spi::newSpi(SpiType::spi1)
 };
 
 void oled_setup() {
-  ssd1306.spi.prepareSpiMaster(GpioPinType::pa7, GpioPinType::pa6, GpioPinType::pa5, SpiBaudratePrescaler::DIV2);
+  ssd1306.spi.initMaster(SpiBaudratePrescaler::div2);
   ssd1306.init();
 }
 

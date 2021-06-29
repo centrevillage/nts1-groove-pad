@@ -37,21 +37,21 @@ __IO uint32_t led_bits = 0;
 
 void led_setup() {
   for (auto& pin : led_matrix.a_pins) {
-    pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+    pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
   }
   for (auto& pin : led_matrix.k_pins) {
-    pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+    pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
   }
-  //led_a_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_b_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_c_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_d_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_1_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_2_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_3_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  //led_4_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  led_run_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
-  led_mode_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  //led_a_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_b_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_c_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_d_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_1_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_2_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_3_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  //led_4_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  led_run_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
+  led_mode_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
 }
 
 //GpioPin led_row_pins[] = {

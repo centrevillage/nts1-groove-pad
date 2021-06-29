@@ -16,6 +16,7 @@ INCLUDES += \
 -IDrivers/STM32F0xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F0xx/Include \
 -IDrivers/CMSIS/Include \
+-Ilib/igb_sdk \
 -Iconf \
 -Isrc
 
@@ -24,7 +25,7 @@ HEX=$(TARGET).hex
 BIN=$(TARGET).bin
 
 # Optimization level, can be [0, 1, 2, 3, s]. 0 turns off optimization.
-ARM_OPTIMIZE=s
+ARM_OPTIMIZE=2
 
 ifdef ARM_TOOLKIT_ROOT
 BINPATH=$(ARM_TOOLKIT_ROOT)/bin/
@@ -58,6 +59,7 @@ ELFSIZE = $(SIZE) -A $(ELF)
 SRC=$(wildcard $(SRC_DIR)*.c)
 ASRC=$(wildcard $(SRC_DIR)*.s)
 PSRC=$(wildcard $(SRC_DIR)*.cpp)
+PSRC += lib/igb_sdk/igb_stm32/periph/systick.cpp
 
 # startup routine
 SRC += $(wildcard startup/*.c)
@@ -80,7 +82,10 @@ CFLAGS += -O$(ARM_OPTIMIZE) -ffunction-sections -fdata-sections
 CFLAGS += -Wall -c
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -fno-exceptions
-CFLAGS += -nostdlib 
+CFLAGS += -std=c++17
+CFLAGS += -fpermissive
+CFLAGS += -Wno-register
+#CFLAGS += -nostdlib 
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 -include $(OBJ:.o=.d)
 

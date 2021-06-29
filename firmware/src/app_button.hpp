@@ -55,16 +55,16 @@ struct AppButtons {
     port_b.enable();
     port_c.enable();
 
-    seq_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
-    run_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
-    l_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
-    r_btn.pin.initInput(GpioPullMode::UP, GpioSpeedMode::HIGH);
+    seq_btn.pin.initInput(GpioPullMode::up, GpioSpeedMode::high);
+    run_btn.pin.initInput(GpioPullMode::up, GpioSpeedMode::high);
+    l_btn.pin.initInput(GpioPullMode::up, GpioSpeedMode::high);
+    r_btn.pin.initInput(GpioPullMode::up, GpioSpeedMode::high);
 
     for (const auto& in_pin : btn_matrix.in_pins) {
-      in_pin.initInput(GpioPullMode::NO, GpioSpeedMode::HIGH);
+      in_pin.initInput(GpioPullMode::no, GpioSpeedMode::high);
     }
     for (const auto& out_pin : btn_matrix.out_pins) {
-      out_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+      out_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
     }
 
     btn_matrix.init();

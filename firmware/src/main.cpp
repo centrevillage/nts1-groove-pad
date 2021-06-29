@@ -36,19 +36,19 @@ extern "C" {
 
 void TIM_COMMON_HANDLER() {
   auto tim = Tim { TIM_COMMON };
-  if (tim.isState(TimState::UPDATE)) {
+  if (tim.isState(TimState::update)) {
 
     led_process();
     app_input.process();
     //input_process();
 
-    tim.clearState(TimState::UPDATE);
+    tim.clearState(TimState::update);
   }
 }
 
 void TIM_SPI_HANDLER() {
   auto tim = Tim { TIM_SPI };
-  if (tim.isState(TimState::UPDATE)) {
+  if (tim.isState(TimState::update)) {
 
     if (preset_event_is_empty() && !preset_is_processing()) {
       oled_process();
@@ -57,17 +57,17 @@ void TIM_SPI_HANDLER() {
       ram_process();
     }
 
-    tim.clearState(TimState::UPDATE);
+    tim.clearState(TimState::update);
   }
 }
 
 void TIM_SEQ_HANDLER() {
   auto tim = Tim { TIM_SEQ };
-  if (tim.isState(TimState::UPDATE)) {
+  if (tim.isState(TimState::update)) {
 
     seq.receiveClock();
 
-    tim.clearState(TimState::UPDATE);
+    tim.clearState(TimState::update);
   }
 }
 

@@ -243,7 +243,7 @@ void preset_save_to_buf() {
 
 static inline void preset_ram_gpio_init() {
   auto ram_pin = GpioPin::newPin(GpioPinType::pb2);
-  ram_pin.initOutput(GpioOutputMode::PUSHPULL, GpioSpeedMode::HIGH);
+  ram_pin.initOutput(GpioOutputMode::pushpull, GpioSpeedMode::high);
 }
 
 void preset_setup() {

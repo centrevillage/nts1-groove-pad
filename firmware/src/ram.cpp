@@ -1,4 +1,5 @@
 #include "ram.h"
+#include "app_spi.hpp"
 
 #include <igb_stm32/periph/gpio.hpp>
 #include <igb_stm32/periph/spi.hpp>
@@ -7,9 +8,9 @@
 using namespace igb::stm32;
 using namespace igb::sdk;
 
-volatile FramMb85rSPI<GpioPin, Spi> fram = {
-  .cs_pin = GpioPin::newPin(GpioPinType::pb2),
-  .spi = Spi::newSpi(SpiType::spi1)
+volatile FramMb85rSPI<AppSpi, GpioPin> fram = {
+  .spi = AppSpi(),
+  .cs_pin = GpioPin::newPin(GpioPinType::pb2)
 };
 
 void ram_setup() {
